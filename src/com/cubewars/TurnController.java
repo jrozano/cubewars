@@ -12,7 +12,7 @@ import com.cubewars.players.Player;
  */
 public class TurnController
 {
-	Map<Player, boolean[]> estados = new HashMap<Player, boolean[]> ();
+	private Map<Player, boolean[]> estados = new HashMap<Player, boolean[]> ();
 	
 	public TurnController () {}
 	
@@ -30,7 +30,7 @@ public class TurnController
 			System.out.println ("[TURNOS] Estado de turno para " + p.toString () + ": " + estados.get (p)[0] + ", " + estados.get (p)[1]);
 		}
 		else
-			throw new RuntimeException ("No puedes moverte.");
+			System.out.println ("[TURNOS] " + p.toString () + " no puede moverse: " + estados.get (p)[0] + ", " + estados.get (p)[1]);
 	}
 	
 	public void attack (Player p)
@@ -41,7 +41,7 @@ public class TurnController
 			System.out.println ("[TURNOS] Estado de turno para " + p.toString () + ": " + estados.get (p)[0] + ", " + estados.get (p)[1]);
 		}
 		else
-			throw new RuntimeException ("No puedes atacar.");
+			System.out.println ("[TURNOS] " + p.toString () + " no puede atacar: " + estados.get (p)[0] + ", " + estados.get (p)[1]);
 	}
 	
 	public boolean canMove (Player p)

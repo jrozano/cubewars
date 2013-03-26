@@ -48,4 +48,9 @@ public class Player
 		else
 			return Cube.class;
 	}
+	
+	public String toString ()
+	{
+		return this.getClass ().getName ();
+	}
 }

@@ -47,7 +47,7 @@ public class GameController extends Game
 		 * SoundController, etc.)
 		 */
 		
-		while (status () != ControllerResponse.FINISHED)
+		while (status () != Response.FINISHED)
 		{
 			mapa.print ();
 			turnos.newTurn (jugador1);
@@ -67,35 +67,35 @@ public class GameController extends Game
 	/**
 	 * Muestra información sobre una celda.
 	 * 
-	 * Devuelve un {@link ControllerResponse} indicando si en la celda hay un aliado, un enemigo, un
+	 * Devuelve un {@link Response} indicando si en la celda hay un aliado, un enemigo, un
 	 * objeto, está vacía, etc.
 	 * 
 	 * @param cell Celda de la que se desea obtener información.
 	 * @param player Jugador que solicita información.
 	 * @return
 	 */
-	public ControllerResponse select (Coordinates cell, Player player)
-	{
-		GameObject seleccionado = mapa.get (cell);
-
-		if (seleccionado instanceof Cube)
-		{
-			if (player.team () == Cube.class)
-				return ControllerResponse.PLAYER;
-			else
-				return ControllerResponse.ATTACK;
-		}
-
-		if (seleccionado instanceof Triangle)
-		{
-			if (player.team () == Triangle.class)
-				return ControllerResponse.PLAYER;
-			else
-				return ControllerResponse.ATTACK;
-		}
-
-		return ControllerResponse.VOID;
-	}
+//	public Response select (Coordinates cell, Player player)
+//	{
+//		GameObject seleccionado = mapa.get (cell);
+//
+//		if (seleccionado instanceof Cube)
+//		{
+//			if (player.team () == Cube.class)
+//				return Response.PLAYER;
+//			else
+//				return Response.ATTACK;
+//		}
+//
+//		if (seleccionado instanceof Triangle)
+//		{
+//			if (player.team () == Triangle.class)
+//				return Response.PLAYER;
+//			else
+//				return Response.ATTACK;
+//		}
+//
+//		return Response.INVALID;
+//	}
 
 	/**
 	 * Realiza un movimiento en el tablero de juego.
@@ -105,13 +105,13 @@ public class GameController extends Game
 	 * ubicación (en el caso de un {@link Character}, comprobando si la distancia que separa origen
 	 * y destino es igual o menos que la distancia que el personaje puede viajar en un turno).
 	 * 
-	 * @param origen Coordenada origen.
+	 * @param source Coordenada origen.
 	 * @param destination Coordenada destino.
-	 * @return Una {@link ControllerResponse} indicando si el movimiento se realizó
+	 * @return Una {@link Response} indicando si el movimiento se realizó
 	 *         satisfactoriamente (OK) o no (VOID).
 	 * @see Coodinates#distance
 	 */
-	public ControllerResponse move (Coordinates origen, Coordinates destination, Player player)
+	public Response move (Coordinates source, Coordinates destination, Player player)
 	{
 		/* Si el jugador puede moverse... */
 		if (turnos.canMove (player))
@@ -120,19 +120,19 @@ public class GameController extends Game
 			 * Si el personaje puede ir de su situación actual a las proporcionadas, moverlo, en caso
 			 * contrario, excepción. Consideramos que sólo los personajes se pueden mover.
 			 */
-			Character personaje = (Character) mapa.get (origen);
+			Character personaje = (Character) mapa.get (source);
 	
-			if (Character.class.isAssignableFrom (what (origen)) && origen.distance (destination) <= personaje.getTravel ())
+			if (Character.class.isAssignableFrom (what (source)) && source.distance (destination) <= personaje.getTravel ())
 			{
-				System.out.println ("[CNTROL] Moviendo " + personaje.toString () + ": " + origen.toString () + " -> " + destination.toString () + ".");
+				System.out.println ("[CNTROL] Moviendo " + personaje.toString () + ": " + source.toString () + " -> " + destination.toString () + ".");
 				
-				mapa.move (origen, destination);
+				mapa.move (source, destination);
 				turnos.move (player);
 				
 				personaje.area.x = destination.toPixel ().x;
 				personaje.area.y = destination.toPixel ().y;
 				
-				return ControllerResponse.OK;
+				return Response.OK;
 			} 
 			else
 			{
@@ -141,7 +141,18 @@ public class GameController extends Game
 			}
 		}
 
-		return ControllerResponse.VOID;
+		System.out.println ("[CNTROL] " + source.toString () + " no puede moverse a " + destination.toString ());
+		return Response.INVALID;
+	}
+	
+	public boolean moved (Player player)
+	{
+		return !turnos.canMove (player);
+	}
+	
+	public boolean attacked (Player player)
+	{
+		return !turnos.canAttack (player);
 	}
 
 	/**
@@ -153,10 +164,10 @@ public class GameController extends Game
 	 * 
 	 * @param source Coordenadas del personaje atacante.
 	 * @param destination Coordenadas del personaje o entidad objetivo.
-	 * @return Una {@link ControllerResponse} indicando si el ataque se realizó satisfactoriamente
+	 * @return Una {@link Response} indicando si el ataque se realizó satisfactoriamente
 	 *         (OK) o no (VOID).
 	 */
-	public ControllerResponse attack (Coordinates source, Coordinates destination, Player player)
+	public Response attack (Coordinates source, Coordinates destination, Player player)
 	{
 		/* Si el jugador puede atacar... */
 		if (turnos.canAttack (player))
@@ -169,7 +180,7 @@ public class GameController extends Game
 			{
 				System.out.println ("[CNTROL] " + atacante.toString () + " está demasiado lejos de "
 						+ destination.toString ());
-				return ControllerResponse.VOID;
+				return Response.INVALID;
 			}
 	
 			/* Si el objetivo se trata de un Character, lo atacamos. */
@@ -186,14 +197,14 @@ public class GameController extends Game
 				if (objetivo.getHealth () <= 0)
 					mapa.destroy (destination);
 	
-				return ControllerResponse.OK;
+				return Response.OK;
 			}
 		}
 
 		/* TODO Implementar ataque a entorno. */
 
 		System.out.println ("[CNTROL] " + source.toString () + " no puede atacar a " + destination.toString ());
-		return ControllerResponse.VOID;
+		return Response.INVALID;
 	}
 
 	/**
@@ -202,12 +213,12 @@ public class GameController extends Game
 	 * Comprueba si alguno de los dos jugadores ha ganado (ha eliminado a todos los personajes del
 	 * equipo rival).
 	 * 
-	 * @return Una {@link ControllerResponse} indicando si el juego ha finalizado (FINISHED) o no
+	 * @return Una {@link Response} indicando si el juego ha finalizado (FINISHED) o no
 	 *         (ACTIVE).
 	 */
-	public ControllerResponse status ()
+	public Response status ()
 	{
-		return ControllerResponse.ACTIVE;
+		return Response.ACTIVE;
 	}
 
 	/**
@@ -243,7 +254,7 @@ public class GameController extends Game
 	 * 
 	 * No debería usarse el código real, sólo para pruebas y prototipos, de forma que las clases
 	 * Player no reciban ninguna referencia a objetos del juego, y se guien simplemente mediante
-	 * {@link ControllerResponse}. Será eliminada en un futuro.
+	 * {@link Response}. Será eliminada en un futuro.
 	 * 
 	 * @deprecated
 	 * @param p Pixel de la celda donde se encuentra el objeto a obtener.
@@ -266,7 +277,7 @@ public class GameController extends Game
 	 * 
 	 * No debería usarse el código real, sólo para pruebas y prototipos, de forma que las clases
 	 * Player no reciban ninguna referencia a objetos del juego, y se guien simplemente mediante
-	 * {@link ControllerResponse}. Será eliminada en un futuro.
+	 * {@link Response}. Será eliminada en un futuro.
 	 * 
 	 * @deprecated
 	 * @param c Coordenadas de la celda donde se encuentra el objeto a obtener.
@@ -293,7 +304,7 @@ public class GameController extends Game
 	 * 
 	 * No debería usarse el código real, sólo para pruebas y prototipos, de forma que las clases
 	 * Player no reciban ninguna referencia a objetos del juego, y se guien simplemente mediante
-	 * {@link ControllerResponse}. Será eliminada en un futuro.
+	 * {@link Response}. Será eliminada en un futuro.
 	 * @deprecated
 	 * @param g El objeto.
 	 * @return Un objeto Coordinates con la celda donde g está situado.
@@ -308,7 +319,7 @@ public class GameController extends Game
 	 * 
 	 * No debería usarse el código real, sólo para pruebas y prototipos, de forma que las clases
 	 * Player no reciban ninguna referencia a objetos del juego, y se guien simplemente mediante
-	 * {@link ControllerResponse}. Será eliminada en un futuro.
+	 * {@link Response}. Será eliminada en un futuro.
 	 * 
 	 * @deprecated
 	 * @param c Coordenadas de la celda donde se encuentra el objeto a obtener.
