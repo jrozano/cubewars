@@ -25,10 +25,7 @@ public class TurnController
 	public void move (Player p)
 	{
 		if (canMove (p))
-		{
 			estados.get (p)[0] = true;
-			System.out.println ("[TURNOS] Estado de turno para " + p.toString () + ": " + estados.get (p)[0] + ", " + estados.get (p)[1]);
-		}
 		else
 			System.out.println ("[TURNOS] " + p.toString () + " no puede moverse: " + estados.get (p)[0] + ", " + estados.get (p)[1]);
 	}
@@ -36,39 +33,19 @@ public class TurnController
 	public void attack (Player p)
 	{
 		if (canAttack (p))
-		{
 			estados.get (p)[1] = true;
-			System.out.println ("[TURNOS] Estado de turno para " + p.toString () + ": " + estados.get (p)[0] + ", " + estados.get (p)[1]);
-		}
 		else
 			System.out.println ("[TURNOS] " + p.toString () + " no puede atacar: " + estados.get (p)[0] + ", " + estados.get (p)[1]);
 	}
 	
 	public boolean canMove (Player p)
 	{
-		if (!estados.get (p)[0])
-		{
-			System.out.println ("[TURNOS] " + p.toString () + " puede moverse.");
-			return true;
-		}
-		else
-		{
-			System.out.println ("[TURNOS] " + p.toString () + " no puede moverse.");
-			return false;
-		}
+		return !estados.get (p)[0];
+
 	}
 	
 	public boolean canAttack (Player p)
 	{
-		if (!estados.get (p)[1])
-		{
-			System.out.println ("[TURNOS] " + p.toString () + " puede atacar.");
-			return true;
-		}
-		else
-		{
-			System.out.println ("[TURNOS] " + p.toString () + " no puede atacar.");
-			return false;
-		}
+		return !estados.get (p)[1];
 	}
 }

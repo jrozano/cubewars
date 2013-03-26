@@ -32,15 +32,14 @@ public class GameController extends Game
 	@Override
 	public void create ()
 	{
-		System.out.println ("========================================================");
 		System.out.println ("[CNTROL] Inicio de juego.");
 
 		/* Construir Controlador. */
 		elementos = new ArrayList<GameObject> ();
 		turnos = new TurnController ();
 		mapa = new Map ();
-		ConsolePlayer jugador1 = new ConsolePlayer (this, Cube.class);
-		//jugadores.add (jugador1);
+		ConsolePlayer cubos = new ConsolePlayer (this, Cube.class);
+		ConsolePlayer triangulos = new ConsolePlayer (this, Triangle.class);
 		
 		/*
 		 * TODO Construir controladores auxiliares (PlayerController, NetworkController,
@@ -50,8 +49,12 @@ public class GameController extends Game
 		while (status () != Response.FINISHED)
 		{
 			mapa.print ();
-			turnos.newTurn (jugador1);
-			jugador1.turn ();
+			turnos.newTurn (cubos);
+			cubos.turn ();
+			
+			mapa.print ();
+			turnos.newTurn (triangulos);
+			triangulos.turn ();
 		}
 		
 		System.out.println ("[CNTROL] Ganador: ");

@@ -56,7 +56,7 @@ public abstract class Character extends GameObject
 		if (health <= 0)
 		{
 			// TODO Muerto. Pedir al controlador que elimine el muñeco
-			System.out.println ("[CHARACTER] Entidad " + this.getClass ().getName () + " muerta.");
+			System.out.println ("[CHARACTER] Entidad " + this.toString () + " muerta.");
 		}
 	}
 

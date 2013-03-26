@@ -51,6 +51,6 @@ public class Player
 	
 	public String toString ()
 	{
-		return this.getClass ().getName ();
+		return this.getClass ().getSimpleName () + " (" + equipo.getSimpleName () + ")";
 	}
 }

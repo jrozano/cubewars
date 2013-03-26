@@ -68,14 +68,14 @@ public class ConsolePlayer extends Player
 				origen = new Coordinates (origenx, origeny);
 				seleccionado = controlador.what (origen);
 
-			} while (! Cube.class.isAssignableFrom (seleccionado));
+			} while (! team ().isAssignableFrom (seleccionado));
 
 			controlador.mapa.print ();
 
 			/* Primera de las dos fases de las que se compone nuestro turno. */
 			do
 			{
-				System.out.println ("[PLAYER] Seleccionado " + seleccionado.toString ());
+				System.out.println ("[PLAYER] Seleccionado " + seleccionado.getSimpleName ());
 				System.out.println ("[PLAYER] Primera fase, selecciona objetivo:");
 
 				controlador.mapa.print ();
@@ -99,7 +99,7 @@ public class ConsolePlayer extends Player
 			
 			do
 			{
-				System.out.println ("[PLAYER] Seleccionado " + seleccionado.toString ());
+				System.out.println ("[PLAYER] Seleccionado " + seleccionado.getSimpleName ());
 				System.out.println ("[PLAYER] Segunda fase, selecciona objetivo:");
 
 				controlador.mapa.print ();
@@ -147,7 +147,7 @@ public class ConsolePlayer extends Player
 		if (objetivo == CharacterNull.class && !controlador.moved (this))
 		{
 			System.out.println ("[PLAYER] Fase de movimiento.");
-			System.out.println ("[PLAYER] Objetivo: " + objetivo.toString ());
+			System.out.println ("[PLAYER] Objetivo: " + objetivo.getSimpleName ());
 			
 			Response response = controlador.move (origen, destino, this);
 			
@@ -165,7 +165,7 @@ public class ConsolePlayer extends Player
 		if (enemy ().isAssignableFrom (objetivo) && !controlador.attacked (this))
 		{
 			System.out.println ("[PLAYER] Fase de ataque.");
-			System.out.println ("[PLAYER] Objetivo: " + objetivo.toString ());
+			System.out.println ("[PLAYER] Objetivo: " + objetivo.getSimpleName ());
 			Response response = controlador.attack (origen, destino, this);
 			
 			/* Si no se ha producido el ataque, pedimos repetición. */
