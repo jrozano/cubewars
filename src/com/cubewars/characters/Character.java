@@ -1,19 +1,17 @@
 package com.cubewars.characters;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.cubewars.GameController;
 import com.cubewars.GameObject;
 
 /**
- * Clase abstracta que representa un personaje genérico de juego. Contiene los atributos y métodos
- * comunes a todos los personajes que se posicionarán en la parrilla de juego, la prioridad, salud,
- * y salud máxima.
+ * A generic character in the game. This class has the common attributes to all players characters
+ * in the game grid: health, attack distance, movement distance, etc.
  * 
  * @author pyrosphere3
  */
 public abstract class Character extends GameObject
 {
-	/* Prioridad base de la clase Character. */
+	/* Base priority. */
 	private static final int priority = 2;
 	private float health;
 	private float maxHealth;
@@ -22,19 +20,19 @@ public abstract class Character extends GameObject
 	private int maxTravel;
 
 	/**
-	 * Contruye un personaje.
+	 * Constructor.
 	 * 
-	 * @param textura Textura del personaje.
-	 * @param posX Posición horizontal del personaje.
-	 * @param posY Posición vertical del personaje.
-	 * @param health Salud con la que cuenta el personaje al comienzo de su vida.
-	 * @param maxHealth Salud máxima que el personaje puede tener.
+	 * @param texture Character texture.
+	 * @param posX Horizontal position.
+	 * @param posY Vertical position.
+	 * @param health Starting health.
+	 * @param maxHealth Maxmimum health points this character can have at any given time:
 	 *            <code>health &lt;= maxHealth</code>.
 	 */
-	public Character (Texture textura, float posX, float posY, float health, float maxHealth, float damage, int travel,
+	public Character (Texture texture, float posX, float posY, float health, float maxHealth, float damage, int travel,
 			int dmgDistance)
 	{
-		super (priority, textura, posX, posY);
+		super (priority, texture, posX, posY);
 		this.health = health;
 		this.maxHealth = maxHealth;
 		this.damage = damage;
@@ -43,9 +41,7 @@ public abstract class Character extends GameObject
 	}
 
 	/**
-	 * Resta salud al personaje. Si el daño causado ocasiona que la salud sea igual o inferior a
-	 * cero, el personaje muere y llama a {@link GameController} para eliminar al personaje de la
-	 * parrilla.
+	 * Removes health from this character.
 	 * 
 	 * @param damage Daño recibido.
 	 */
@@ -54,46 +50,65 @@ public abstract class Character extends GameObject
 		this.health -= damage;
 
 		if (health <= 0)
-		{
-			// TODO Muerto. Pedir al controlador que elimine el muñeco
-			System.out.println ("[CHARACTER] Entidad " + this.toString () + " muerta.");
-		}
+			System.out.println ("[CHARAC] " + this.toString () + " is dead.");
 	}
 
 	/**
-	 * Cura un personaje. La cantidad de vida añadida nunca será superior al máximo de salud
-	 * permitida por este personaje. La cantidad de vida siempre debe ser igual o superior a cero.
+	 * Add health to this character.
 	 * 
-	 * @param health Salud recibida.
-	 * @throws IllegalArgumentException Lanzada cuando se recube un parámetro inferior a cero.
+	 * The amount of health points can never be grater than the maximum health points for this
+	 * character class, and the amount of health added must be greater or equal to 0.
+	 * 
+	 * @param health Added health.
+	 * @throws IllegalArgumentException Thrown when the amount of points added is below zero.
 	 */
 	public void addHealth (float health) throws IllegalArgumentException
 	{
 		if (health < 0)
-			throw new IllegalArgumentException ("No se puede incrementar la salud con un número negativo.");
+			throw new IllegalArgumentException ("Cannot increase health with a negative number.");
 
 		this.health = this.health + health;
 
-		/* Comprobamos que el personaje no acabe con más salud de la máxima permitida para su clase. */
+		/* Check that this player does not end up with more health than the amount allowed. */
 		if (this.health > maxHealth)
 			this.health = maxHealth;
 	}
 
+	/**
+	 * Returns the amount of damage points this character is capable of making.
+	 * 
+	 * @return A float with the damage value.
+	 */
 	public float getDamage ()
 	{
 		return damage;
 	}
 
-	public float getAttackDistance ()
+	/**
+	 * Returns the number of cells this character can travel in a single turn.
+	 * 
+	 * @return A float with the attack distance.
+	 */
+	public int getAttackDistance ()
 	{
 		return damageDistance;
 	}
 
+	/**
+	 * Returns the current health of this character.
+	 * 
+	 * @return A float with this character's health.
+	 */
 	public float getHealth ()
 	{
 		return health;
 	}
 
+	/**
+	 * Returns the amount of cell this character can travel in a single turn.
+	 * 
+	 * @return An int with the travelling distance of this character.
+	 */
 	public int getTravel ()
 	{
 		return maxTravel;

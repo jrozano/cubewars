@@ -5,8 +5,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 
 /**
- * Objeto de juego. Es una clase genérica y abstracta que sirve como base para implementar el resto
- * de clases de objetos que se usan en el juego.
+ * A game object.
+ * 
+ * This is an abstract class that it's used as a base to implement other object classes used in the
+ * game.
  * 
  * @author Jesús Rozano
  */
@@ -15,55 +17,51 @@ public abstract class GameObject implements Comparable<GameObject>
 	private static int nextID = 0;
 	private int id;
 	private int priority;
-	private Texture textura;
+	private Texture texture;
 	public Rectangle area = new Rectangle ();
 
 	/**
-	 * Constructor de <code>GameObject</code>. Crea un <code>GameObject</code> con los parámetros
-	 * básicos de todo objeto en el juego: textura, prioridad de dibujado, tamaño y posición en la
-	 * parrilla.
+	 * <code>GameObject</code> constructor.
 	 * 
-	 * @param priority Prioridad real del objeto.
-	 * @param textura Textura que representa al objeto.
-	 * @param posX Posición horizontal donde se dibujará el objeto.
-	 * @param posY Posición vertical donde se dibujará el objeto.
+	 * @param priority Real priority of this object.
+	 * @param texture Texture representing the object.
+	 * @param posX Horizontal position.
+	 * @param posY Vertical position.
 	 */
-	public GameObject (int priority, Texture textura, float posX, float posY)
+	public GameObject (int priority, Texture texture, float posX, float posY)
 	{
 		/*
-		 * Establecemos la ID del nuevo objeto como la siguiente al último objeto creado. FIXME Si
-		 * se van destruyendo objetos, las ID no se reutilizan. ¿Desbordamiento tras muchos objetos
-		 * creados?
+		 * FIXME Given a large number of objects created and destroyed, the IDs are not reused.
+		 * Possible overflow?
 		 */
 		GameObject.nextID++;
 		this.id = GameObject.nextID;
 
 		this.priority = priority;
-		this.textura = textura;
+		this.texture = texture;
 		this.area.x = posX;
 		this.area.y = posY;
 
-		/* Obtenemos automáticamente alto y ancho de la textura. */
-		TextureRegion region = new TextureRegion (textura);
+		TextureRegion region = new TextureRegion (texture);
 		this.area.height = region.getRegionHeight ();
 		this.area.width = region.getRegionWidth ();
 	}
 
 	/**
-	 * Compara las prioridades de dos elementos de juego (<code>GameObject</code>).
+	 * Compares two (<code>GameObject</code>) priorities.
 	 * 
-	 * Método que implementa la interfaz {@link Comparable}, necesaria para poder usar ordenación
-	 * genérica con {@link java.util.Collections#sort}. Compara el elemento actual (
-	 * <code>this</code>) con un <code>GameObject</code> g que recibe como parámetro.
+	 * This method implements the {@link Comparable}, needed to be able to use generic sort with
+	 * {@link java.util.Collections#sort}. Compares <code>this</code> element with another
+	 * <code>GameObject</code> g passed as a parameter.
 	 * 
 	 * @see java.util.Collections#sort
 	 * 
 	 * @return <ul>
-	 *         <li>-1, si este elemento es mayor que el parámetro.</li>
-	 *         <li>1, si el parámetro es mayor que este objeto.</li>
-	 *         <li>0, si ambos objetos son iguales.</li>
+	 *         <li>-1, if this > g.</li>
+	 *         <li>1, if this < g.</li>
+	 *         <li>0, if this == g.</li>
 	 * 
-	 * @param g El objeto con el que se desea establecer la comparación.
+	 * @param g The object to be compared with.
 	 */
 	@Override
 	public int compareTo (GameObject g)
@@ -72,9 +70,9 @@ public abstract class GameObject implements Comparable<GameObject>
 	}
 
 	/**
-	 * Devuelve la prioridad del objeto actual.
+	 * Returns the object's priority.
 	 * 
-	 * @return La prioridad del objeto actual.
+	 * @return This object's priority.
 	 */
 	public int getPriority ()
 	{
@@ -82,9 +80,9 @@ public abstract class GameObject implements Comparable<GameObject>
 	}
 
 	/**
-	 * Devuelve la ID del objeto actual.
+	 * Returns the object's ID.
 	 * 
-	 * @return La ID del objeto actual.
+	 * @return This object's ID.
 	 */
 	public int getID ()
 	{
@@ -92,15 +90,15 @@ public abstract class GameObject implements Comparable<GameObject>
 	}
 
 	/**
-	 * Devuelve la textura del objeto actual.
+	 * Returns the object's texture.
 	 * 
-	 * @return La textura del objeto actual.
+	 * @return This object's texture.
 	 */
 	public Texture getTexture ()
 	{
-		return textura;
+		return texture;
 	}
-	
+
 	public String toString ()
 	{
 		return this.getClass ().getSimpleName ();

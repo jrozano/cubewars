@@ -3,15 +3,9 @@ package com.cubewars.characters;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
-/**
- * Clase Boomer perteneciente a la facción de los Cubos.
- * 
- * @author pyrosphere3
- * 
- */
 public class CubeBoomer extends Cube
 {
-	private static final Texture textura = new Texture (Gdx.files.internal ("media/characters/cube-boomer.png"));
+	private static final Texture texture = new Texture (Gdx.files.internal ("media/characters/cube-boomer.png"));
 	private static final float maxHealth = 60;
 	private static final float damage = 90;
 	private static final int damageDistance = 2;
@@ -19,6 +13,6 @@ public class CubeBoomer extends Cube
 
 	public CubeBoomer (float posX, float posY)
 	{
-		super (textura, posX, posY, maxHealth, maxHealth, damage, travel, damageDistance);
+		super (texture, posX, posY, maxHealth, maxHealth, damage, travel, damageDistance);
 	}
 }

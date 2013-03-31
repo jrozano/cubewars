@@ -3,15 +3,19 @@ package com.cubewars.maps;
 import com.cubewars.Coordinates;
 import com.cubewars.GameObject;
 import com.cubewars.characters.CharacterNull;
-import com.cubewars.characters.Cube;
 import com.cubewars.characters.CubeBoomer;
 import com.cubewars.characters.CubeGunner;
 import com.cubewars.characters.CubeSniper;
-import com.cubewars.characters.Triangle;
 import com.cubewars.characters.TriangleBoomer;
 import com.cubewars.characters.TriangleGunner;
 import com.cubewars.characters.TriangleSniper;
 
+/**
+ * A generic class representing a game grid (known as a map).
+ * 
+ * @author pyrosphere3
+ * 
+ */
 public class Map
 {
 	public GameObject[][] grid;
@@ -57,24 +61,24 @@ public class Map
 		}
 	}
 
-	public void move (Coordinates origen, Coordinates destino)
+	public void move (Coordinates origin, Coordinates destination)
 	{
-		if (grid[destino.x][destino.y] instanceof CharacterNull)
+		if (grid[destination.x][destination.y] instanceof CharacterNull)
 		{
-			System.out.println ("[MAP   ] Moviendo " + origen.toString () + " a " + destino.toString ());
-			grid[destino.x][destino.y] = grid[origen.x][origen.y];
-			grid[origen.x][origen.y] = new CharacterNull ();
+			System.out.println ("[MAP   ] Moving " + origin.toString () + " to " + destination.toString ());
+			grid[destination.x][destination.y] = grid[origin.x][origin.y];
+			grid[origin.x][origin.y] = new CharacterNull ();
 		}
 	}
 
-	public void move (GameObject g, Coordinates destino)
+	public void move (GameObject g, Coordinates destination)
 	{
 		for (int i = 0; i < grid.length; ++i)
 		{
 			for (int j = 0; j < grid[0].length; ++j)
 			{
 				if (grid[i][j] == g)
-					move (new Coordinates (i, j), destino);
+					move (new Coordinates (i, j), destination);
 			}
 		}
 	}
@@ -90,7 +94,7 @@ public class Map
 			}
 		}
 
-		/* No se encuentra, devolvemos null. */
+		/* Not found, return null. */
 		return null;
 	}
 
