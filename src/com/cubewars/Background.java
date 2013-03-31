@@ -12,7 +12,11 @@ import com.badlogic.gdx.graphics.Texture;
  * @author pyrosphere3
  * 
  */
+<<<<<<< HEAD
 public class Background extends GameObject
+=======
+public class Background extends GameObject implements GameSettings // Comentariororlrllrlrlrlr
+>>>>>>> branch 'master' of https://github.com/pyrosphere3/cubewars.git
 {
 	/* Prioridad base del tipo Background. */
 	private static final int priority = 0;
