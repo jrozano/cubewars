@@ -6,51 +6,66 @@ import com.cubewars.characters.Cube;
 import com.cubewars.characters.Triangle;
 
 /**
- * Clase genérica que representa un jugador de la partida.
+ * A generic plyer in the game.
  * 
- * Todas las implementaciones de jugador (local, consola, remoto, IA, etc.) deberán heredar de esta clase para garantizar un comportamiento similar y compatibilidad con el resto de la estructura del juego.
+ * All specific Player implementations (local, consola, network, AI, etc.) must inherit from this
+ * class to ensure similar behaviour and compatibility across the program.
+ * 
  * @author pyrosphere3
- *
+ * 
  */
-public class Player
+public abstract class Player
 {
-	protected GameController controlador;
-	protected Class<? extends Character> equipo;
+	protected GameController controller;
+	protected Class<? extends Character> team;
 
 	/**
-	 * Constructor de un jugador.
+	 * Constructor.
 	 * 
-	 * Debe especificarse el equipo con el que juega el jugador.
-	 * @param controlador Controlador del juego.
-	 * @param equipo Equipo del jugador.
+	 * The Player's team must be assigned prior to the object instantiation.
+	 * 
+	 * @param controller The game controller.
+	 * @param team The new player's team.
 	 * @see GameController
 	 * @see Team
 	 */
-	public Player (GameController controlador, Class<? extends Character> equipo)
+	public Player (GameController controller, Class<? extends Character> team)
 	{
-		this.controlador = controlador;
-		this.equipo = equipo;
+		this.controller = controller;
+		this.team = team;
 	}
 
-	public void turn ()
-	{
-	}
+	/**
+	 * This method will be called by the controller each player turn.
+	 * 
+	 * Each player implementation must overwrite this method to adapt its behaviour to the specifics
+	 * of its nature.
+	 */
+	public void turn ()	{}
 
+	/**
+	 * Returns this player's team.
+	 * @return This player's team.
+	 */
 	public Class<? extends Character> team ()
 	{
-		return equipo;
+		return team;
 	}
 
+	/**
+	 * Returns this player's enemy team.
+	 * @return This player's enemy team.
+	 */
 	public Class<? extends Character> enemy ()
 	{
-		if (Cube.class.isAssignableFrom (equipo))
+		if (Cube.class.isAssignableFrom (team))
 			return Triangle.class;
 		else
 			return Cube.class;
 	}
-	
+
 	public String toString ()
 	{
-		return this.getClass ().getSimpleName () + " (" + equipo.getSimpleName () + ")";
+		return this.getClass ().getSimpleName () + " (" + team.getSimpleName () + ")";
 	}
 }

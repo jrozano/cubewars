@@ -9,109 +9,96 @@ import com.cubewars.GameController;
 import com.cubewars.GameObject;
 import com.cubewars.characters.CharacterNull;
 import com.cubewars.characters.Character;
-import com.cubewars.characters.Cube;
-import com.cubewars.characters.Triangle;
 
 /**
- * Clase que representa un jugador por consola.
- * 
- * En la clase ConsolePlayer, la interacción con el jugador se realiza mediante consola (E/S
- * estándar), solicitando coordenadas al usuario para realizar los movimientos.
+ * A console interacting via standard input/output (console).
  * 
  * @author pyrosphere3
  * 
  */
 public class ConsolePlayer extends Player
 {
-	private Class<? extends GameObject> seleccionado;
+	private Class<? extends GameObject> selected;
 	BufferedReader input = new BufferedReader (new InputStreamReader (System.in));
 
-	public ConsolePlayer (GameController controlador, Class<? extends Character> equipo)
+	public ConsolePlayer (GameController controller, Class<? extends Character> team)
 	{
-		super (controlador, equipo);
+		super (controller, team);
 	}
 
 	/**
-	 * Ejecuta las acciones necesarias para efectuar la jugada del jugador durante su turno.
+	 * Interacts with the user and executes his actions during his turn.
 	 * 
-	 * Durante su turno, el jugador elegirá un personaje con el que desea jugar. Una jugada se
-	 * compone de dos fases: ataque y movimiento. Durante la fase de ataque, el jugador podrá
-	 * cambiar de posición el personaje seleccionado, siempre y cuando la distancia no sea superior
-	 * a la capacidad de movimiento del personaje y la celda destino no esté ya ocupada. Durante la
-	 * fase de ataque, el jugador podrá elegir un personaje enemigo o entidad neutral a la que
-	 * infligir puntos de daño. El orden de la secuencia de turno es indiferente, pero sólo se podrá
-	 * realizar un solo tipo de acción por turno. Tras realizar las dos acciones, el turno se da por
-	 * finalizado.
-	 * 
-	 * En la clase ConsolePlayer, la interacción con el jugador se realiza mediante consola (E/S
-	 * estándar), solicitando coordenadas al usuario para realizar los movimientos.
+	 * During his turn, a player can choose one of his characters to play. His turn consists of two
+	 * stages: a movement and an attack. Those actions are limited by the number of cells the
+	 * character is able to traverse.
 	 */
 	@Override
 	public void turn ()
 	{
 		try
 		{
-			int origenx, origeny, destinox, destinoy;
-			Coordinates origen, destino;
+			int originX, originY, destinationX, destinationY;
+			Coordinates origin, destination;
 
-			/* Seleccionamos qué personaje queremos mover. */
+			/* Let the player choose who he wants to play with. */
 			do
 			{
-				System.out.println ("[PLAYER] Selecciona personaje:");
+				System.out.println ("[PLAYER] Choose a character:");
 
 				System.out.print ("x > ");
-				origenx = Integer.parseInt (input.readLine ());
+				originX = Integer.parseInt (input.readLine ());
 
 				System.out.print ("y > ");
-				origeny = Integer.parseInt (input.readLine ());
+				originY = Integer.parseInt (input.readLine ());
 
-				origen = new Coordinates (origenx, origeny);
-				seleccionado = controlador.what (origen);
+				origin = new Coordinates (originX, originY);
+				selected = controller.select (origin);
 
-			} while (! team ().isAssignableFrom (seleccionado));
+			} while (!team ().isAssignableFrom (selected));
 
-			controlador.mapa.print ();
+			controller.map.print ();
 
-			/* Primera de las dos fases de las que se compone nuestro turno. */
+			/* First Stage. */
 			do
 			{
-				System.out.println ("[PLAYER] Seleccionado " + seleccionado.getSimpleName ());
-				System.out.println ("[PLAYER] Primera fase, selecciona objetivo:");
+				System.out.println ("[PLAYER] Selected " + selected.getSimpleName ());
+				System.out.println ("[PLAYER] Stage One: choose an objective.");
 
-				controlador.mapa.print ();
+				controller.map.print ();
 
 				System.out.print ("x > ");
-				destinox = Integer.parseInt (input.readLine ());
+				destinationX = Integer.parseInt (input.readLine ());
 
 				System.out.print ("y > ");
-				destinoy = Integer.parseInt (input.readLine ());
+				destinationY = Integer.parseInt (input.readLine ());
 
-				destino = new Coordinates (destinox, destinoy);
+				destination = new Coordinates (destinationX, destinationY);
 
-			} while (! play (origen, destino));
+			} while (!play (origin, destination));
 
 			/*
-			 * Segunda fase. Hay que tener en cuenta que si en la primera fase nos movimos, "origen"
-			 * ahora apunta a las coordenadas antiguas, por lo que hay que actualizarlas.
+			 * Second stage. Note that, if the player chose to move during the first stage, now
+			 * "origin" is pointing to an outdated coordinates, so we must refrest it.
 			 */
-			if (controlador.moved (this))
-				origen = destino;
-			
+			if (controller.moved (this))
+				origin = destination;
+
 			do
 			{
-				System.out.println ("[PLAYER] Seleccionado " + seleccionado.getSimpleName ());
-				System.out.println ("[PLAYER] Segunda fase, selecciona objetivo:");
+				System.out.println ("[PLAYER] Selected " + selected.getSimpleName ());
+				System.out.println ("[PLAYER] Stage Two: choose an objective.");
 
-				controlador.mapa.print ();
+				controller.map.print ();
 
 				System.out.print ("x > ");
-				destinox = Integer.parseInt (input.readLine ());
+				destinationX = Integer.parseInt (input.readLine ());
 
 				System.out.print ("y > ");
-				destinoy = Integer.parseInt (input.readLine ());
+				destinationY = Integer.parseInt (input.readLine ());
 
-				destino = new Coordinates (destinox, destinoy);
-			} while (! play (origen, destino));
+				destination = new Coordinates (destinationX, destinationY);
+			} while (!play (origin, destination));
 		} catch (Exception e)
 		{
 			e.printStackTrace ();
@@ -120,68 +107,68 @@ public class ConsolePlayer extends Player
 	}
 
 	/**
+	 * Private method implementing the sequence logic.
+	 * 
+	 * play() sends orders to the game controllers depending on the origin and destination
+	 * coordinates. If the objective is an empty cell, play() understands he wants to move to than
+	 * position. On the other hand, if the chosen cell is an enemy, play() will issue an order
+	 * attack.
+	 * 
 	 * Función privada que mantiene la lógica de la secuencia.
 	 * 
-	 * play() detecta, en función de las coordenadas origen y destino, y el estado del turno del
-	 * jugador, qué tipo de movimiento desea realizar el jugador. Si el jugador selecciona una
-	 * casilla donde reside un personaje enemigo o entidad neutral, entenderá que desea atacar. Por
-	 * contra, si se selecciona una casilla vacía, entenderá que desea realizar un movimiento.
-	 * 
-	 * @param origen Coordenadas origen.
-	 * @param destino Coordenadas destino.
-	 * @return Un {@link InternalStatus} indicando si la acción se llevó a cabo correctamente (MOVE,
-	 *         ATTACK o FINISHED) o no (INVALID).
+	 * @param origin Origin coordinates.
+	 * @param destination Destination coordinates.
+	 * @return True if the action was completed successfully, flase in any other case.
 	 */
-	private boolean play (Coordinates origen, Coordinates destino)
+	private boolean play (Coordinates origin, Coordinates destination)
 	{
-		/* Si se introducen coordenadas fuera de rango, supondremos que se quiere pasar del turno. */
-		if (origen.x < 0 || origen.y < 0 || destino.x < 0 || destino.y < 0)
+		/* If any coordinate is out of range, we'll assume the player wants to skip this stage. */
+		if (origin.x < 0 || origin.y < 0 || destination.x < 0 || destination.y < 0)
 		{
-			System.out.println ("[PLAYER] Coordenadas fuera de rango: ignorando fase.");
+			System.out.println ("[PLAYER] Coordinates out of range: ignoring stage.");
 			return true;
 		}
 
-		Class<? extends GameObject> objetivo = controlador.what (destino);
+		Class<? extends GameObject> objective = controller.select (destination);
 
-		/* Comprobar movimiento. */
-		if (objetivo == CharacterNull.class && !controlador.moved (this))
+		/* Check movement. */
+		if (objective == CharacterNull.class && !controller.moved (this))
 		{
-			System.out.println ("[PLAYER] Fase de movimiento.");
-			System.out.println ("[PLAYER] Objetivo: " + objetivo.getSimpleName ());
-			
-			Response response = controlador.move (origen, destino, this);
-			
-			/* Comprobamos que, en efecto, el controlador ha movido. */
+			System.out.println ("[PLAYER] Movement Phase.");
+			System.out.println ("[PLAYER] Objective: " + objective.getSimpleName ());
+
+			Response response = controller.move (origin, destination, this);
+
+			/* Check that the controller has indeed made the movement. If not, ask for another cell. */
 			if (response != Response.OK)
 			{
-				System.out.println ("[PLAYER] Selecciona otra celda.");
+				System.out.println ("[PLAYER] Choose another cell.");
 				return false;
 			}
-			
+
 			return true;
 		}
-		
-		/* Comprobar ataque. */
-		if (enemy ().isAssignableFrom (objetivo) && !controlador.attacked (this))
+
+		/* Check attack. */
+		if (enemy ().isAssignableFrom (objective) && !controller.attacked (this))
 		{
-			System.out.println ("[PLAYER] Fase de ataque.");
-			System.out.println ("[PLAYER] Objetivo: " + objetivo.getSimpleName ());
-			Response response = controlador.attack (origen, destino, this);
-			
-			/* Si no se ha producido el ataque, pedimos repetición. */
+			System.out.println ("[PLAYER] Attack Phase.");
+			System.out.println ("[PLAYER] Objective: " + objective.getSimpleName ());
+			Response response = controller.attack (origin, destination, this);
+
+			/* Check that the controller has indeed made the attack. If not, ask for another cell. */
 			if (response != Response.OK)
 			{
-				System.out.println ("[PLAYER] Selecciona otra celda.");
+				System.out.println ("[PLAYER] Choose another cell.");
 				return false;
 			}
-			
+
 			return true;
 		}
-		
-		/* Si es un objeto, lo cogemos. */
-		/* TODO Implementar objetos. */
-		
-		/* Nos hemos visto en un follón que no sabemos ni de dónde ha venío... */
+
+		/* Check object. */
+		/* TODO Implement objects. */
+
 		return false;
 	}
 }

@@ -6,25 +6,27 @@ import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 /**
- * Crea un controlador de pantalla. ScreenController es la única clase con acceso al dispositivo de
- * pantalla, y se comunica con el controlador del juego para obtener la lista de elementos que debe
- * dibujar.
+ * A controller used to draw objects into the screen.
+ * 
+ * ScreenController should be the only class with direct access to the screen, and is used by the
+ * game controller to render entities onto the screen.
  * 
  * @author pyrosphere3
  * 
  */
 public class ScreenController implements Screen
 {
-	private GameController controlador;
+	private GameController controller;
 	private SpriteBatch batch;
 
 	/**
-	 * Contructor de controlador de pantalla. Crea un controlador encargado de dibujar las texturas
-	 * del juego en pantalla.
+	 * Contructor.
+	 * 
+	 * @param controller The Game controller used in this game.
 	 */
-	public ScreenController (GameController controlador)
+	public ScreenController (GameController controller)
 	{
-		this.controlador = controlador;
+		this.controller = controller;
 		this.batch = new SpriteBatch ();
 	}
 
@@ -32,17 +34,20 @@ public class ScreenController implements Screen
 	public void show ()
 	{
 	}
-
+	
+	/**
+	 * The rendering loop.
+	 */
 	@Override
 	public void render (float delta)
 	{
 		Gdx.gl.glClearColor (0, 0, 0, 1);
 		Gdx.gl.glClear (GL10.GL_COLOR_BUFFER_BIT);
 
-		/* Dibujamos en pantalla todos los elementos que haya en el contenedor del controlador. */
+		/* Dibujamos en pantalla todos los elementos que haya en el contenedor del controller. */
 		batch.begin ();
 
-		for (GameObject g : controlador.getDrawingContainer ())
+		for (GameObject g : controller.getDrawingContainer ())
 			batch.draw (g.getTexture (), g.area.x, g.area.y);
 
 		batch.end ();

@@ -1,13 +1,14 @@
 package com.cubewars;
 
+import com.badlogic.gdx.Gdx;
+
 /**
- * Clase que representa un pixel cualquiera de la ventana. Se entiende que un pixel se compone de
- * dos coordenadas, vertical y horizontal, que indican su posición en la pantalla.
+ * Represents a pixel in the window.
  * 
  * @author pyrosphere3
  * 
  */
-public class Pixel implements GameSettings
+public class Pixel
 {
 	public float x, y;
 
@@ -18,15 +19,15 @@ public class Pixel implements GameSettings
 	 */
 	public Pixel (Coordinates c)
 	{
-		this.x = (c.x - 1) * GameSettings.CellWidth;
-		this.y = (c.y - 1) * GameSettings.CellHeight;
+		this.x = (c.x - 1) * Gdx.graphics.getWidth();
+		this.y = (c.y - 1) * Gdx.graphics.getHeight();
 	}
 
 	/**
-	 * Construye un Pixel a partir de dos reales que indican su ubicación.
+	 * Constructor using two real numbers representing its position on the screen.
 	 * 
-	 * @param x
-	 * @param y
+	 * @param x Horizontal position.
+	 * @param y Vertical position.
 	 */
 	public Pixel (float x, float y)
 	{
@@ -35,9 +36,9 @@ public class Pixel implements GameSettings
 	}
 
 	/**
-	 * Convierte un Pixel a una tupla de coordenadas, {@link Coordinates}
+	 * Returns a {@link Coordinates} object equivalent to this Pixel.
 	 * 
-	 * @return Un objeto con las coordenadas de este pixel.
+	 * @return A Coordinates object,
 	 */
 	public Coordinates toCoordinates ()
 	{

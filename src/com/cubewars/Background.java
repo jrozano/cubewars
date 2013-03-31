@@ -12,7 +12,7 @@ import com.badlogic.gdx.graphics.Texture;
  * @author pyrosphere3
  * 
  */
-public class Background extends GameObject implements GameSettings
+public class Background extends GameObject
 {
 	/* Prioridad base del tipo Background. */
 	private static final int priority = 0;

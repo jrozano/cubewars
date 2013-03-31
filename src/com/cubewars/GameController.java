@@ -6,131 +6,96 @@ import java.util.List;
 
 import com.badlogic.gdx.Game;
 import com.cubewars.characters.Character;
-import com.cubewars.characters.CharacterNull;
 import com.cubewars.characters.Cube;
 import com.cubewars.characters.Triangle;
 import com.cubewars.maps.Map;
 import com.cubewars.players.ConsolePlayer;
 import com.cubewars.players.Player;
-import com.cubewars.players.Team;
 
 /**
- * Controlador de Juego.
+ * The game controller.
  * 
- * El controlador del juego se encarga de realizar las operaciones elementales de control de las
- * estructuras del juego y las reglas de juego.
+ * The game controller implements the game rules and actions. It keeps track of the player turns and actions so they are not able to repeat movements in the same turn.
  * 
  * @author pyrosphere3
  */
 public class GameController extends Game
 {
-	private List<GameObject> elementos;
-	private List<Player> jugadores;
-	public Map mapa;
-	private TurnController turnos;
+	private List<GameObject> screenItems;
+	private List<Player> playerList;
+	public Map map;
+	private TurnController turns;
 
 	@Override
 	public void create ()
 	{
-		System.out.println ("[CNTROL] Inicio de juego.");
+		System.out.println ("[CNTROL] Game Start.");
 
-		/* Construir Controlador. */
-		elementos = new ArrayList<GameObject> ();
-		turnos = new TurnController ();
-		mapa = new Map ();
-		ConsolePlayer cubos = new ConsolePlayer (this, Cube.class);
-		ConsolePlayer triangulos = new ConsolePlayer (this, Triangle.class);
+		/* Create Controller internal attributes. */
+		screenItems = new ArrayList<GameObject> ();
+		turns = new TurnController ();
+		map = new Map ();
+		ConsolePlayer cubes = new ConsolePlayer (this, Cube.class);
+		ConsolePlayer triangles = new ConsolePlayer (this, Triangle.class);
 		
 		/*
-		 * TODO Construir controladores auxiliares (PlayerController, NetworkController,
-		 * SoundController, etc.)
+		 * TODO Create additional Controllers (Sound, Network, etc.)
 		 */
 		
 		while (status () != Response.FINISHED)
 		{
-			mapa.print ();
-			turnos.newTurn (cubos);
-			cubos.turn ();
+			map.print ();
+			turns.newTurn (cubes);
+			cubes.turn ();
 			
-			mapa.print ();
-			turnos.newTurn (triangulos);
-			triangulos.turn ();
+			map.print ();
+			turns.newTurn (triangles);
+			triangles.turn ();
 		}
 		
-		System.out.println ("[CNTROL] Ganador: ");
-		System.out.println ("[CNTROL] Fin de Juego.");
+		System.out.println ("[CNTROL] Winner: ");
+		System.out.println ("[CNTROL] Game End.");
 		System.exit (0);
 	}
 
-	public Class<? extends GameObject> what (Coordinates c)
+	/**
+	 * Gets information about the given Coordinates.
+	 * 
+	 * {@link #select(Coordinates)} can be used to obtain the class of the current game entity placed in a given cell without exposing the actual GameObject.
+	 * @param c The grid {@link Coordinates} to the cell. 
+	 * @return The entity's Class.
+	 */
+	public Class<? extends GameObject> select (Coordinates c)
 	{
-		return mapa.get (c).getClass ();
+		return map.get (c).getClass ();
 	}
 
 	/**
-	 * Muestra información sobre una celda.
+	 * Issues a character movement order in the game grid.
 	 * 
-	 * Devuelve un {@link Response} indicando si en la celda hay un aliado, un enemigo, un
-	 * objeto, está vacía, etc.
+	 * Places the entity placed in origin in the destination and updates its current screen position, provided that the path is not longer than the character's travelling distance.
 	 * 
-	 * @param cell Celda de la que se desea obtener información.
-	 * @param player Jugador que solicita información.
-	 * @return
-	 */
-//	public Response select (Coordinates cell, Player player)
-//	{
-//		GameObject seleccionado = mapa.get (cell);
-//
-//		if (seleccionado instanceof Cube)
-//		{
-//			if (player.team () == Cube.class)
-//				return Response.PLAYER;
-//			else
-//				return Response.ATTACK;
-//		}
-//
-//		if (seleccionado instanceof Triangle)
-//		{
-//			if (player.team () == Triangle.class)
-//				return Response.PLAYER;
-//			else
-//				return Response.ATTACK;
-//		}
-//
-//		return Response.INVALID;
-//	}
-
-	/**
-	 * Realiza un movimiento en el tablero de juego.
-	 * 
-	 * Mueve la entidad entre dos coordenadas, origen y destino, y actualiza su posición en pantalla
-	 * siempre y cuando la entidad que realiza el movimiento pueda ser trasladada a su nueva
-	 * ubicación (en el caso de un {@link Character}, comprobando si la distancia que separa origen
-	 * y destino es igual o menos que la distancia que el personaje puede viajar en un turno).
-	 * 
-	 * @param source Coordenada origen.
-	 * @param destination Coordenada destino.
-	 * @return Una {@link Response} indicando si el movimiento se realizó
-	 *         satisfactoriamente (OK) o no (VOID).
+	 * @param source Source {@link Coordinates}
+	 * @param destination Destination {@link Coordinates}
+	 * @return A {@link Response} telling whether the movement has completed successfully (OK) or not (INVALID).
 	 * @see Coodinates#distance
 	 */
 	public Response move (Coordinates source, Coordinates destination, Player player)
 	{
-		/* Si el jugador puede moverse... */
-		if (turnos.canMove (player))
+		/* Check if the player has permission to move... */
+		if (turns.canMove (player))
 		{
 			/*
-			 * Si el personaje puede ir de su situación actual a las proporcionadas, moverlo, en caso
-			 * contrario, excepción. Consideramos que sólo los personajes se pueden mover.
+			 * If our character can travel to the destination position, do it. We'll assume that only objects derived from the Character class can be moved across the board.
 			 */
-			Character personaje = (Character) mapa.get (source);
+			Character personaje = (Character) map.get (source);
 	
-			if (Character.class.isAssignableFrom (what (source)) && source.distance (destination) <= personaje.getTravel ())
+			if (Character.class.isAssignableFrom (select (source)) && source.distance (destination) <= personaje.getTravel ())
 			{
-				System.out.println ("[CNTROL] Moviendo " + personaje.toString () + ": " + source.toString () + " -> " + destination.toString () + ".");
+				System.out.println ("[CNTROL] Moving " + personaje.toString () + ": " + source.toString () + " -> " + destination.toString () + ".");
 				
-				mapa.move (source, destination);
-				turnos.move (player);
+				map.move (source, destination);
+				turns.move (player);
 				
 				personaje.area.x = destination.toPixel ().x;
 				personaje.area.y = destination.toPixel ().y;
@@ -139,66 +104,75 @@ public class GameController extends Game
 			} 
 			else
 			{
-				System.out.println ("[CNTROL] No se puede mover " + personaje.toString () + ".");
-				throw new RuntimeException ("[CNTROL] No se puede mover " + personaje.toString () + ".");
+				System.out.println ("[CNTROL] Cannot move " + personaje.toString () + ".");
+				//throw new RuntimeException ("[CNTROL] Cannot move " + personaje.toString () + ".");
 			}
 		}
 
-		System.out.println ("[CNTROL] " + source.toString () + " no puede moverse a " + destination.toString ());
+		System.out.println ("[CNTROL] " + source.toString () + " cannot move to " + destination.toString ());
 		return Response.INVALID;
 	}
 	
+	/**
+	 * Checks if a player has made a Movement in his current turn.
+	 * 
+	 * @param player The player.
+	 * @return True if the player has alreade made a move, false in other case.
+	 */
 	public boolean moved (Player player)
 	{
-		return !turnos.canMove (player);
+		return !turns.canMove (player);
 	}
 	
+	/**
+	 * Checks if a player has made an Attack in his current turn.
+	 * 
+	 * @param player The player.
+	 * @return True if the player has alreade made an attack, false in other case.
+	 */
 	public boolean attacked (Player player)
 	{
-		return !turnos.canAttack (player);
+		return !turns.canAttack (player);
 	}
 
 	/**
-	 * Realiza una orden de ataque a una entidad en el tablero.
+	 * Issues a character attack order to another entity.
 	 * 
-	 * Localiza las entidades atacante y objetivo que se encuentran en las coordenadas
-	 * proporcionadas y resta puntos de salud al objetivo, siempre y cuando el atacante se encuentre
-	 * en rango de ataque.
+	 * If the objective is inside our attack radius, deal points of damage. This method takes care of character deletion when its healts decreases below 0, and should work with characters and game objects.
 	 * 
-	 * @param source Coordenadas del personaje atacante.
-	 * @param destination Coordenadas del personaje o entidad objetivo.
-	 * @return Una {@link Response} indicando si el ataque se realizó satisfactoriamente
-	 *         (OK) o no (VOID).
+	 * @param source Attacker's coordinates.
+	 * @param destination Objective's coordinates.
+	 * @return A {@link Response} telling whether the attack has completed successfully (OK) or not (INVALID).
 	 */
 	public Response attack (Coordinates source, Coordinates destination, Player player)
 	{
-		/* Si el jugador puede atacar... */
-		if (turnos.canAttack (player))
+		/* Check if the player has permission to attack...  */
+		if (turns.canAttack (player))
 		{
-			Character atacante = (Character) mapa.get (source);
-			Character objetivo = (Character) mapa.get (destination);
+			Character attacker = (Character) map.get (source);
+			Character objective = (Character) map.get (destination);
 	
-			/* Comprobamos que la distancia de ataque sea inferior al rango del personaje. */
-			if (source.distance (destination) > atacante.getAttackDistance ())
+			/* Check attack distance. */
+			if (source.distance (destination) > attacker.getAttackDistance ())
 			{
-				System.out.println ("[CNTROL] " + atacante.toString () + " está demasiado lejos de "
+				System.out.println ("[CNTROL] " + attacker.toString () + " is too far from "
 						+ destination.toString ());
 				return Response.INVALID;
 			}
 	
-			/* Si el objetivo se trata de un Character, lo atacamos. */
-			if (Character.class.isAssignableFrom (objetivo.getClass ()))
+			/* Attack it. */
+			if (objective instanceof Character)
 			{
-				System.out.println ("[CNTROL] " + atacante.toString () + " " + source.toString () + " atacando a " + objetivo.toString() + " "
-						+ destination.toString () + " con " + atacante.getDamage () + " daño.");
+				System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + objective.toString() + " "
+						+ destination.toString () + " with " + attacker.getDamage () + " damage.");
 	
-				objetivo.addDamage (atacante.getDamage ());
-				turnos.attack (player);
+				objective.addDamage (attacker.getDamage ());
+				turns.attack (player);
 	
-				/* Comprobar si muerto. */
-				System.out.println ("[CNTROL] Salud restante: " + objetivo.getHealth ());
-				if (objetivo.getHealth () <= 0)
-					mapa.destroy (destination);
+				/* Death check. */
+				System.out.println ("[CNTROL] Health left: " + objective.getHealth ());
+				if (objective.getHealth () <= 0)
+					map.destroy (destination);
 	
 				return Response.OK;
 			}
@@ -206,18 +180,16 @@ public class GameController extends Game
 
 		/* TODO Implementar ataque a entorno. */
 
-		System.out.println ("[CNTROL] " + source.toString () + " no puede atacar a " + destination.toString ());
+		System.out.println ("[CNTROL] " + source.toString () + " cannot attack " + destination.toString ());
 		return Response.INVALID;
 	}
 
 	/**
-	 * Devuelve el estado actual del juego.
+	 * Returns game current status
 	 * 
-	 * Comprueba si alguno de los dos jugadores ha ganado (ha eliminado a todos los personajes del
-	 * equipo rival).
+	 * Checks game end condition: whether one of the players has won the game or not.
 	 * 
-	 * @return Una {@link Response} indicando si el juego ha finalizado (FINISHED) o no
-	 *         (ACTIVE).
+	 * @return A {@link Response} telling if the game has ended (FINISHED) or not (ACTIVE).
 	 */
 	public Response status ()
 	{
@@ -225,114 +197,25 @@ public class GameController extends Game
 	}
 
 	/**
-	 * Añade un objeto al contenedor de elementos de pantalla del controlador.
+	 * Adds a new drawable object to the drawing container.
 	 * 
-	 * TODO Deberíamos buscar la forma de hacer que esta función sólo sea accesible desde
-	 * ScreenController. ¿Declararla como package?.
-	 * 
-	 * @param g El objeto a insertar en el contenedor.
+	 * @param g The object.
 	 */
 	public void add (GameObject g)
 	{
-		this.elementos.add (g);
-		Collections.sort (this.elementos);
+		this.screenItems.add (g);
+		Collections.sort (this.screenItems);
 	}
 
 	/**
-	 * Proporciona acceso al contenedor de elementos de pantalla del controlador.
+	 * Grants direct access to the drawing container.
 	 * 
-	 * TODO Deberíamos buscar la forma de hacer que esta función sólo sea accesible desde
-	 * ScreenController. ¿Declararla como package?.
-	 * 
-	 * @return El contenedor de elementos.
+	 * @return The drawing container.
 	 */
 	public List<GameObject> getDrawingContainer ()
 	{
-		return elementos;
+		return screenItems;
 	}
-	
-
-	/**
-	 * Devuelve el {@link GameObject} que se encuentra en el {@lik Pixel} específico.
-	 * 
-	 * No debería usarse el código real, sólo para pruebas y prototipos, de forma que las clases
-	 * Player no reciban ninguna referencia a objetos del juego, y se guien simplemente mediante
-	 * {@link Response}. Será eliminada en un futuro.
-	 * 
-	 * @deprecated
-	 * @param p Pixel de la celda donde se encuentra el objeto a obtener.
-	 * @param priority Capa donde se debe buscar el objeto.
-	 * @return Referencia a objeto de juego que ocupa la posición indicada.
-	 */
-	public GameObject getElementOn (Pixel p, int priority)
-	{
-		for (GameObject g : elementos)
-		{
-			if (g.getPriority () > priority && g.area.contains (p.x, p.y))
-				return g;
-		}
-
-		return new CharacterNull ();
-	}
-
-	/**
-	 * Devuelve el {@link GameObject} que se encuentra en las coordenadas especificaas.
-	 * 
-	 * No debería usarse el código real, sólo para pruebas y prototipos, de forma que las clases
-	 * Player no reciban ninguna referencia a objetos del juego, y se guien simplemente mediante
-	 * {@link Response}. Será eliminada en un futuro.
-	 * 
-	 * @deprecated
-	 * @param c Coordenadas de la celda donde se encuentra el objeto a obtener.
-	 * @param priority Capa donde se debe buscar el objeto.
-	 * @return Referencia a objeto de juego que ocupa la posición indicada.
-	 */
-	public GameObject getElementOn (Coordinates c, int priority)
-	{
-		Pixel p;
-
-		for (GameObject g : elementos)
-		{
-			p = new Pixel (c);
-
-			if (g.getPriority () > priority && g.area.contains (p.x, p.y))
-				return g;
-		}
-
-		return new CharacterNull ();
-	}
-
-	/**
-	 * Obtiene las coordenadas donde se sitúa un gameObject.
-	 * 
-	 * No debería usarse el código real, sólo para pruebas y prototipos, de forma que las clases
-	 * Player no reciban ninguna referencia a objetos del juego, y se guien simplemente mediante
-	 * {@link Response}. Será eliminada en un futuro.
-	 * @deprecated
-	 * @param g El objeto.
-	 * @return Un objeto Coordinates con la celda donde g está situado.
-	 */
-	public Coordinates getCoordinates (GameObject g)
-	{
-		return mapa.search (g);
-	}
-
-	/**
-	 * Devuelve el {@link GameObject} que se encuentra en las coordenadas especificaas.
-	 * 
-	 * No debería usarse el código real, sólo para pruebas y prototipos, de forma que las clases
-	 * Player no reciban ninguna referencia a objetos del juego, y se guien simplemente mediante
-	 * {@link Response}. Será eliminada en un futuro.
-	 * 
-	 * @deprecated
-	 * @param c Coordenadas de la celda donde se encuentra el objeto a obtener.
-	 * @return Referencia a objeto de juego que ocupa la posición indicada.
-	 */
-	public GameObject getGridObject (Coordinates c)
-	{
-		return mapa.get (c);
-	}
-
 
 	@Override
 	public void dispose ()
