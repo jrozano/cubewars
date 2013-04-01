@@ -19,6 +19,7 @@ import com.cubewars.characters.TriangleSniper;
 public class Map
 {
 	public GameObject[][] grid;
+	private int size = 4;
 
 	public Map ()
 	{

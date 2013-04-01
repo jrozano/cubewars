@@ -77,7 +77,7 @@ public class GameController extends Game
 	 * Issues a character movement order in the game grid.
 	 * 
 	 * Places the entity placed in origin in the destination and updates its current screen
-	 * position, provided that the path is not longer than the character's travelling distance.
+	 * position, provided that the path is not longer than the character's travel distance.
 	 * 
 	 * @param source Source {@link Coordinates}
 	 * @param destination Destination {@link Coordinates}
@@ -98,6 +98,7 @@ public class GameController extends Game
 
 			if (Character.class.isAssignableFrom (select (source)))
 			{
+				/* TODO we have to add if selected character is in my team */
 				if (source.distance (destination) <= character.getTravel ())
 				{
 					System.out.println ("[CNTROL] Moving " + character.toString () + ". Distance: "
@@ -129,7 +130,7 @@ public class GameController extends Game
 	 * Checks if a player has made a Movement in his current turn.
 	 * 
 	 * @param player The player.
-	 * @return True if the player has alreade made a move, false in other case.
+	 * @return True if the player has already made a move, false in other case.
 	 */
 	public boolean moved (Player player)
 	{
@@ -140,7 +141,7 @@ public class GameController extends Game
 	 * Checks if a player has made an Attack in his current turn.
 	 * 
 	 * @param player The player.
-	 * @return True if the player has alreade made an attack, false in other case.
+	 * @return True if the player has already made an attack, false in other case.
 	 */
 	public boolean attacked (Player player)
 	{
@@ -151,7 +152,7 @@ public class GameController extends Game
 	 * Issues a character attack order to another entity.
 	 * 
 	 * If the objective is inside our attack radius, deal points of damage. This method takes care
-	 * of character deletion when its healts decreases below 0, and should work with characters and
+	 * of character deletion when its health decreases below 0, and should work with characters and
 	 * game objects.
 	 * 
 	 * @param source Attacker's coordinates.
@@ -164,6 +165,9 @@ public class GameController extends Game
 		/* Check if the player has permission to attack... */
 		if (turns.canAttack (player))
 		{
+			/* TODO we have to check if the selected character is in my team
+			 * 
+			 */
 			Character attacker = (Character) map.get (source);
 			Character objective = (Character) map.get (destination);
 
@@ -193,7 +197,7 @@ public class GameController extends Game
 			}
 		}
 
-		/* TODO Implementar ataque a entorno. */
+		/* TODO Implement environment's attacks. */
 
 		System.out.println ("[CNTROL] " + source.toString () + " cannot attack " + destination.toString ());
 		return Response.INVALID;
@@ -208,6 +212,7 @@ public class GameController extends Game
 	 */
 	public Response status ()
 	{
+		/* TODO add victory's condition for both team */
 		return Response.ACTIVE;
 	}
 
