@@ -1,34 +1,36 @@
 package com.cubewars;
 
+import com.badlogic.gdx.Gdx;
+
 /**
- * Clase que almacena una tupla de coordenadas en el tablero. Esta clase proporciona métodos de
- * conversión entre tuplas y píxeles y viceversa, necesarios para diversas acciones.
+ * Represents a tuple of coordinates in the grid and converts tuples into pixels and vice versa.
  * 
  * @author pyrosphere3
  * 
  */
-public class Coordinates implements GameSettings
+public class Coordinates
 {
 	public int x, y;
 
 	/**
-	 * Construye un par de coordenadas de tablero en función del {@link Pixel} que se especifique.
-	 * Dado un pixel p, construye un objeto Coordinates con el par (x,y) de la casilla del tablero
-	 * en la que se encuentra dicho pixel.
+	 * Coordinates constructor using a Pixel.
 	 * 
-	 * @param p Un {@link Pixel} de la pantalla.
+	 * Creates an instance of Coordinates with the values provided by a {@link Pixel} object,
+	 * calculating the cell value in which that {@link Pixel} is located automatically.
+	 * 
+	 * @param p A valid {@link Pixel} object.
 	 */
 	public Coordinates (Pixel p)
 	{
-		this.x = (int) Math.ceil (p.x / GameSettings.CellWidth);
-		this.y = (int) Math.ceil (p.y / GameSettings.CellHeight);
+		this.x = (int) Math.ceil (p.x / Gdx.graphics.getWidth ());
+		this.y = (int) Math.ceil (p.y / Gdx.graphics.getHeight ());
 	}
 
 	/**
-	 * Construye un par de coordenadas de tablero a partir de dos números reales.
+	 * Coordinates constructor using two integers.
 	 * 
-	 * @param x Columna.
-	 * @param y Fila.
+	 * @param x Column.
+	 * @param y Row.
 	 */
 	public Coordinates (int x, int y)
 	{
@@ -37,28 +39,27 @@ public class Coordinates implements GameSettings
 	}
 
 	/**
-	 * Distancia en métrica Taxicab de unas coordenadas a otra.
+	 * Taxicab distance between two Coordinates.
 	 * 
-	 * @param c Coordenadas objetivo.
-	 * @return Un entero con la distancia entre los dos puntos.
+	 * @param c Destination.
+	 * @return An int representing the distance between these two Coordinates.
 	 */
-	public int distance (Coordinates c)
+	public float distance (Coordinates c)
 	{
-		return (c.y - y) + (c.x - x);
+		return Math.abs (c.y - y) + Math.abs (c.x - x);
 	}
 
 	/**
-	 * Devuelve un {@link Pixel} que se correponde con esta casilla.
+	 * Returns a {@link Pixel} equivalent to this Coordinates.
 	 * 
-	 * Por definición, dado que una casilla puede contener gran cantidad de píxeles, se devolverá el
-	 * pixel de la esquina inferior izquierda, siguiendo el mismo marco de referencia usado para la
-	 * ventana, de modo que facilite la labor de colocar una textura en esta casilla.
+	 * By definition, due to the fact that a single cell may contain lots of pixels, the Pixel
+	 * returned will be the one located at the bottom-left of the current cell, following the same
+	 * reference framework as the Window to ease the task of locating objects in the screen.
 	 * 
-	 * @return Un {link Pixel} equivalente a esta casilla.
+	 * @return A {link Pixel} equivalent to this Coordinates.
 	 */
 	public Pixel toPixel ()
 	{
-		// return new Pixel (this.x * GameSettings.CellWidth, this.y * GameSettings.CellHeight);
 		return new Pixel (this);
 	}
 

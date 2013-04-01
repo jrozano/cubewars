@@ -3,20 +3,21 @@ package com.cubewars;
 import com.badlogic.gdx.graphics.Texture;
 
 /**
- * Un elemento de decorado del escenario. Dentro de esta clase podremos encontrar puentes,
- * obstáculos, puertas, objetos, explosivos, etc.
+ * An entity serving as decoration on the screen.
+ * 
+ * It could be a rock, walls, doors, bridges, etc.
  * 
  * @author pyrosphere3
  * 
  */
 public abstract class Environment extends GameObject
 {
-	/* Prioridad base de la clase Environment. */
+	/* Basse priority. */
 	private static final int priority = 1;
 
-	public Environment (Texture textura, float posX, float posY)
+	public Environment (Texture texture, float posX, float posY)
 	{
-		super (priority, textura, posX, posY);
+		super (priority, texture, posX, posY);
 	}
 
 }
