@@ -18,6 +18,7 @@ import com.cubewars.characters.TriangleGunner;
 import com.cubewars.characters.TriangleSniper;
 import com.cubewars.maps.Map;
 import com.cubewars.players.ConsolePlayer;
+import com.cubewars.players.LocalPlayer;
 import com.cubewars.players.Player;
 
 /**
@@ -37,7 +38,7 @@ public class GameController extends Game
 	public Map map;
 	private TurnController turns;
 
-	public ConsolePlayer cubes;
+	public LocalPlayer cubes;
 	public ConsolePlayer triangles;
 	public ScreenController gamescreen;
 
@@ -62,7 +63,7 @@ public class GameController extends Game
 		prices.put (TriangleSniper.class, 500.0);
 
 		/* Create players. */
-		cubes = new ConsolePlayer (this, Cube.class);
+		cubes = new LocalPlayer (this, Cube.class);
 		triangles = new ConsolePlayer (this, Triangle.class);
 
 		/* Give players an initial amount of credits. */
@@ -74,14 +75,19 @@ public class GameController extends Game
 		
 		GameObject g;
 
+		/* Add some test entities. */
 		g = new CubeSniper (0, 0);
 		map.grid[0][0] = g;
 		screenItems.add (g);
 		
-		g = new TriangleSniper (512, 400);
+		g = new TriangleSniper (500, 320);
 		map.grid[4][4] = g;
 		screenItems.add (g);
-
+		
+		screenItems.add (new Background ("grid.png"));
+		/* End test entities. */
+		
+		Collections.sort (screenItems);
 
 		/* Show screen. */
 		gamescreen = new ScreenController (this);
@@ -160,7 +166,7 @@ public class GameController extends Game
 							+ source.distance (destination) + ", máx: " + character.getTravel () + ".");
 
 					map.move (source, destination);
-					turns.move (player);
+					//turns.move (player);
 
 					character.area.x = destination.toPixel ().x;
 					character.area.y = destination.toPixel ().y;
@@ -246,7 +252,11 @@ public class GameController extends Game
 				/* Death check. */
 				System.out.println ("[CNTROL] Health left: " + objective.getHealth ());
 				if (objective.getHealth () <= 0)
+				{
+					GameObject c = map.grid[4][4];
 					map.destroy (destination);
+					screenItems.remove (c);
+				}
 
 				return Response.OK;
 			}
@@ -302,7 +312,7 @@ public class GameController extends Game
 	{
 		return this.money.get (player);
 	}
-
+	
 	/**
 	 * Increments a player's amount of credits.
 	 * 

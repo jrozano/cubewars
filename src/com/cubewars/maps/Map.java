@@ -19,11 +19,11 @@ import com.cubewars.characters.TriangleSniper;
 public class Map
 {
 	public GameObject[][] grid;
-	private int size = 4;
+	private int size = 10;
 
 	public Map ()
 	{
-		grid = new GameObject[5][5];
+		grid = new GameObject[10][10];
 
 		for (int i = 0; i < grid.length; ++i)
 			for (int j = 0; j < grid[0].length; ++j)
