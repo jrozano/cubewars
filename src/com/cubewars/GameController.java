@@ -36,7 +36,7 @@ public class GameController extends Game
 	private HashMap<Class<? extends Character>, Double> prices; /* How much each character costs: */
 	public Map map;
 	private TurnController turns;
-	
+
 	public ConsolePlayer cubes;
 	public ConsolePlayer triangles;
 	public ScreenController gamescreen;
@@ -53,14 +53,6 @@ public class GameController extends Game
 		money = new HashMap<Player, Double> ();
 		prices = new HashMap<Class<? extends Character>, Double> ();
 
-		money.put (cubes, 1000.0);
-		cubes = new ConsolePlayer (this, Cube.class);
-		triangles = new ConsolePlayer (this, Triangle.class);
-		gamescreen = new ScreenController(this);
-		
-		setScreen(gamescreen);
-		money.put (triangles, 1000.0);
-
 		/* Populate the character cost map: */
 		prices.put (CubeGunner.class, 100.0);
 		prices.put (CubeBoomer.class, 300.0);
@@ -68,63 +60,50 @@ public class GameController extends Game
 		prices.put (TriangleGunner.class, 100.0);
 		prices.put (TriangleBoomer.class, 300.0);
 		prices.put (TriangleSniper.class, 500.0);
+
+		/* Create players. */
 		cubes = new ConsolePlayer (this, Cube.class);
 		triangles = new ConsolePlayer (this, Triangle.class);
-		gamescreen = new ScreenController(this);
+
+		/* Give players an initial amount of credits. */
+		money.put (cubes, 1000.0);
+		money.put (triangles, 1000.0);
+
+		turns.newTurn (cubes);
+		cubes.turn ();
 		
-		setScreen(gamescreen);
-		cubes = new ConsolePlayer (this, Cube.class);
-		triangles = new ConsolePlayer (this, Triangle.class);
-		gamescreen = new ScreenController(this);
+		GameObject g;
+
+		g = new CubeSniper (0, 0);
+		map.grid[0][0] = g;
+		screenItems.add (g);
 		
-		setScreen(gamescreen);
-		cubes = new ConsolePlayer (this, Cube.class);
-		triangles = new ConsolePlayer (this, Triangle.class);
-		gamescreen = new ScreenController(this);
-		
-		setScreen(gamescreen);
-		cubes = new ConsolePlayer (this, Cube.class);
-		triangles = new ConsolePlayer (this, Triangle.class);
-		gamescreen = new ScreenController(this);
-		
-		setScreen(gamescreen);
+		g = new TriangleSniper (512, 400);
+		map.grid[4][4] = g;
+		screenItems.add (g);
+
+
+		/* Show screen. */
+		gamescreen = new ScreenController (this);
+		setScreen (gamescreen);
 
 		/*
 		 * TODO Create additional Controllers (Sound, Network, etc.)
 		 */
-
-		/*while (status () != Response.FINISHED)
-		{
-			turns.newTurn (cubes);
-			cubes.turn ();
-
-			turns.newTurn (triangles);
-			triangles.turn ();
-		}*/
-
-		/*System.out.println ("[CNTROL] Winner: ");
-		System.out.println ("[CNTROL] Game End.");
-		System.exit (0);*/
 	}
-	
-	/**
-	 * It's called each frame from ScreenController to check if there is any modification
-	 * @return 
-	 */
-	public void update(){
-		map.print ();
-		turns.newTurn (cubes);
-		cubes.turn ();
-		if(!turns.canAttack(cubes) && !turns.canMove(cubes)){
-			map.print ();
-			turns.newTurn(triangles);
-			triangles.turn();
-		}
-		else{
-			if(!turns.canAttack(triangles) && !turns.canMove(triangles)){
-				map.print ();
-				turns.newTurn(cubes);
-				cubes.turn();
+
+	public void tick ()
+	{
+		if (turns.finishedTurn ())
+		{
+			if (turns.currentPlayer () == cubes)
+			{
+				turns.newTurn (triangles);
+				triangles.turn ();
+			} else
+			{
+				turns.newTurn (cubes);
+				cubes.turn ();
 			}
 		}
 	}
@@ -160,6 +139,12 @@ public class GameController extends Game
 		/* Check if the player has permission to move... */
 		if (turns.canMove (player))
 		{
+			/* If any coordinate is out of range, we'll assume the player wants to skip this stage. */
+			if (source.x < 0 || source.y < 0 || destination.x < 0 || destination.y < 0)
+			{
+				turns.move (player);
+				return Response.OK;
+			}
 			/*
 			 * If our character can travel to the destination position, do it. We'll assume that
 			 * only objects derived from the Character class can be moved across the board.
@@ -373,11 +358,15 @@ public class GameController extends Game
 						if (map.get (c) instanceof CharacterNull)
 						{
 							Character newCharacter;
-							
-							/* TODO I should try java.lang.reflect to dynamically instantiate classes. */
+
+							/*
+							 * TODO I should try java.lang.reflect to dynamically instantiate
+							 * classes.
+							 */
 							if (type == CubeGunner.class)
+							{
 								newCharacter = new CubeGunner (c.toPixel ().x, c.toPixel ().y);
-							else if (type == CubeBoomer.class)
+							} else if (type == CubeBoomer.class)
 								newCharacter = new CubeBoomer (c.toPixel ().x, c.toPixel ().y);
 							else if (type == CubeSniper.class)
 								newCharacter = new CubeSniper (c.toPixel ().x, c.toPixel ().y);
@@ -386,15 +375,16 @@ public class GameController extends Game
 								System.out.println ("[CNTROL] Error: class name not valid. " + type.toString ());
 								return Response.ERROR;
 							}
-							
+
 							System.out.println ("[CNTROL] Added new " + newCharacter.toString () + " " + c.toString ());
-								
+
 							map.add (newCharacter, c);
+							screenItems.add (newCharacter);
 							break;
 						}
 					}
 				}
-				
+
 				if (player.team () == Triangle.class)
 				{
 					/* Check lower side. */
@@ -405,22 +395,25 @@ public class GameController extends Game
 						if (map.get (c) instanceof CharacterNull)
 						{
 							Character newCharacter;
-							
-							/* TODO I should try java.lang.reflect to dynamically instantiate classes. */
+
+							/*
+							 * TODO I should try java.lang.reflect to dynamically instantiate
+							 * classes.
+							 */
 							if (type == TriangleGunner.class)
 								newCharacter = new TriangleGunner (c.toPixel ().x, c.toPixel ().y);
 							else if (type == TriangleBoomer.class)
 								newCharacter = new TriangleBoomer (c.toPixel ().x, c.toPixel ().y);
 							else if (type == TriangleSniper.class)
-								newCharacter = new TriangleSniper (c.toPixel ().x, c.toPixel ().y);		
+								newCharacter = new TriangleSniper (c.toPixel ().x, c.toPixel ().y);
 							else
 							{
 								System.out.println ("[CNTROL] Error: class name not valid. " + type.toString ());
 								return Response.ERROR;
 							}
-							
+
 							System.out.println ("[CNTROL] Added new " + newCharacter.toString () + " " + c.toString ());
-								
+
 							map.add (newCharacter, c);
 							break;
 						}

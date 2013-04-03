@@ -3,7 +3,6 @@ package com.cubewars.maps;
 import com.cubewars.Coordinates;
 import com.cubewars.GameObject;
 import com.cubewars.characters.CharacterNull;
-import com.cubewars.characters.Cube;
 import com.cubewars.characters.CubeBoomer;
 import com.cubewars.characters.CubeGunner;
 import com.cubewars.characters.CubeSniper;
@@ -29,12 +28,6 @@ public class Map
 		for (int i = 0; i < grid.length; ++i)
 			for (int j = 0; j < grid[0].length; ++j)
 				grid[i][j] = new CharacterNull ();
-
-		// grid[0][0] = new CubeSniper (0, 0);
-		// grid[4][4] = new TriangleSniper (128, 128);
-		// grid[0][4] = new CubeBoomer (128, 0);
-		// grid[4][0] = new TriangleBoomer (0, 128);
-		// grid[2][2] = new CubeGunner (0, 0);
 	}
 
 	public void print ()

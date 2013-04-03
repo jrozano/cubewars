@@ -14,5 +14,6 @@ public class CubeGunner extends Cube
 	public CubeGunner (float posX, float posY)
 	{
 		super (texture, posX, posY, maxHealth, maxHealth, damage, travel, damageDistance);
+		
 	}
 }

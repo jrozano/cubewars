@@ -62,7 +62,7 @@ public class Coordinates
 	 */
 	public Pixel toPixel ()
 	{
-		return new Pixel (this);
+		return new Pixel (x * 128, y * 80);
 	}
 
 	public String toString ()

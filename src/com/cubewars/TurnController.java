@@ -11,12 +11,12 @@ import com.cubewars.players.Player;
  * The turn controller remembers if a player has already made an attack or a movement, so only one
  * action of each kind can be executed in the same turn.
  * 
- * @author pyrosphere3
- * hola esto es un commit
+ * @author pyrosphere3 hola esto es un commit
  */
 public class TurnController
 {
 	private Map<Player, boolean[]> statuses = new HashMap<Player, boolean[]> ();
+	private Player currentPlayer;
 
 	public TurnController ()
 	{
@@ -31,6 +31,7 @@ public class TurnController
 	{
 		System.out.println ("[TURN  ] New turn for " + p.toString ());
 		statuses.put (p, new boolean[2]);
+		currentPlayer = p;
 	}
 
 	/**
@@ -85,5 +86,15 @@ public class TurnController
 	public boolean canAttack (Player p)
 	{
 		return !statuses.get (p)[1];
+	}
+	
+	public boolean finishedTurn ()
+	{
+		return statuses.get (currentPlayer)[0] && statuses.get (currentPlayer)[1];
+	}
+	
+	public Player currentPlayer ()
+	{
+		return currentPlayer;
 	}
 }
