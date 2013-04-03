@@ -38,67 +38,73 @@ public class ConsolePlayer extends Player
 	{
 		try
 		{
-			int originX, originY, destinationX, destinationY;
-			Coordinates origin, destination;
+			/* First we need to check if the game is not finished */
+			if(controller.status()!= Response.CUBEVICTORY && controller.status()!= Response.TRIANGLEVICTORY){
+				int originX, originY, destinationX, destinationY;
+				Coordinates origin, destination;
 
-			/* Let the player choose who he wants to play with. */
-			do
-			{
-				System.out.println ("[PLAYER] Choose a character:");
+				/* Let the player choose who he wants to play with. */
+				do
+				{
+					System.out.println ("[PLAYER] Choose a character:");
 
-				System.out.print ("x > ");
-				originX = Integer.parseInt (input.readLine ());
+					System.out.print ("x > ");
+					originX = Integer.parseInt (input.readLine ());
 
-				System.out.print ("y > ");
-				originY = Integer.parseInt (input.readLine ());
+					System.out.print ("y > ");
+					originY = Integer.parseInt (input.readLine ());
 
-				origin = new Coordinates (originX, originY);
-				selected = controller.select (origin);
+					origin = new Coordinates (originX, originY);
+					selected = controller.select (origin);
 
-			} while (!team ().isAssignableFrom (selected));
-
-			controller.map.print ();
-
-			/* First Stage. */
-			do
-			{
-				System.out.println ("[PLAYER] Selected " + selected.getSimpleName ());
-				System.out.println ("[PLAYER] Stage One: choose an objective.");
+				} while (!team ().isAssignableFrom (selected));
 
 				controller.map.print ();
 
-				System.out.print ("x > ");
-				destinationX = Integer.parseInt (input.readLine ());
+				/* First Stage. */
+				do
+				{
+					System.out.println ("[PLAYER] Selected " + selected.getSimpleName ());
+					System.out.println ("[PLAYER] Stage One: choose an objective.");
 
-				System.out.print ("y > ");
-				destinationY = Integer.parseInt (input.readLine ());
+					controller.map.print ();
 
-				destination = new Coordinates (destinationX, destinationY);
+					System.out.print ("x > ");
+					destinationX = Integer.parseInt (input.readLine ());
 
-			} while (!play (origin, destination));
+					System.out.print ("y > ");
+					destinationY = Integer.parseInt (input.readLine ());
 
-			/*
-			 * Second stage. Note that, if the player chose to move during the first stage, now
-			 * "origin" is pointing to an outdated coordinates, so we must refrest it.
-			 */
-			if (controller.moved (this))
-				origin = destination;
+					destination = new Coordinates (destinationX, destinationY);
 
-			do
-			{
-				System.out.println ("[PLAYER] Selected " + selected.getSimpleName ());
-				System.out.println ("[PLAYER] Stage Two: choose an objective.");
+				} while (!play (origin, destination));
 
-				controller.map.print ();
+				/*
+				 * Second stage. Note that, if the player chose to move during the first stage, now
+				 * "origin" is pointing to an outdated coordinates, so we must refrest it.
+				 * In addition, is important to check if in first stage we had eliminated the entire enemy team.
+				 */
+				if (controller.moved (this))
+					origin = destination;
 
-				System.out.print ("x > ");
-				destinationX = Integer.parseInt (input.readLine ());
+				if(controller.status()!= Response.CUBEVICTORY && controller.status()!= Response.TRIANGLEVICTORY){
+					do
+					{
+						System.out.println ("[PLAYER] Selected " + selected.getSimpleName ());
+						System.out.println ("[PLAYER] Stage Two: choose an objective.");
 
-				System.out.print ("y > ");
-				destinationY = Integer.parseInt (input.readLine ());
+						controller.map.print ();
 
-				destination = new Coordinates (destinationX, destinationY);
-			} while (!play (origin, destination));
+						System.out.print ("x > ");
+						destinationX = Integer.parseInt (input.readLine ());
+
+						System.out.print ("y > ");
+						destinationY = Integer.parseInt (input.readLine ());
+
+						destination = new Coordinates (destinationX, destinationY);
+					} while (!play (origin, destination));
+				}
+			}
 		} catch (Exception e)
 		{
 			e.printStackTrace ();

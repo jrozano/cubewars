@@ -19,7 +19,7 @@ import com.cubewars.characters.TriangleSniper;
 public class Map
 {
 	public GameObject[][] grid;
-	private int size = 5; // For this time we use size 4
+	private int size = 10;
 
 	public Map ()
 	{
@@ -29,9 +29,9 @@ public class Map
 			for (int j = 0; j < grid[0].length; ++j)
 				grid[i][j] = new CharacterNull ();
 
-		grid[0][0] = new CubeSniper (0, 0);
+		/*grid[0][0] = new CubeSniper (0, 0);
 		grid[4][0] = new TriangleSniper (128, 128);
-		/*grid[0][4] = new CubeBoomer (128, 0);
+		grid[0][4] = new CubeBoomer (128, 0);
 		grid[4][0] = new TriangleBoomer (0, 128);
 		grid[2][2] = new CubeGunner (0, 0);*/
 	}
@@ -60,6 +60,11 @@ public class Map
 
 			System.out.println ();
 		}
+	}
+
+	public void add (GameObject character, Coordinates c)
+	{
+		grid[c.x][c.y] = character;
 	}
 
 	public void move (Coordinates origin, Coordinates destination)
