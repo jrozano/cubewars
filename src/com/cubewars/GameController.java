@@ -38,6 +38,7 @@ public class GameController extends Game
 	public Map map;
 	private TurnController turns;
 
+	
 	public LocalPlayer cubes;
 	public ConsolePlayer triangles;
 	public ScreenController gamescreen;
