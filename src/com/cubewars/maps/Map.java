@@ -19,21 +19,21 @@ import com.cubewars.characters.TriangleSniper;
 public class Map
 {
 	public GameObject[][] grid;
-	private int size = 4;
+	private int size = 5; // For this time we use size 4
 
 	public Map ()
 	{
-		grid = new GameObject[5][5];
+		grid = new GameObject[size][size];
 
 		for (int i = 0; i < grid.length; ++i)
 			for (int j = 0; j < grid[0].length; ++j)
 				grid[i][j] = new CharacterNull ();
 
 		grid[0][0] = new CubeSniper (0, 0);
-		grid[4][4] = new TriangleSniper (128, 128);
-		grid[0][4] = new CubeBoomer (128, 0);
+		grid[4][0] = new TriangleSniper (128, 128);
+		/*grid[0][4] = new CubeBoomer (128, 0);
 		grid[4][0] = new TriangleBoomer (0, 128);
-		grid[2][2] = new CubeGunner (0, 0);
+		grid[2][2] = new CubeGunner (0, 0);*/
 	}
 
 	public void print ()
@@ -42,20 +42,20 @@ public class Map
 		{
 			for (int j = 0; j < grid[0].length; ++j)
 			{
-				if (grid[i][j] instanceof CubeBoomer)
+				if (grid[size-1-i][j] instanceof CubeBoomer)
 					System.out.print ("CB ");
-				else if (grid[i][j] instanceof CubeSniper)
+				else if (grid[size-1-i][j] instanceof CubeSniper)
 					System.out.print ("CS ");
-				else if (grid[i][j] instanceof CubeGunner)
+				else if (grid[size-1-i][j] instanceof CubeGunner)
 					System.out.print ("CG ");
-				else if (grid[i][j] instanceof TriangleSniper)
+				else if (grid[size-1-i][j] instanceof TriangleSniper)
 					System.out.print ("TS ");
-				else if (grid[i][j] instanceof TriangleBoomer)
+				else if (grid[size-1-i][j] instanceof TriangleBoomer)
 					System.out.print ("TB ");
-				else if (grid[i][j] instanceof TriangleGunner)
+				else if (grid[size-1-i][j] instanceof TriangleGunner)
 					System.out.print ("TG ");
 				else
-					System.out.print ("·· ");
+					System.out.print ("-- ");
 			}
 
 			System.out.println ();
@@ -107,5 +107,9 @@ public class Map
 	public GameObject get (Coordinates c)
 	{
 		return grid[c.x][c.y];
+	}
+	
+	public int size(){
+		return size;
 	}
 }

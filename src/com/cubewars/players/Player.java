@@ -8,7 +8,7 @@ import com.cubewars.characters.Triangle;
 /**
  * A generic plyer in the game.
  * 
- * All specific Player implementations (local, consola, network, AI, etc.) must inherit from this
+ * All specific Player implementations (local, console, network, AI, etc.) must inherit from this
  * class to ensure similar behaviour and compatibility across the program.
  * 
  * @author pyrosphere3
