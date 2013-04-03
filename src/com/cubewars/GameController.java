@@ -16,8 +16,6 @@ import com.cubewars.characters.Triangle;
 import com.cubewars.characters.TriangleBoomer;
 import com.cubewars.characters.TriangleGunner;
 import com.cubewars.characters.TriangleSniper;
-import com.cubewars.characters.TriangleSniper;
-import com.cubewars.characters.TriangleSniper;
 import com.cubewars.maps.Map;
 import com.cubewars.players.ConsolePlayer;
 import com.cubewars.players.Player;
