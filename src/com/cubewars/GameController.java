@@ -2,12 +2,21 @@ package com.cubewars;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import com.badlogic.gdx.Game;
 import com.cubewars.characters.Character;
+import com.cubewars.characters.CharacterNull;
 import com.cubewars.characters.Cube;
+import com.cubewars.characters.CubeBoomer;
+import com.cubewars.characters.CubeGunner;
+import com.cubewars.characters.CubeSniper;
 import com.cubewars.characters.Triangle;
+import com.cubewars.characters.TriangleBoomer;
+import com.cubewars.characters.TriangleGunner;
+import com.cubewars.characters.TriangleSniper;
+import com.cubewars.characters.TriangleSniper;
 import com.cubewars.maps.Map;
 import com.cubewars.players.ConsolePlayer;
 import com.cubewars.players.Player;
@@ -24,8 +33,14 @@ public class GameController extends Game
 {
 	private List<GameObject> screenItems;
 	private List<Player> playerList;
+	private HashMap<Player, Double> money; /* The money balance of each player: */
+	private HashMap<Class<? extends Character>, Double> prices; /* How much each character costs: */
 	public Map map;
 	private TurnController turns;
+	
+	public ConsolePlayer cubes;
+	public ConsolePlayer triangles;
+	public ScreenController gamescreen;
 
 	@Override
 	public void create ()
@@ -36,27 +51,78 @@ public class GameController extends Game
 		screenItems = new ArrayList<GameObject> ();
 		turns = new TurnController ();
 		map = new Map ();
-		ConsolePlayer cubes = new ConsolePlayer (this, Cube.class);
-		ConsolePlayer triangles = new ConsolePlayer (this, Triangle.class);
+		money = new HashMap<Player, Double> ();
+		prices = new HashMap<Class<? extends Character>, Double> ();
+
+		money.put (cubes, 1000.0);
+		cubes = new ConsolePlayer (this, Cube.class);
+		triangles = new ConsolePlayer (this, Triangle.class);
+		gamescreen = new ScreenController(this);
+		
+		setScreen(gamescreen);
+		money.put (triangles, 1000.0);
+
+		/* Populate the character cost map: */
+		prices.put (CubeGunner.class, 100.0);
+		prices.put (CubeBoomer.class, 300.0);
+		prices.put (CubeSniper.class, 500.0);
+		prices.put (TriangleGunner.class, 100.0);
+		prices.put (TriangleBoomer.class, 300.0);
+		prices.put (TriangleSniper.class, 500.0);
+		cubes = new ConsolePlayer (this, Cube.class);
+		triangles = new ConsolePlayer (this, Triangle.class);
+		gamescreen = new ScreenController(this);
+		
+		setScreen(gamescreen);
+		cubes = new ConsolePlayer (this, Cube.class);
+		triangles = new ConsolePlayer (this, Triangle.class);
+		gamescreen = new ScreenController(this);
+		
+		setScreen(gamescreen);
+		cubes = new ConsolePlayer (this, Cube.class);
+		triangles = new ConsolePlayer (this, Triangle.class);
+		gamescreen = new ScreenController(this);
+		
+		setScreen(gamescreen);
 
 		/*
 		 * TODO Create additional Controllers (Sound, Network, etc.)
 		 */
 
-		while (status () != Response.FINISHED)
+		/*while (status () != Response.FINISHED)
 		{
-			map.print ();
 			turns.newTurn (cubes);
 			cubes.turn ();
 
-			map.print ();
 			turns.newTurn (triangles);
 			triangles.turn ();
-		}
+		}*/
 
-		System.out.println ("[CNTROL] Winner: ");
+		/*System.out.println ("[CNTROL] Winner: ");
 		System.out.println ("[CNTROL] Game End.");
-		System.exit (0);
+		System.exit (0);*/
+	}
+	
+	/**
+	 * It's called each frame from ScreenController to check if there is any modification
+	 * @return 
+	 */
+	public void update(){
+		map.print ();
+		turns.newTurn (cubes);
+		cubes.turn ();
+		if(!turns.canAttack(cubes) && !turns.canMove(cubes)){
+			map.print ();
+			turns.newTurn(triangles);
+			triangles.turn();
+		}
+		else{
+			if(!turns.canAttack(triangles) && !turns.canMove(triangles)){
+				map.print ();
+				turns.newTurn(cubes);
+				cubes.turn();
+			}
+		}
 	}
 
 	/**
@@ -165,8 +231,8 @@ public class GameController extends Game
 		/* Check if the player has permission to attack... */
 		if (turns.canAttack (player))
 		{
-			/* TODO we have to check if the selected character is in my team
-			 * 
+			/*
+			 * TODO we have to check if the selected character is in my team
 			 */
 			Character attacker = (Character) map.get (source);
 			Character objective = (Character) map.get (destination);
@@ -235,6 +301,139 @@ public class GameController extends Game
 	public List<GameObject> getDrawingContainer ()
 	{
 		return screenItems;
+	}
+
+	/**
+	 * Returns the current amount of credits the player has.
+	 * 
+	 * @param player The player.
+	 * @return A double with the amount of credits.
+	 */
+	public double getMoney (Player player)
+	{
+		return this.money.get (player);
+	}
+
+	/**
+	 * Increments a player's amount of credits.
+	 * 
+	 * @param player The player.
+	 * @param amount A number of credits greater than 0.
+	 */
+	public void addMoney (Player player, double amount)
+	{
+		if (amount > 0)
+		{
+			this.money.put (player, amount);
+			System.out.println ("[CNTROL] Current balance: " + getMoney (player) + "c.");
+		}
+	}
+
+	/**
+	 * Decrements a player's amount of credits.
+	 * 
+	 * Only decreases the amount of credits if the value to subtract is less or equal than the
+	 * current amount, since no player can have less that 0 credits.
+	 * 
+	 * @param player The player.
+	 * @param amount A number of credits greater than his current balance.
+	 */
+	public Response takeMoney (Player player, double amount)
+	{
+		if ((getMoney (player) - amount) > 0.0)
+		{
+			this.money.put (player, getMoney (player) - amount);
+			System.out.println ("[CNTROL] Current balance: " + getMoney (player) + "c.");
+			return Response.OK;
+		} else
+		{
+			System.out.println ("[CNTROL] Not enough credits.");
+			return Response.INVALID;
+		}
+	}
+
+	public Response buyCharacter (Player player, Class<? extends Character> type)
+	{
+		try
+		{
+			if (takeMoney (player, prices.get (type)) == Response.OK)
+			{
+				/* Check for an empty cell in the player's side of the map. */
+				if (player.team () == Cube.class)
+				{
+					/* Check upper side. */
+					for (int i = 0; i != 5; ++i)
+					{
+						Coordinates c = new Coordinates (0, i);
+
+						if (map.get (c) instanceof CharacterNull)
+						{
+							Character newCharacter;
+							
+							/* TODO I should try java.lang.reflect to dynamically instantiate classes. */
+							if (type == CubeGunner.class)
+								newCharacter = new CubeGunner (c.toPixel ().x, c.toPixel ().y);
+							else if (type == CubeBoomer.class)
+								newCharacter = new CubeBoomer (c.toPixel ().x, c.toPixel ().y);
+							else if (type == CubeSniper.class)
+								newCharacter = new CubeSniper (c.toPixel ().x, c.toPixel ().y);
+							else
+							{
+								System.out.println ("[CNTROL] Error: class name not valid. " + type.toString ());
+								return Response.ERROR;
+							}
+							
+							System.out.println ("[CNTROL] Added new " + newCharacter.toString () + " " + c.toString ());
+								
+							map.add (newCharacter, c);
+							break;
+						}
+					}
+				}
+				
+				if (player.team () == Triangle.class)
+				{
+					/* Check lower side. */
+					for (int i = 4; i >= 0; --i)
+					{
+						Coordinates c = new Coordinates (4, i);
+
+						if (map.get (c) instanceof CharacterNull)
+						{
+							Character newCharacter;
+							
+							/* TODO I should try java.lang.reflect to dynamically instantiate classes. */
+							if (type == TriangleGunner.class)
+								newCharacter = new TriangleGunner (c.toPixel ().x, c.toPixel ().y);
+							else if (type == TriangleBoomer.class)
+								newCharacter = new TriangleBoomer (c.toPixel ().x, c.toPixel ().y);
+							else if (type == TriangleSniper.class)
+								newCharacter = new TriangleSniper (c.toPixel ().x, c.toPixel ().y);		
+							else
+							{
+								System.out.println ("[CNTROL] Error: class name not valid. " + type.toString ());
+								return Response.ERROR;
+							}
+							
+							System.out.println ("[CNTROL] Added new " + newCharacter.toString () + " " + c.toString ());
+								
+							map.add (newCharacter, c);
+							break;
+						}
+					}
+				}
+			}
+		} catch (Exception e)
+		{
+			e.printStackTrace ();
+		}
+
+		return Response.INVALID;
+	}
+
+	public double getPrice (Class<? extends Character> item)
+	{
+		return prices.get (item);
 	}
 
 	@Override

@@ -1,14 +1,22 @@
 package com.cubewars.players;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
-import com.cubewars.Response;
 import com.cubewars.Coordinates;
 import com.cubewars.GameController;
 import com.cubewars.GameObject;
-import com.cubewars.characters.CharacterNull;
+import com.cubewars.Response;
 import com.cubewars.characters.Character;
+import com.cubewars.characters.CharacterNull;
+import com.cubewars.characters.Cube;
+import com.cubewars.characters.CubeBoomer;
+import com.cubewars.characters.CubeGunner;
+import com.cubewars.characters.CubeSniper;
+import com.cubewars.characters.TriangleBoomer;
+import com.cubewars.characters.TriangleGunner;
+import com.cubewars.characters.TriangleSniper;
 
 /**
  * A console interacting via standard input/output (console).
@@ -40,6 +48,37 @@ public class ConsolePlayer extends Player
 		{
 			int originX, originY, destinationX, destinationY;
 			Coordinates origin, destination;
+			String action;
+			boolean error;
+
+			controller.map.print ();
+
+			/* Ask the player if he wants to buy. */
+			do
+			{
+				error = false;
+				
+				System.out.println ("[PLAYER] What do you want to do?");
+				System.out.println ("[PLAYER] Options: buy, play");
+				System.out.print ("> ");
+				action = input.readLine ();
+
+				/* Buy screen. */
+				switch (action)
+				{
+					case "buy":
+						buy ();
+						break;
+					case "play":
+						break;
+					default:
+						System.out.println ("[PLAYER] Unknown option.");
+						error = true;
+				}
+
+			} while (error);
+
+			controller.map.print ();
 
 			/* Let the player choose who he wants to play with. */
 			do
@@ -98,10 +137,12 @@ public class ConsolePlayer extends Player
 				destinationY = Integer.parseInt (input.readLine ());
 
 				destination = new Coordinates (destinationX, destinationY);
+
 			} while (!play (origin, destination));
+
 		} catch (Exception e)
 		{
-			e.printStackTrace ();
+			System.out.println ("[PLAYER] Input error.");
 		}
 
 	}
@@ -170,5 +211,62 @@ public class ConsolePlayer extends Player
 		/* TODO Implement objects. */
 
 		return false;
+	}
+
+	private void buy ()
+	{
+		String action;
+		boolean error = false;
+
+		System.out.println ("[PLAYER] Shop menu:");
+		System.out.println ("[PLAYER] Gunner :" + controller.getPrice (CubeGunner.class));
+		System.out.println ("[PLAYER] Boomer :" + controller.getPrice (CubeBoomer.class));
+		System.out.println ("[PLAYER] Sniper :" + controller.getPrice (CubeSniper.class));
+		System.out.println ("[PLAYER] Current balance: " + controller.getMoney (this));
+
+		do
+		{
+			System.out.println ("[PLAYER] What do you want to buy?");
+			System.out.println ("[PLAYER] Options: gunner, boomer, sniper, nothing");
+			System.out.print ("> ");
+
+			try
+			{
+				action = input.readLine ();
+			} catch (IOException e)
+			{
+				System.out.println ("[PLAYER] Input error.");
+				break;
+			}
+
+			/* Buy screen. */
+			switch (action)
+			{
+				case "gunner":
+					if (team () == Cube.class)
+						controller.buyCharacter (this, CubeGunner.class);
+					else
+						controller.buyCharacter (this, TriangleGunner.class);
+					break;
+				case "boomer":
+					if (team () == Cube.class)
+						controller.buyCharacter (this, CubeBoomer.class);
+					else
+						controller.buyCharacter (this, TriangleBoomer.class);
+					break;
+				case "sniper":
+					if (team () == Cube.class)
+						controller.buyCharacter (this, CubeSniper.class);
+					else
+						controller.buyCharacter (this, TriangleSniper.class);
+					break;
+				case "nothing":
+					break;
+				default:
+					System.out.println ("[PLAYER] Unknown option.");
+					error = true;
+			}
+		} while (error);
+
 	}
 }
