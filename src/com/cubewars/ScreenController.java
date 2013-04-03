@@ -43,6 +43,8 @@ public class ScreenController implements Screen
 	{
 		Gdx.gl.glClearColor (0, 0, 0, 1);
 		Gdx.gl.glClear (GL10.GL_COLOR_BUFFER_BIT);
+		
+		controller.update();
 
 		/* Dibujamos en pantalla todos los elementos que haya en el contenedor del controller. */
 		batch.begin ();

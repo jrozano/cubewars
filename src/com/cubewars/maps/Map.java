@@ -55,7 +55,7 @@ public class Map
 				else if (grid[i][j] instanceof TriangleGunner)
 					System.out.print ("TG ");
 				else
-					System.out.print ("·· ");
+					System.out.print ("-- ");
 			}
 
 			System.out.println ();

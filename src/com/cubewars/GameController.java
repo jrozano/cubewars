@@ -8,6 +8,7 @@ import com.badlogic.gdx.Game;
 import com.cubewars.characters.Character;
 import com.cubewars.characters.Cube;
 import com.cubewars.characters.Triangle;
+import com.cubewars.characters.TriangleSniper;
 import com.cubewars.maps.Map;
 import com.cubewars.players.ConsolePlayer;
 import com.cubewars.players.Player;
@@ -26,6 +27,10 @@ public class GameController extends Game
 	private List<Player> playerList;
 	public Map map;
 	private TurnController turns;
+	
+	public ConsolePlayer cubes;
+	public ConsolePlayer triangles;
+	public ScreenController gamescreen;
 
 	@Override
 	public void create ()
@@ -36,14 +41,17 @@ public class GameController extends Game
 		screenItems = new ArrayList<GameObject> ();
 		turns = new TurnController ();
 		map = new Map ();
-		ConsolePlayer cubes = new ConsolePlayer (this, Cube.class);
-		ConsolePlayer triangles = new ConsolePlayer (this, Triangle.class);
+		cubes = new ConsolePlayer (this, Cube.class);
+		triangles = new ConsolePlayer (this, Triangle.class);
+		gamescreen = new ScreenController(this);
+		
+		setScreen(gamescreen);
 
 		/*
 		 * TODO Create additional Controllers (Sound, Network, etc.)
 		 */
 
-		while (status () != Response.FINISHED)
+		/*while (status () != Response.FINISHED)
 		{
 			map.print ();
 			turns.newTurn (cubes);
@@ -52,11 +60,33 @@ public class GameController extends Game
 			map.print ();
 			turns.newTurn (triangles);
 			triangles.turn ();
-		}
+		}*/
 
-		System.out.println ("[CNTROL] Winner: ");
+		/*System.out.println ("[CNTROL] Winner: ");
 		System.out.println ("[CNTROL] Game End.");
-		System.exit (0);
+		System.exit (0);*/
+	}
+	
+	/**
+	 * It's called each frame from ScreenController to check if there is any modification
+	 * @return 
+	 */
+	public void update(){
+		map.print ();
+		turns.newTurn (cubes);
+		cubes.turn ();
+		if(!turns.canAttack(cubes) && !turns.canMove(cubes)){
+			map.print ();
+			turns.newTurn(triangles);
+			triangles.turn();
+		}
+		else{
+			if(!turns.canAttack(triangles) && !turns.canMove(triangles)){
+				map.print ();
+				turns.newTurn(cubes);
+				cubes.turn();
+			}
+		}
 	}
 
 	/**
@@ -265,10 +295,5 @@ public class GameController extends Game
 	public void resume ()
 	{
 		super.resume ();
-	}
-
-	public void update ()
-	{
-
 	}
 }
