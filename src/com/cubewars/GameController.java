@@ -91,7 +91,7 @@ public class GameController extends Game
 		c = new Coordinates (4, 4);
 		addEntity (new TriangleSniper (c), c);
 
-		c = new Coordinates (3, 2);
+		c = new Coordinates (2, 4);
 		addEntity (new CubeBoomer (c), c);
 
 		/*c = new Coordinates (4, 3);
@@ -256,6 +256,12 @@ public class GameController extends Game
 				System.out.println ("[CNTROL] " + attacker.toString () + " is too far from " + destination.toString ());
 				return Response.INVALID;
 			}
+			
+			/* Check if it's not a Character Null */
+			if(objective instanceof CharacterNull && (!(attacker instanceof CubeBoomer) && !(attacker instanceof TriangleBoomer))){
+				System.out.println ("[CNTROL] Selected CharacterNull, Only Boomers can attack on CharacterNull");
+				return Response.INVALID;
+			}
 
 			/* We check again if the attacker character is in the player's team */
 			if (!player.team ().isAssignableFrom (attacker.getClass ()))
@@ -263,25 +269,7 @@ public class GameController extends Game
 				System.out.println ("[CNTROL] " + attacker.toString () + " is not in player's team " + player.team ().toString ());
 				return Response.INVALID;
 			}
-
-			/* Attack it. */
-			if (objective instanceof Character)
-			{
-				System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + objective.toString () + " "
-						+ destination.toString () + " with " + attacker.getDamage () + " damage.");
-
-				objective.addDamage (attacker.getDamage ());
-				turns.attack (player);
-
-				/* Death check. */
-				System.out.println ("[CNTROL] Health left: " + objective.getHealth ());
-				if (objective.getHealth () <= 0)
-				{
-					killEntity (destination);
-				}
-
-				return Response.OK;
-			}
+			
 			/* Check boomer area's attack. */
 			if((attacker instanceof CubeBoomer || attacker instanceof TriangleBoomer) && objective instanceof CharacterNull){
 				/* We create the four near coordinates */
@@ -324,6 +312,26 @@ public class GameController extends Game
 					}
 				}	
 			}
+
+			/* Attack it. */
+			else if (objective instanceof Character)
+			{
+				System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + objective.toString () + " "
+						+ destination.toString () + " with " + attacker.getDamage () + " damage.");
+
+				objective.addDamage (attacker.getDamage ());
+				turns.attack (player);
+
+				/* Death check. */
+				System.out.println ("[CNTROL] Health left: " + objective.getHealth ());
+				if (objective.getHealth () <= 0)
+				{
+					killEntity (destination);
+				}
+
+				return Response.OK;
+			}
+			
 		}
 
 		/* TODO Implement environment's attacks. */
@@ -340,10 +348,11 @@ public class GameController extends Game
 	 * @return true or false depends if the attack is succesful or not
 	 */
 	private boolean BoomerAttack(Character objective, Character attacker, Coordinates source, Coordinates destination){
-		if(objective instanceof Character){
+		if(!(objective instanceof CharacterNull)){
 			System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + objective.toString () + " "
 					+ destination.toString () + " with " + attacker.getDamage ()/4 + " damage.");
-			objective.addDamage (attacker.getDamage ()/4);
+			if(!(objective instanceof CharacterNull))
+				objective.addDamage (attacker.getDamage ()/4);
 
 			/* Death check. */
 			System.out.println ("[CNTROL] Health left: " + objective.getHealth ());

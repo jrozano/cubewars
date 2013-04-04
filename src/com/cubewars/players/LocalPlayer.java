@@ -99,7 +99,28 @@ public class LocalPlayer extends Player implements InputProcessor
 				origin=null;
 				return false;
 			}
-				
+			
+			Class<? extends GameObject> character = controller.select(origin);
+			
+			/* Check Boomer area's attack */
+			if(objective == CharacterNull.class && !controller.attacked(this)){
+				if(origin.x<destination.x+1 || origin.x>destination.y-1 || origin.y<destination.y+1 || origin.y>destination.y-1){
+					Response response = controller.attack (origin, destination, this);
+					
+					/*
+					 * Check that the controller has indeed made the attack. If not, ask for another
+					 * cell.
+					 */
+					if (response != Response.OK)
+					{
+						System.out.println ("[PLAYER] Choose another cell.");
+						return false;
+					}
+					return true;
+				}
+			}else{
+				origin=null;
+			}
 
 			/* Check attack. */
 			if (enemy ().isAssignableFrom (objective) && !controller.attacked (this))
