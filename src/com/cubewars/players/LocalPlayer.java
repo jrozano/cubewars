@@ -23,6 +23,7 @@ public class LocalPlayer extends Player implements InputProcessor
 
 	public void turn ()
 	{
+		origin = null;
 		Gdx.input.setInputProcessor (this);
 		origin = null;
 	}
@@ -54,7 +55,6 @@ public class LocalPlayer extends Player implements InputProcessor
 		{
 			System.out.println ("[LOCAL ] Skipping Turn.");
 			controller.skipTurn (this);
-			origin = null;
 			return true;
 		}
 
@@ -67,6 +67,7 @@ public class LocalPlayer extends Player implements InputProcessor
 			if (team ().isAssignableFrom (controller.select (destination)))
 				origin = destination;
 		} else
+
 		{
 			Class<? extends GameObject> objective = controller.select (destination);
 			Class<? extends GameObject> selected = controller.select (origin);
@@ -95,13 +96,45 @@ public class LocalPlayer extends Player implements InputProcessor
 					origin = destination;
 					return true;
 				}
+			}
 
-				/* Check Boomer area's attack */
-				if (objective == CharacterNull.class && !controller.attacked (this))
+			Class<? extends GameObject> character = controller.select (origin);
+
+			/* Check Boomer area's attack */
+			if (objective == CharacterNull.class && !controller.attacked (this))
+			{
+				if (origin.x < destination.x + 1 || origin.x > destination.y - 1 || origin.y < destination.y + 1 || origin.y > destination.y - 1)
+				{
+					Response response = controller.attack (origin, destination, this);
+					/*
+					 * Check that the controller has indeed made the attack. If not, ask for another
+					 * cell.
+					 */
+					if (response != Response.OK)
+					{
+						System.out.println ("[PLAYER] Choose another cell.");
+						return false;
+					}
+					return true;
+				}
+			}
+
+			/* Check attack. */
+			if (enemy ().isAssignableFrom (objective) && !controller.attacked (this))
+			{
+				System.out.println ("[PLAYER] Attack Phase.");
+				System.out.println ("[PLAYER] Objective: " + objective.getSimpleName ());
+				Response response = controller.attack (origin, destination, this);
+
+				/*
+				 * Check that the controller has indeed made the attack. If not, ask for another
+				 * cell.
+				 */
+				if (response != Response.OK)
 				{
 					if (origin.x < destination.x + 1 || origin.x > destination.y - 1 || origin.y < destination.y + 1 || origin.y > destination.y - 1)
 					{
-						Response response = controller.attack (origin, destination, this);
+						response = controller.attack (origin, destination, this);
 
 						/*
 						 * Check that the controller has indeed made the attack. If not, ask for
@@ -121,7 +154,7 @@ public class LocalPlayer extends Player implements InputProcessor
 				{
 					System.out.println ("[LOCAL ] Attack Phase.");
 					System.out.println ("[LOCAL ] Objective: " + objective.getSimpleName ());
-					Response response = controller.attack (origin, destination, this);
+					response = controller.attack (origin, destination, this);
 
 					/*
 					 * Check that the controller has indeed made the attack. If not, ask for another

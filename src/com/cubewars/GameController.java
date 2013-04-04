@@ -88,17 +88,18 @@ public class GameController extends Game
 
 		/* Add some test entities. */
 		Coordinates c;
-		c = new Coordinates (0, 0);
+		c = new Coordinates (1, 1);
 		addEntity (new CubeSniper (c), c);
 
 		c = new Coordinates (4, 4);
 		addEntity (new TriangleSniper (c), c);
 
-		c = new Coordinates (2, 2);
+		c = new Coordinates (2, 4);
 		addEntity (new CubeBoomer (c), c);
 
-		c = new Coordinates (4, 0);
-		addEntity (new TriangleBoomer (c), c);
+		/*
+		 * c = new Coordinates (4, 3); addEntity (new TriangleBoomer (c), c);
+		 */
 
 		screenItems.add (new Background ("grid.png"));
 		Collections.sort (screenItems);
@@ -118,13 +119,25 @@ public class GameController extends Game
 			System.out.println ("[CNTROL] Winner: Triangles.");
 			restart ();
 		}
-		
+
 		if (turns.finishedTurn ())
 		{
 			if (turns.currentPlayer () == cubes && status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY)
 				turns.newTurn (triangles);
 			else if (status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY)
 				turns.newTurn (cubes);
+
+			if (status () == Response.CUBEVICTORY)
+			{
+				System.out.println ("[CNTROL] Winner: Cubes.");
+				restart ();
+			}
+
+			if (status () == Response.TRIANGLEVICTORY)
+			{
+				System.out.println ("[CNTROL] Winner: Triangles.");
+				restart ();
+			}
 		}
 	}
 
@@ -254,6 +267,13 @@ public class GameController extends Game
 				return Response.INVALID;
 			}
 
+			/* Check if it's not a Character Null */
+			if (objective instanceof CharacterNull && (!(attacker instanceof CubeBoomer) && !(attacker instanceof TriangleBoomer)))
+			{
+				System.out.println ("[CNTROL] Selected CharacterNull, Only Boomers can attack on CharacterNull");
+				return Response.INVALID;
+			}
+
 			/* Check it's not a Character Null */
 			if (objective instanceof CharacterNull && (!(attacker instanceof CubeBoomer) && !(attacker instanceof TriangleBoomer)))
 			{
@@ -272,10 +292,11 @@ public class GameController extends Game
 			if ((attacker instanceof CubeBoomer || attacker instanceof TriangleBoomer) && objective instanceof CharacterNull)
 			{
 				/* We create the four near coordinates */
-				Coordinates Up = new Coordinates (destination.x, destination.y + 1);
-				Coordinates Down = new Coordinates (destination.x, destination.y - 1);
-				Coordinates Right = new Coordinates (destination.x + 1, destination.y);
-				Coordinates Left = new Coordinates (destination.x - 1, destination.y);
+				System.out.println ("Entra");
+				Coordinates Up = new Coordinates (destination.x (), destination.y () + 1);
+				Coordinates Down = new Coordinates (destination.x (), destination.y () - 1);
+				Coordinates Right = new Coordinates (destination.x () + 1, destination.y ());
+				Coordinates Left = new Coordinates (destination.x () - 1, destination.y ());
 
 				/* First we must check if the coordinates are correct */
 				if (Up.x >= 0 && Up.x <= 10 && Up.y >= 0 && Up.y <= 10)
@@ -337,7 +358,6 @@ public class GameController extends Game
 
 				return Response.OK;
 			}
-
 		}
 
 		/* TODO Implement environment's attacks. */

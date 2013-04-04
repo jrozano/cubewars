@@ -25,6 +25,21 @@ public class Coordinates
 		this.x = (int) Math.ceil (p.x / Gdx.graphics.getWidth ());
 		this.y = (int) Math.ceil (p.y / Gdx.graphics.getHeight ());
 	}
+	/**
+	 * Return the x coordinate
+	 * @return x
+	 */
+	
+	public int x(){
+		return x;
+	}
+	/**
+	 * Return the y coordinate
+	 * @return y
+	 */
+	public int y(){
+		return y;
+	}
 
 	/**
 	 * Coordinates constructor using two integers.
@@ -60,7 +75,7 @@ public class Coordinates
 	 */
 	public Pixel toPixel ()
 	{
-		return new Pixel (128 * x, 80 * y);
+		return new Pixel ((Gdx.graphics.getWidth()/10) * x, (Gdx.graphics.getHeight()/10) * y);
 	}
 
 	public String toString ()
