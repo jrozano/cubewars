@@ -580,8 +580,14 @@ public class GameController extends Game
 
 	public void skipTurn (Player p)
 	{
-		turns.newTurn (p);
-
+		if(p==cubes){
+			turns.newTurn(triangles);
+			triangles.turn();
+		}
+		if(p==triangles){
+			turns.newTurn(cubes);
+			cubes.turn();
+		}
 	}
 
 	@Override
