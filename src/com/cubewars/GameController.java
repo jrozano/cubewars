@@ -17,7 +17,6 @@ import com.cubewars.characters.TriangleBoomer;
 import com.cubewars.characters.TriangleGunner;
 import com.cubewars.characters.TriangleSniper;
 import com.cubewars.maps.Map;
-import com.cubewars.players.ConsolePlayer;
 import com.cubewars.players.LocalPlayer;
 import com.cubewars.players.Player;
 
@@ -37,7 +36,6 @@ public class GameController extends Game
 	private HashMap<Class<? extends Character>, Double> prices; /* How much each character costs: */
 	public Map map;
 	private TurnController turns;
-
 	public Player cubes;
 	public Player triangles;
 	public ScreenController gamescreen;
@@ -58,6 +56,19 @@ public class GameController extends Game
 		 */
 	}
 
+	/********************************************************************************
+	 * 1. PUBLIC METHODS. *
+	 ********************************************************************************/
+
+	/********************************************************************************
+	 * 1.1 GAME CONTROL. *
+	 ********************************************************************************/
+
+	/**
+	 * Restarts a game.
+	 * 
+	 * Re-creates all GameController attributes to start a new game.
+	 */
 	public void restart ()
 	{
 		/* Create Controller internal attributes. */
@@ -106,6 +117,12 @@ public class GameController extends Game
 		/* End test entities. */
 	}
 
+	/**
+	 * Checks the current game state every frame.
+	 * 
+	 * Thus method is called every frame by the ScreenController to check for a win condition or a
+	 * player turn change. If the game has finished, it restarts it and prints on stdio the winner.
+	 */
 	public void tick ()
 	{
 		if (status () == Response.CUBEVICTORY)
@@ -120,26 +137,89 @@ public class GameController extends Game
 			restart ();
 		}
 
+		/*
+		 * Here we check if the player currently playing has finished his two moves. If he has,
+		 * change turns.
+		 */
 		if (turns.finishedTurn ())
 		{
 			if (turns.currentPlayer () == cubes && status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY)
 				turns.newTurn (triangles);
 			else if (status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY)
 				turns.newTurn (cubes);
-
-			if (status () == Response.CUBEVICTORY)
-			{
-				System.out.println ("[CNTROL] Winner: Cubes.");
-				restart ();
-			}
-
-			if (status () == Response.TRIANGLEVICTORY)
-			{
-				System.out.println ("[CNTROL] Winner: Triangles.");
-				restart ();
-			}
 		}
 	}
+
+	/**
+	 * Returns game current status
+	 * 
+	 * Checks game end condition: whether one of the players has won the game or not.
+	 * 
+	 * @return A {@link Response} telling if the game has ended (FINISHED) or not (ACTIVE).
+	 */
+	public Response status ()
+	{
+		boolean cube = false, triangle = false;
+		/*
+		 * We check if there is any triangle or any cube in the game, if it is not then the game is
+		 * finished
+		 */
+		for (int i = 0; i != map.width; i++)
+		{
+
+			for (int j = 0; j != map.height; j++)
+			{
+
+				if (Cube.class.isAssignableFrom (map.get (new Coordinates (i, j)).getClass ()))
+				{
+					cube = true;
+				}
+
+				if (Triangle.class.isAssignableFrom (map.get (new Coordinates (i, j)).getClass ()))
+				{
+					triangle = true;
+				}
+			}
+
+		}
+
+		if (triangle == false)
+			return Response.CUBEVICTORY;
+
+		if (cube == false)
+			return Response.TRIANGLEVICTORY;
+
+		return Response.ACTIVE;
+	}
+	
+	/********************************************************************************
+	 * 1.2 SCREEN CONTROL.                                                          *
+	 ********************************************************************************/
+
+	/**
+	 * Adds a new drawable object to the drawing container.
+	 * 
+	 * @param g The object.
+	 */
+	public void add (GameObject g)
+	{
+		this.screenItems.add (g);
+		Collections.sort (this.screenItems);
+	}
+
+	/**
+	 * Grants direct access to the drawing container.
+	 * 
+	 * @return The drawing container.
+	 */
+	public List<GameObject> getDrawingContainer ()
+	{
+		return screenItems;
+	}
+
+	/********************************************************************************
+	 * 1.3 PLAYER ACTIONS. *
+	 ********************************************************************************/
 
 	/**
 	 * Gets information about the given Coordinates.
@@ -270,14 +350,7 @@ public class GameController extends Game
 			/* Check if it's not a Character Null */
 			if (objective instanceof CharacterNull && (!(attacker instanceof CubeBoomer) && !(attacker instanceof TriangleBoomer)))
 			{
-				System.out.println ("[CNTROL] Selected CharacterNull, Only Boomers can attack on CharacterNull");
-				return Response.INVALID;
-			}
-
-			/* Check it's not a Character Null */
-			if (objective instanceof CharacterNull && (!(attacker instanceof CubeBoomer) && !(attacker instanceof TriangleBoomer)))
-			{
-				System.out.println ("[CNTROL] Selected CharacterNull, Only Boomers can attack on CharacterNull");
+				System.out.println ("[CNTROL] Selected terrain, only Boomers can attack at terrain.");
 				return Response.INVALID;
 			}
 
@@ -288,7 +361,7 @@ public class GameController extends Game
 				return Response.INVALID;
 			}
 
-			/* Check boomer area's attack. */
+			/* Check boomer's area attack. */
 			if ((attacker instanceof CubeBoomer || attacker instanceof TriangleBoomer) && objective instanceof CharacterNull)
 			{
 				/* We create the four near coordinates */
@@ -395,72 +468,11 @@ public class GameController extends Game
 		return false;
 	}
 
-	/**
-	 * Returns game current status
-	 * 
-	 * Checks game end condition: whether one of the players has won the game or not.
-	 * 
-	 * @return A {@link Response} telling if the game has ended (FINISHED) or not (ACTIVE).
-	 */
-	public Response status ()
-	{
-		boolean cube = false, triangle = false;
-		/*
-		 * We check if there is any triangle or any cube in the game, if it is not then the game is
-		 * finished
-		 */
-		for (int i = 0; i != map.width; i++)
-		{
+	
 
-			for (int j = 0; j != map.height; j++)
-			{
-
-				if (Cube.class.isAssignableFrom (map.get (new Coordinates (i, j)).getClass ()))
-				{
-					cube = true;
-				}
-
-				if (Triangle.class.isAssignableFrom (map.get (new Coordinates (i, j)).getClass ()))
-				{
-					triangle = true;
-				}
-			}
-
-		}
-
-		if (triangle == false)
-		{
-			return Response.CUBEVICTORY;
-		}
-
-		if (cube == false)
-		{
-			return Response.TRIANGLEVICTORY;
-		}
-
-		return Response.ACTIVE;
-	}
-
-	/**
-	 * Adds a new drawable object to the drawing container.
-	 * 
-	 * @param g The object.
-	 */
-	public void add (GameObject g)
-	{
-		this.screenItems.add (g);
-		Collections.sort (this.screenItems);
-	}
-
-	/**
-	 * Grants direct access to the drawing container.
-	 * 
-	 * @return The drawing container.
-	 */
-	public List<GameObject> getDrawingContainer ()
-	{
-		return screenItems;
-	}
+	/********************************************************************************
+	 * 1.4 CHARACTER SHOPPING.                                                      *
+	 ********************************************************************************/
 
 	/**
 	 * Returns the current amount of credits the player has.
@@ -599,6 +611,14 @@ public class GameController extends Game
 	{
 		return prices.get (item);
 	}
+	
+	/********************************************************************************
+	 * 2.0   PRIVATE METHODS.                                                       *
+	 ********************************************************************************/
+	
+	/********************************************************************************
+	 * 2.1   ENTITY ACTIONS.                                                        *
+	 ********************************************************************************/
 
 	private void addEntity (GameObject g, Coordinates c)
 	{
@@ -621,6 +641,11 @@ public class GameController extends Game
 	{
 		turns.skip (p);
 	}
+	
+	
+	/********************************************************************************
+	 * 3.0   LIBGDX METHODS.                                                        *
+	 ********************************************************************************/
 
 	@Override
 	public void dispose ()
@@ -650,10 +675,5 @@ public class GameController extends Game
 	public void resume ()
 	{
 		super.resume ();
-	}
-
-	public void update ()
-	{
-
 	}
 }
