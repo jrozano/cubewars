@@ -48,6 +48,18 @@ public class GameController extends Game
 	{
 		System.out.println ("[CNTROL] Game Start.");
 
+		restart();
+
+		/* Show screen. */
+		gamescreen = new ScreenController (this);
+		setScreen (gamescreen);
+
+		/*
+		 * TODO Create additional Controllers (Sound, Network, etc.)
+		 */
+	}
+	
+	public void restart(){
 		/* Create Controller internal attributes. */
 		screenItems = new ArrayList<GameObject> ();
 		turns = new TurnController ();
@@ -65,25 +77,25 @@ public class GameController extends Game
 
 		/* Create players. */
 		cubes = new LocalPlayer (this, Cube.class);
-		triangles = new ConsolePlayer (this, Triangle.class);
+		triangles = new LocalPlayer (this, Triangle.class);
 
 		/* Give players an initial amount of credits. */
 		money.put (cubes, 1000.0);
 		money.put (triangles, 1000.0);
-
+		
 		/* Add some test entities. */
 		Coordinates c;
-		c = new Coordinates (0, 0);
+		c = new Coordinates (1, 1);
 		addEntity (new CubeSniper (c), c);
 
 		c = new Coordinates (4, 4);
 		addEntity (new TriangleSniper (c), c);
 
-		c = new Coordinates (2, 2);
+		c = new Coordinates (3, 2);
 		addEntity (new CubeBoomer (c), c);
 
-		c = new Coordinates (4, 0);
-		addEntity (new TriangleBoomer (c), c);
+		/*c = new Coordinates (4, 3);
+		addEntity (new TriangleBoomer (c), c);*/
 
 		screenItems.add (new Background ("grid.png"));
 		Collections.sort (screenItems);
@@ -91,21 +103,13 @@ public class GameController extends Game
 
 		turns.newTurn (cubes);
 		cubes.turn ();
-
-		/* Show screen. */
-		gamescreen = new ScreenController (this);
-		setScreen (gamescreen);
-
-		/*
-		 * TODO Create additional Controllers (Sound, Network, etc.)
-		 */
 	}
 
 	public void tick ()
 	{
 		if (turns.finishedTurn ())
 		{
-			if (turns.currentPlayer () == cubes && status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY)
+			if (turns.currentPlayer() == cubes && status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY)
 			{
 				turns.newTurn (triangles);
 				triangles.turn ();
@@ -115,11 +119,15 @@ public class GameController extends Game
 				cubes.turn ();
 			}
 
-			if (status () == Response.CUBEVICTORY)
+			if (status () == Response.CUBEVICTORY){
 				System.out.println ("[CNTROL] Winner: Cubes.");
+				restart();
+			}
 
-			if (status () == Response.TRIANGLEVICTORY)
+			if (status () == Response.TRIANGLEVICTORY){
 				System.out.println ("[CNTROL] Winner: Triangles.");
+				restart();
+			}
 		}
 	}
 

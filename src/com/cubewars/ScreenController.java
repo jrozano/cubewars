@@ -46,6 +46,8 @@ public class ScreenController implements Screen
 
 		/* Dibujamos en pantalla todos los elementos que haya en el contenedor del controller. */
 		batch.begin ();
+		
+		controller.tick();
 
 		for (GameObject g : controller.getDrawingContainer ())
 			batch.draw (g.getTexture (), g.area.x, g.area.y);

@@ -60,7 +60,7 @@ public class Coordinates
 	 */
 	public Pixel toPixel ()
 	{
-		return new Pixel (128 * x, 80 * y);
+		return new Pixel ((Gdx.graphics.getWidth()/10) * x, (Gdx.graphics.getHeight()/10) * y);
 	}
 
 	public String toString ()

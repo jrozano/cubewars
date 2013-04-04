@@ -56,37 +56,42 @@ public class LocalPlayer extends Player implements InputProcessor
 			return true;
 		}
 
-		Coordinates destination = new Pixel (screenX, 800 - screenY).toCoordinates ();
-		System.out.println ("[LOCAL ] Touchdown on: " + screenX + ", " + (800 - screenY) + ": " + destination.toString ());
+		Coordinates destination = new Pixel (screenX, Gdx.graphics.getHeight() - screenY).toCoordinates ();
+		System.out.println ("[LOCAL ] Touchdown on: " + screenX + ", " + (Gdx.graphics.getHeight() - screenY) + ": " + destination.toString ());
 
 		if (origin == null)
 			origin = destination;
 		else
 		{
 			Class<? extends GameObject> objective = controller.select (destination);
-
-			/* Check movement. */
-			if (objective == CharacterNull.class && !controller.moved (this))
-			{
-				System.out.println ("[PLAYER] Movement Phase.");
-				System.out.println ("[PLAYER] Objective: " + objective.getSimpleName ());
-
-				Response response = controller.move (origin, destination, this);
-
-				/*
-				 * Check that the controller has indeed made the movement. If not, ask for another
-				 * cell.
-				 */
-				if (response != Response.OK)
+			
+			if(controller.status() != Response.CUBEVICTORY && controller.status() != Response.TRIANGLEVICTORY){
+				/* Check movement. */
+				if (objective == CharacterNull.class && !controller.moved (this))
 				{
-					System.out.println ("[PLAYER] Choose another cell.");
-					return false;
+					System.out.println ("[PLAYER] Movement Phase.");
+					System.out.println ("[PLAYER] Objective: " + objective.getSimpleName ());
+
+					Response response = controller.move (origin, destination, this);
+
+					/*
+					 * Check that the controller has indeed made the movement. If not, ask for another
+					 * cell.
+					 */
+					if (response != Response.OK)
+					{
+						System.out.println ("[PLAYER] Choose another cell.");
+						return false;
+					}
+
+					origin = destination;
+
+					return true;
 				}
-
-				origin = destination;
-
-				return true;
+			}else{
+				return false;
 			}
+				
 
 			/* Check attack. */
 			if (enemy ().isAssignableFrom (objective) && !controller.attacked (this))
