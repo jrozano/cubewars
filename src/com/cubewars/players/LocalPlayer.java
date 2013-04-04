@@ -53,17 +53,23 @@ public class LocalPlayer extends Player implements InputProcessor
 		{
 			System.out.println ("[LOCAL ] Skipping Phase.");
 			controller.skipTurn (this);
+			origin=null;
 			return true;
 		}
 
 		Coordinates destination = new Pixel (screenX, Gdx.graphics.getHeight() - screenY).toCoordinates ();
 		System.out.println ("[LOCAL ] Touchdown on: " + screenX + ", " + (Gdx.graphics.getHeight() - screenY) + ": " + destination.toString ());
-
-		if (origin == null)
-			origin = destination;
+		Class<? extends GameObject> objective = controller.select (destination);
+		
+		if (origin == null){
+			if(team().isAssignableFrom(objective)){
+				origin = destination;
+				System.out.println("[LOCAL ] Selected a character of your team");
+			}
+		}
 		else
 		{
-			Class<? extends GameObject> objective = controller.select (destination);
+			objective = controller.select (destination);
 			
 			if(controller.status() != Response.CUBEVICTORY && controller.status() != Response.TRIANGLEVICTORY){
 				/* Check movement. */
@@ -90,6 +96,7 @@ public class LocalPlayer extends Player implements InputProcessor
 				}
 				
 			}else{
+				origin=null;
 				return false;
 			}
 				
@@ -110,8 +117,11 @@ public class LocalPlayer extends Player implements InputProcessor
 					System.out.println ("[PLAYER] Choose another cell.");
 					return false;
 				}
-
+				
 				return true;
+			}
+			else{
+				origin=null;
 			}
 			
 			/* Check object. */
