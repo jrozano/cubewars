@@ -20,7 +20,7 @@ public class ScreenController implements Screen
 	private SpriteBatch batch;
 
 	/**
-	 * Constructor.
+	 * Contructor.
 	 * 
 	 * @param controller The Game controller used in this game.
 	 */
@@ -44,8 +44,6 @@ public class ScreenController implements Screen
 		Gdx.gl.glClearColor (0, 0, 0, 1);
 		Gdx.gl.glClear (GL10.GL_COLOR_BUFFER_BIT);
 
-		controller.tick ();
-
 		/* Dibujamos en pantalla todos los elementos que haya en el contenedor del controller. */
 		batch.begin ();
 
@@ -58,6 +56,7 @@ public class ScreenController implements Screen
 	@Override
 	public void resize (int width, int height)
 	{
+		// TODO Auto-generated method stub
 
 	}
 
@@ -70,12 +69,14 @@ public class ScreenController implements Screen
 	@Override
 	public void pause ()
 	{
+		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void resume ()
 	{
+		// TODO Auto-generated method stub
 
 	}
 

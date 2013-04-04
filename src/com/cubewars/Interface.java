@@ -3,7 +3,7 @@ package com.cubewars;
 import com.badlogic.gdx.graphics.Texture;
 
 /**
- * Objects used in game interfaces, such as menus, HUDs, etc.
+ * Clase que especifica objetos de menús e interfaz de juego.
  * 
  * @author pyrosphere3
  * 

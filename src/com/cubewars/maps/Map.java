@@ -24,10 +24,10 @@ public class Map
 
 	public Map ()
 	{
-		grid = new GameObject[10][10];
+		grid = new GameObject[width][height];
 
-		for (int i = 0; i < grid.length; ++i)
-			for (int j = 0; j < grid[0].length; ++j)
+		for (int i = 0; i < width; ++i)
+			for (int j = 0; j < height; ++j)
 				grid[i][j] = new CharacterNull ();
 	}
 
@@ -37,17 +37,17 @@ public class Map
 		{
 			for (int j = 0; j < grid[0].length; ++j)
 			{
-				if (grid[j][i] instanceof CubeBoomer)
+				if (grid[width-1-i][j] instanceof CubeBoomer)
 					System.out.print ("CB ");
-				else if (grid[j][i] instanceof CubeSniper)
+				else if (grid[width-1-i][j] instanceof CubeSniper)
 					System.out.print ("CS ");
-				else if (grid[j][i] instanceof CubeGunner)
+				else if (grid[width-1-i][j] instanceof CubeGunner)
 					System.out.print ("CG ");
-				else if (grid[j][i] instanceof TriangleSniper)
+				else if (grid[width-1-i][j] instanceof TriangleSniper)
 					System.out.print ("TS ");
-				else if (grid[j][i] instanceof TriangleBoomer)
+				else if (grid[width-1-i][j] instanceof TriangleBoomer)
 					System.out.print ("TB ");
-				else if (grid[j][i] instanceof TriangleGunner)
+				else if (grid[width-1-i][j] instanceof TriangleGunner)
 					System.out.print ("TG ");
 				else
 					System.out.print ("-- ");

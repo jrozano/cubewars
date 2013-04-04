@@ -13,8 +13,8 @@ import com.cubewars.characters.CharacterNull;
 
 public class LocalPlayer extends Player implements InputProcessor
 {
-	private Coordinates origin = null;
-
+	private Coordinates origin = null; 
+	
 	public LocalPlayer (GameController controlador, Class<? extends Character> equipo)
 	{
 		super (controlador, equipo);
@@ -48,8 +48,7 @@ public class LocalPlayer extends Player implements InputProcessor
 
 	@Override
 	public boolean touchDown (int screenX, int screenY, int pointer, int button)
-	{
-		
+	{		
 		if (button == Buttons.RIGHT)
 		{
 			System.out.println ("[LOCAL ] Skipping Phase.");
@@ -112,7 +111,7 @@ public class LocalPlayer extends Player implements InputProcessor
 			/* Check object. */
 			/* TODO Implement objects. */
 		}
-
+		
 		return false;
 	}
 

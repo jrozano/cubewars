@@ -1,7 +1,5 @@
 package com.cubewars;
 
-// Nueva rama...
-
 import com.badlogic.gdx.Gdx;
 
 /**
@@ -62,7 +60,7 @@ public class Coordinates
 	 */
 	public Pixel toPixel ()
 	{
-		return new Pixel (x * 128, y * 80);
+		return new Pixel (128 * x, 80 * y);
 	}
 
 	public String toString ()
