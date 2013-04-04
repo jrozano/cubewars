@@ -1,6 +1,7 @@
 package com.cubewars.characters;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.cubewars.Coordinates;
 import com.cubewars.GameObject;
 
 /**
@@ -29,10 +30,9 @@ public abstract class Character extends GameObject
 	 * @param maxHealth Maxmimum health points this character can have at any given time:
 	 *            <code>health &lt;= maxHealth</code>.
 	 */
-	public Character (Texture texture, float posX, float posY, float health, float maxHealth, float damage, int travel,
-			int dmgDistance)
+	public Character (Texture texture, Coordinates c, float health, float maxHealth, float damage, int travel, int dmgDistance)
 	{
-		super (priority, texture, posX, posY);
+		super (priority, texture, c);
 		this.health = health;
 		this.maxHealth = maxHealth;
 		this.damage = damage;

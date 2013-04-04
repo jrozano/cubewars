@@ -18,6 +18,11 @@ public class LocalPlayer extends Player implements InputProcessor
 	public LocalPlayer (GameController controlador, Class<? extends Character> equipo)
 	{
 		super (controlador, equipo);
+		
+	}
+	
+	public void turn ()
+	{
 		Gdx.input.setInputProcessor (this);
 	}
 
@@ -44,15 +49,16 @@ public class LocalPlayer extends Player implements InputProcessor
 	@Override
 	public boolean touchDown (int screenX, int screenY, int pointer, int button)
 	{
+		
 		if (button == Buttons.RIGHT)
 		{
 			System.out.println ("[LOCAL ] Skipping Phase.");
+			controller.skipTurn (this);
 			return true;
 		}
 
 		Coordinates destination = new Pixel (screenX, 800 - screenY).toCoordinates ();
-		System.out.println ("[LOCAL ] Touchdown on: " + screenX + ", " + (800 - screenY) + ": "
-				+ destination.toString ());
+		System.out.println ("[LOCAL ] Touchdown on: " + screenX + ", " + (800 - screenY) + ": " + destination.toString ());
 
 		if (origin == null)
 			origin = destination;
@@ -77,7 +83,7 @@ public class LocalPlayer extends Player implements InputProcessor
 					System.out.println ("[PLAYER] Choose another cell.");
 					return false;
 				}
-				
+
 				origin = destination;
 
 				return true;

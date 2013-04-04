@@ -42,6 +42,6 @@ public class Pixel
 	 */
 	public Coordinates toCoordinates ()
 	{
-		return new Coordinates ((int)x / 128, (int)y / 80 );
+		return new Coordinates ((int) x / 128, (int) y / 80);
 	}
 }

@@ -19,7 +19,8 @@ import com.cubewars.characters.TriangleSniper;
 public class Map
 {
 	public GameObject[][] grid;
-	private int size = 10;
+	public final int height = 10;
+	public final int width = 10;
 
 	public Map ()
 	{
@@ -36,17 +37,17 @@ public class Map
 		{
 			for (int j = 0; j < grid[0].length; ++j)
 			{
-				if (grid[i][j] instanceof CubeBoomer)
+				if (grid[j][i] instanceof CubeBoomer)
 					System.out.print ("CB ");
-				else if (grid[i][j] instanceof CubeSniper)
+				else if (grid[j][i] instanceof CubeSniper)
 					System.out.print ("CS ");
-				else if (grid[i][j] instanceof CubeGunner)
+				else if (grid[j][i] instanceof CubeGunner)
 					System.out.print ("CG ");
-				else if (grid[i][j] instanceof TriangleSniper)
+				else if (grid[j][i] instanceof TriangleSniper)
 					System.out.print ("TS ");
-				else if (grid[i][j] instanceof TriangleBoomer)
+				else if (grid[j][i] instanceof TriangleBoomer)
 					System.out.print ("TB ");
-				else if (grid[i][j] instanceof TriangleGunner)
+				else if (grid[j][i] instanceof TriangleGunner)
 					System.out.print ("TG ");
 				else
 					System.out.print ("-- ");

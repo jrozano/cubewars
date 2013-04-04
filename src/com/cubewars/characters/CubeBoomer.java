@@ -2,6 +2,7 @@ package com.cubewars.characters;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.cubewars.Coordinates;
 
 public class CubeBoomer extends Cube
 {
@@ -11,8 +12,8 @@ public class CubeBoomer extends Cube
 	private static final int damageDistance = 2;
 	private static final int travel = 2;
 
-	public CubeBoomer (float posX, float posY)
+	public CubeBoomer (Coordinates c)
 	{
-		super (texture, posX, posY, maxHealth, maxHealth, damage, travel, damageDistance);
+		super (texture, c, maxHealth, maxHealth, damage, travel, damageDistance);
 	}
 }

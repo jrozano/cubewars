@@ -48,6 +48,32 @@ public abstract class GameObject implements Comparable<GameObject>
 	}
 
 	/**
+	 * <code>GameObject</code> constructor with coordinates.
+	 * 
+	 * @param priority Real priority of this object.
+	 * @param texture Texture representing the object.
+	 * @param c Position in the grid.
+	 */
+	public GameObject (int priority, Texture texture, Coordinates c)
+	{
+		/*
+		 * FIXME Given a large number of objects created and destroyed, the IDs are not reused.
+		 * Possible overflow?
+		 */
+		GameObject.nextID++;
+		this.id = GameObject.nextID;
+
+		this.priority = priority;
+		this.texture = texture;
+		this.area.x = c.toPixel ().x;
+		this.area.y = c.toPixel ().y;
+
+		TextureRegion region = new TextureRegion (texture);
+		this.area.height = region.getRegionHeight ();
+		this.area.width = region.getRegionWidth ();
+	}
+
+	/**
 	 * Compares two (<code>GameObject</code>) priorities.
 	 * 
 	 * This method implements the {@link Comparable}, needed to be able to use generic sort with

@@ -2,6 +2,7 @@ package com.cubewars.characters;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.cubewars.Coordinates;
 
 public class TriangleBoomer extends Triangle
 {
@@ -11,8 +12,8 @@ public class TriangleBoomer extends Triangle
 	private static final int damageDistance = 2;
 	private static final int travel = 2;
 
-	public TriangleBoomer (float posX, float posY)
+	public TriangleBoomer (Coordinates c)
 	{
-		super (texture, posX, posY, maxHealth, maxHealth, damage, travel, damageDistance);
+		super (texture, c, maxHealth, maxHealth, damage, travel, damageDistance);
 	}
 }

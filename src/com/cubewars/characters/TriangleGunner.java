@@ -2,6 +2,7 @@ package com.cubewars.characters;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.cubewars.Coordinates;
 
 public class TriangleGunner extends Triangle
 {
@@ -11,8 +12,8 @@ public class TriangleGunner extends Triangle
 	private static final int damageDistance = 1;
 	private static final int travel = 4;
 
-	public TriangleGunner (float posX, float posY)
+	public TriangleGunner (Coordinates c)
 	{
-		super (texture, posX, posY, maxHealth, maxHealth, damage, travel, damageDistance);
+		super (texture, c, maxHealth, maxHealth, damage, travel, damageDistance);
 	}
 }

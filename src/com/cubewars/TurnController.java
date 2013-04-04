@@ -45,8 +45,7 @@ public class TurnController
 		if (canMove (p))
 			statuses.get (p)[0] = true;
 		else
-			System.out.println ("[TURN  ] " + p.toString () + " cannot move: " + statuses.get (p)[0] + ", "
-					+ statuses.get (p)[1]);
+			System.out.println ("[TURN  ] " + p.toString () + " cannot move: " + statuses.get (p)[0] + ", " + statuses.get (p)[1]);
 	}
 
 	/**
@@ -60,8 +59,7 @@ public class TurnController
 		if (canAttack (p))
 			statuses.get (p)[1] = true;
 		else
-			System.out.println ("[TURN  ] " + p.toString () + " cannot attack: " + statuses.get (p)[0] + ", "
-					+ statuses.get (p)[1]);
+			System.out.println ("[TURN  ] " + p.toString () + " cannot attack: " + statuses.get (p)[0] + ", " + statuses.get (p)[1]);
 	}
 
 	/**
@@ -87,12 +85,18 @@ public class TurnController
 	{
 		return !statuses.get (p)[1];
 	}
-	
+
+	public void skip (Player p)
+	{
+		statuses.get (currentPlayer)[0] = true;
+		statuses.get (currentPlayer)[1] = true;
+	}
+
 	public boolean finishedTurn ()
 	{
 		return statuses.get (currentPlayer)[0] && statuses.get (currentPlayer)[1];
 	}
-	
+
 	public Player currentPlayer ()
 	{
 		return currentPlayer;

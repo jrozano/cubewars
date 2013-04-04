@@ -39,7 +39,7 @@ public class GameController extends Game
 	private TurnController turns;
 
 	public LocalPlayer cubes;
-	public ConsolePlayer triangles;
+	public Player triangles;
 	public ScreenController gamescreen;
 
 	@Override
@@ -70,24 +70,26 @@ public class GameController extends Game
 		money.put (cubes, 1000.0);
 		money.put (triangles, 1000.0);
 
+		/* Add some test entities. */
+		Coordinates c;
+		c = new Coordinates (0, 0);
+		addEntity (new CubeSniper (c), c);
+
+		c = new Coordinates (4, 4);
+		addEntity (new TriangleSniper (c), c);
+
+		c = new Coordinates (2, 2);
+		addEntity (new CubeBoomer (c), c);
+
+		c = new Coordinates (4, 0);
+		addEntity (new TriangleBoomer (c), c);
+
+		screenItems.add (new Background ("grid.png"));
+		Collections.sort (screenItems);
+		/* End test entities. */
+
 		turns.newTurn (cubes);
 		cubes.turn ();
-		
-		GameObject g;
-
-		/* Add some test entities. */
-		g = new CubeSniper (0, 0);
-		map.grid[0][0] = g;
-		screenItems.add (g);
-		
-		g = new TriangleSniper (500, 320);
-		map.grid[4][4] = g;
-		screenItems.add (g);
-		
-		screenItems.add (new Background ("grid.png"));
-		/* End test entities. */
-		
-		Collections.sort (screenItems);
 
 		/* Show screen. */
 		gamescreen = new ScreenController (this);
@@ -102,15 +104,21 @@ public class GameController extends Game
 	{
 		if (turns.finishedTurn ())
 		{
-			if (turns.currentPlayer () == cubes)
+			if (turns.currentPlayer () == cubes && status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY)
 			{
 				turns.newTurn (triangles);
 				triangles.turn ();
-			} else
+			} else if (status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY)
 			{
 				turns.newTurn (cubes);
 				cubes.turn ();
 			}
+
+			if (status () == Response.CUBEVICTORY)
+				System.out.println ("[CNTROL] Winner: Cubes.");
+
+			if (status () == Response.TRIANGLEVICTORY)
+				System.out.println ("[CNTROL] Winner: Triangles.");
 		}
 	}
 
@@ -159,26 +167,30 @@ public class GameController extends Game
 
 			if (Character.class.isAssignableFrom (select (source)))
 			{
-				/* TODO we have to add if selected character is in my team */
-				if (source.distance (destination) <= character.getTravel ())
+				/* We check again if the selected character is in the player's team */
+				if (player.team ().isAssignableFrom (character.getClass ()))
 				{
-					System.out.println ("[CNTROL] Moving " + character.toString () + ". Distance: "
-							+ source.distance (destination) + ", máx: " + character.getTravel () + ".");
+					if (source.distance (destination) <= character.getTravel ())
+					{
+						System.out.println ("[CNTROL] Moving " + character.toString () + ". Distance: " + source.distance (destination) + ", máx: "
+								+ character.getTravel () + ".");
 
-					map.move (source, destination);
-					//turns.move (player);
+						map.move (source, destination);
+						turns.move (player);
 
-					character.area.x = destination.toPixel ().x;
-					character.area.y = destination.toPixel ().y;
+						character.area.x = destination.toPixel ().x;
+						character.area.y = destination.toPixel ().y;
 
-					return Response.OK;
+						return Response.OK;
+					} else
+						System.out.println ("[CNTROL] Cannot move: too far away.");
 				} else
-					System.out.println ("[CNTROL] Cannot move: too far away.");
+				{
+					System.out.println ("[CNTROL] move: Wrong team " + player.team () + "." + character.getClass ().getSimpleName ());
+				}
 			} else
 			{
 				System.out.println ("[CNTROL] Cannot move " + character.toString () + ".");
-				// throw new RuntimeException ("[CNTROL] Cannot move " + personaje.toString () +
-				// ".");
 			}
 		} else
 			System.out.println ("[CNTROL] Cannot move: you have already made a move.");
@@ -226,9 +238,6 @@ public class GameController extends Game
 		/* Check if the player has permission to attack... */
 		if (turns.canAttack (player))
 		{
-			/*
-			 * TODO we have to check if the selected character is in my team
-			 */
 			Character attacker = (Character) map.get (source);
 			Character objective = (Character) map.get (destination);
 
@@ -239,12 +248,18 @@ public class GameController extends Game
 				return Response.INVALID;
 			}
 
+			/* We check again if the attacker character is in the player's team */
+			if (!player.team ().isAssignableFrom (attacker.getClass ()))
+			{
+				System.out.println ("[CNTROL] " + attacker.toString () + " is not in player's team " + player.team ().toString ());
+				return Response.INVALID;
+			}
+
 			/* Attack it. */
 			if (objective instanceof Character)
 			{
-				System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking "
-						+ objective.toString () + " " + destination.toString () + " with " + attacker.getDamage ()
-						+ " damage.");
+				System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + objective.toString () + " "
+						+ destination.toString () + " with " + attacker.getDamage () + " damage.");
 
 				objective.addDamage (attacker.getDamage ());
 				turns.attack (player);
@@ -253,9 +268,7 @@ public class GameController extends Game
 				System.out.println ("[CNTROL] Health left: " + objective.getHealth ());
 				if (objective.getHealth () <= 0)
 				{
-					GameObject c = map.grid[4][4];
-					map.destroy (destination);
-					screenItems.remove (c);
+					killEntity (destination);
 				}
 
 				return Response.OK;
@@ -277,7 +290,40 @@ public class GameController extends Game
 	 */
 	public Response status ()
 	{
-		/* TODO add victory's condition for both team */
+		boolean cube = false, triangle = false;
+		/*
+		 * We check if there is any triangle or any cube in the game, if it is not then the game is
+		 * finished
+		 */
+		for (int i = 0; i != map.width; i++)
+		{
+
+			for (int j = 0; j != map.height; j++)
+			{
+
+				if (Cube.class.isAssignableFrom (map.get (new Coordinates (i, j)).getClass ()))
+				{
+					cube = true;
+				}
+
+				if (Triangle.class.isAssignableFrom (map.get (new Coordinates (i, j)).getClass ()))
+				{
+					triangle = true;
+				}
+			}
+
+		}
+
+		if (triangle == false)
+		{
+			return Response.CUBEVICTORY;
+		}
+
+		if (cube == false)
+		{
+			return Response.TRIANGLEVICTORY;
+		}
+
 		return Response.ACTIVE;
 	}
 
@@ -312,7 +358,7 @@ public class GameController extends Game
 	{
 		return this.money.get (player);
 	}
-	
+
 	/**
 	 * Increments a player's amount of credits.
 	 * 
@@ -375,11 +421,11 @@ public class GameController extends Game
 							 */
 							if (type == CubeGunner.class)
 							{
-								newCharacter = new CubeGunner (c.toPixel ().x, c.toPixel ().y);
+								newCharacter = new CubeGunner (c);
 							} else if (type == CubeBoomer.class)
-								newCharacter = new CubeBoomer (c.toPixel ().x, c.toPixel ().y);
+								newCharacter = new CubeBoomer (c);
 							else if (type == CubeSniper.class)
-								newCharacter = new CubeSniper (c.toPixel ().x, c.toPixel ().y);
+								newCharacter = new CubeSniper (c);
 							else
 							{
 								System.out.println ("[CNTROL] Error: class name not valid. " + type.toString ());
@@ -387,9 +433,7 @@ public class GameController extends Game
 							}
 
 							System.out.println ("[CNTROL] Added new " + newCharacter.toString () + " " + c.toString ());
-
-							map.add (newCharacter, c);
-							screenItems.add (newCharacter);
+							addEntity (newCharacter, c);
 							break;
 						}
 					}
@@ -411,11 +455,11 @@ public class GameController extends Game
 							 * classes.
 							 */
 							if (type == TriangleGunner.class)
-								newCharacter = new TriangleGunner (c.toPixel ().x, c.toPixel ().y);
+								newCharacter = new TriangleGunner (c);
 							else if (type == TriangleBoomer.class)
-								newCharacter = new TriangleBoomer (c.toPixel ().x, c.toPixel ().y);
+								newCharacter = new TriangleBoomer (c);
 							else if (type == TriangleSniper.class)
-								newCharacter = new TriangleSniper (c.toPixel ().x, c.toPixel ().y);
+								newCharacter = new TriangleSniper (c);
 							else
 							{
 								System.out.println ("[CNTROL] Error: class name not valid. " + type.toString ());
@@ -423,8 +467,7 @@ public class GameController extends Game
 							}
 
 							System.out.println ("[CNTROL] Added new " + newCharacter.toString () + " " + c.toString ());
-
-							map.add (newCharacter, c);
+							addEntity (newCharacter, c);
 							break;
 						}
 					}
@@ -441,6 +484,29 @@ public class GameController extends Game
 	public double getPrice (Class<? extends Character> item)
 	{
 		return prices.get (item);
+	}
+
+	private void addEntity (GameObject g, Coordinates c)
+	{
+		// if (c.x < 0 || c.x > map.width || c.y < 0 || c.y > map.height)
+		// throw new RuntimeException ("Coordinates out of bounds.");
+
+		map.grid[c.x][c.y] = g;
+		screenItems.add (g);
+		Collections.sort (screenItems);
+	}
+
+	private void killEntity (Coordinates c)
+	{
+		GameObject g = map.get (c);
+		map.destroy (c);
+		screenItems.remove (g);
+	}
+
+	public void skipTurn (Player p)
+	{
+		turns.newTurn (p);
+
 	}
 
 	@Override
