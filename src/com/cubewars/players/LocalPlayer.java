@@ -118,8 +118,6 @@ public class LocalPlayer extends Player implements InputProcessor
 					}
 					return true;
 				}
-			}else{
-				origin=null;
 			}
 
 			/* Check attack. */
