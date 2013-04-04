@@ -88,6 +88,7 @@ public class LocalPlayer extends Player implements InputProcessor
 
 					return true;
 				}
+				
 			}else{
 				return false;
 			}
@@ -112,7 +113,7 @@ public class LocalPlayer extends Player implements InputProcessor
 
 				return true;
 			}
-
+			
 			/* Check object. */
 			/* TODO Implement objects. */
 		}

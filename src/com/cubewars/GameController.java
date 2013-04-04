@@ -282,12 +282,78 @@ public class GameController extends Game
 
 				return Response.OK;
 			}
+			/* Check boomer area's attack. */
+			if((attacker instanceof CubeBoomer || attacker instanceof TriangleBoomer) && objective instanceof CharacterNull){
+				/* We create the four near coordinates */
+				System.out.println("Entra");
+				Coordinates Up = new Coordinates (destination.x(),destination.y()+1);
+				Coordinates Down = new Coordinates (destination.x(),destination.y()-1);
+				Coordinates Right = new Coordinates (destination.x()+1,destination.y());
+				Coordinates Left = new Coordinates (destination.x()-1,destination.y());
+				
+				/* First we must check if the coordinates are correct */
+				if(Up.x>=0 && Up.x <=10 && Up.y>=0 && Up.y<=10){
+					objective = (Character) map.get (Up);
+					if(BoomerAttack(objective,attacker,source,Up)){
+						turns.attack(player);
+						return Response.OK;
+					}
+				}
+				
+				if(Down.x>=0 && Down.x<=10 && Down.y>=0 && Down.y<=10){
+					objective = (Character) map.get (Down);
+					if(BoomerAttack(objective,attacker,source,Down)){
+						turns.attack(player);
+						return Response.OK;
+					}
+				}
+				
+				if(Right.x>=0 && Right.x<=10 && Right.y>=0 && Right.y <=10){
+					objective = (Character) map.get (Right);
+					if(BoomerAttack(objective,attacker,source,Right)){
+						turns.attack(player);
+						return Response.OK;
+					}
+				}
+				
+				if(Left.x>=0 && Left.x<=10 && Left.y>=0 && Left.y<=10){
+					objective = (Character) map.get (Left);
+					if(BoomerAttack(objective,attacker,source,Left)){
+						turns.attack(player);
+						return Response.OK;
+					}
+				}	
+			}
 		}
 
 		/* TODO Implement environment's attacks. */
 
 		System.out.println ("[CNTROL] " + source.toString () + " cannot attack " + destination.toString ());
 		return Response.INVALID;
+	}
+	/**
+	 * This method is an internal function that help to check the boomer area attack.
+	 * @param objective
+	 * @param attacker
+	 * @param source
+	 * @param destination
+	 * @return true or false depends if the attack is succesful or not
+	 */
+	private boolean BoomerAttack(Character objective, Character attacker, Coordinates source, Coordinates destination){
+		if(objective instanceof Character){
+			System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + objective.toString () + " "
+					+ destination.toString () + " with " + attacker.getDamage ()/4 + " damage.");
+			objective.addDamage (attacker.getDamage ()/4);
+
+			/* Death check. */
+			System.out.println ("[CNTROL] Health left: " + objective.getHealth ());
+			if (objective.getHealth () <= 0)
+			{
+				killEntity (destination);
+			}
+			return true;
+		}
+		return false;
 	}
 
 	/**
