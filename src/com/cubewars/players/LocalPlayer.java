@@ -23,6 +23,7 @@ public class LocalPlayer extends Player implements InputProcessor
 	
 	public void turn ()
 	{
+		origin=null;
 		Gdx.input.setInputProcessor (this);
 	}
 
@@ -52,11 +53,11 @@ public class LocalPlayer extends Player implements InputProcessor
 		if (button == Buttons.RIGHT)
 		{
 			System.out.println ("[LOCAL ] Skipping Phase.");
-			controller.skipTurn (this);
 			origin=null;
+			controller.skipTurn (this);
 			return true;
 		}
-
+		
 		Coordinates destination = new Pixel (screenX, Gdx.graphics.getHeight() - screenY).toCoordinates ();
 		System.out.println ("[LOCAL ] Touchdown on: " + screenX + ", " + (Gdx.graphics.getHeight() - screenY) + ": " + destination.toString ());
 		Class<? extends GameObject> objective = controller.select (destination);
@@ -106,7 +107,6 @@ public class LocalPlayer extends Player implements InputProcessor
 			if(objective == CharacterNull.class && !controller.attacked(this)){
 				if(origin.x<destination.x+1 || origin.x>destination.y-1 || origin.y<destination.y+1 || origin.y>destination.y-1){
 					Response response = controller.attack (origin, destination, this);
-					
 					/*
 					 * Check that the controller has indeed made the attack. If not, ask for another
 					 * cell.
@@ -121,7 +121,7 @@ public class LocalPlayer extends Player implements InputProcessor
 			}
 
 			/* Check attack. */
-			if (enemy ().isAssignableFrom (objective) && !controller.attacked (this))
+			else if (enemy ().isAssignableFrom (objective) && !controller.attacked (this))
 			{
 				System.out.println ("[PLAYER] Attack Phase.");
 				System.out.println ("[PLAYER] Objective: " + objective.getSimpleName ());
@@ -141,6 +141,7 @@ public class LocalPlayer extends Player implements InputProcessor
 			}
 			else{
 				origin=null;
+				return false;
 			}
 			
 			/* Check object. */
