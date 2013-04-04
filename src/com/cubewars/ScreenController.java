@@ -43,10 +43,12 @@ public class ScreenController implements Screen
 	{
 		Gdx.gl.glClearColor (0, 0, 0, 1);
 		Gdx.gl.glClear (GL10.GL_COLOR_BUFFER_BIT);
+		
+		controller.tick ();
 
 		/* Dibujamos en pantalla todos los elementos que haya en el contenedor del controller. */
 		batch.begin ();
-
+		
 		for (GameObject g : controller.getDrawingContainer ())
 			batch.draw (g.getTexture (), g.area.x, g.area.y);
 

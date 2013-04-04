@@ -33,9 +33,9 @@ public class Map
 
 	public void print ()
 	{
-		for (int i = 0; i < grid.length; ++i)
+		for (int i = 0; i < width; ++i)
 		{
-			for (int j = 0; j < grid[0].length; ++j)
+			for (int j = 0; j < height; ++j)
 			{
 				if (grid[width-1-i][j] instanceof CubeBoomer)
 					System.out.print ("CB ");

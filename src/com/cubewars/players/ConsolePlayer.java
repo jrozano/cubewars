@@ -128,10 +128,11 @@ public class ConsolePlayer extends Player
 	 */
 	private boolean play (Coordinates origin, Coordinates destination)
 	{
-		/* If any coordinate is out of range, we'll assume the player wants to skip this stage. */
+		/* If any coordinate is out of range, we'll assume the player wants to skip this turn. */
 		if (origin.x < 0 || origin.y < 0 || destination.x < 0 || destination.y < 0)
 		{
-			System.out.println ("[PLAYER] Coordinates out of range: ignoring stage.");
+			System.out.println ("[PLAYER] Skipping Turn.");
+			controller.skipTurn (this);
 			return true;
 		}
 

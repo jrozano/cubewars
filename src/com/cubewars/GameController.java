@@ -38,8 +38,7 @@ public class GameController extends Game
 	public Map map;
 	private TurnController turns;
 
-	
-	public LocalPlayer cubes;
+	public Player cubes;
 	public Player triangles;
 	public ScreenController gamescreen;
 
@@ -48,12 +47,25 @@ public class GameController extends Game
 	{
 		System.out.println ("[CNTROL] Game Start.");
 
+		restart ();
+
+		/* Show screen. */
+		gamescreen = new ScreenController (this);
+		setScreen (gamescreen);
+
+		/*
+		 * TODO Create additional Controllers (Sound, Network, etc.)
+		 */
+	}
+
+	public void restart ()
+	{
 		/* Create Controller internal attributes. */
 		screenItems = new ArrayList<GameObject> ();
-		turns = new TurnController ();
 		map = new Map ();
 		money = new HashMap<Player, Double> ();
 		prices = new HashMap<Class<? extends Character>, Double> ();
+		playerList = new ArrayList<Player> ();
 
 		/* Populate the character cost map: */
 		prices.put (CubeGunner.class, 100.0);
@@ -65,7 +77,10 @@ public class GameController extends Game
 
 		/* Create players. */
 		cubes = new LocalPlayer (this, Cube.class);
-		triangles = new ConsolePlayer (this, Triangle.class);
+		triangles = new LocalPlayer (this, Triangle.class);
+		playerList.add (cubes);
+		playerList.add (triangles);
+		turns = new TurnController (playerList);
 
 		/* Give players an initial amount of credits. */
 		money.put (cubes, 1000.0);
@@ -88,38 +103,28 @@ public class GameController extends Game
 		screenItems.add (new Background ("grid.png"));
 		Collections.sort (screenItems);
 		/* End test entities. */
-
-		turns.newTurn (cubes);
-		cubes.turn ();
-
-		/* Show screen. */
-		gamescreen = new ScreenController (this);
-		setScreen (gamescreen);
-
-		/*
-		 * TODO Create additional Controllers (Sound, Network, etc.)
-		 */
 	}
 
 	public void tick ()
 	{
+		if (status () == Response.CUBEVICTORY)
+		{
+			System.out.println ("[CNTROL] Winner: Cubes.");
+			restart ();
+		}
+
+		if (status () == Response.TRIANGLEVICTORY)
+		{
+			System.out.println ("[CNTROL] Winner: Triangles.");
+			restart ();
+		}
+		
 		if (turns.finishedTurn ())
 		{
 			if (turns.currentPlayer () == cubes && status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY)
-			{
 				turns.newTurn (triangles);
-				triangles.turn ();
-			} else if (status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY)
-			{
+			else if (status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY)
 				turns.newTurn (cubes);
-				cubes.turn ();
-			}
-
-			if (status () == Response.CUBEVICTORY)
-				System.out.println ("[CNTROL] Winner: Cubes.");
-
-			if (status () == Response.TRIANGLEVICTORY)
-				System.out.println ("[CNTROL] Winner: Triangles.");
 		}
 	}
 
@@ -249,6 +254,13 @@ public class GameController extends Game
 				return Response.INVALID;
 			}
 
+			/* Check it's not a Character Null */
+			if (objective instanceof CharacterNull && (!(attacker instanceof CubeBoomer) && !(attacker instanceof TriangleBoomer)))
+			{
+				System.out.println ("[CNTROL] Selected CharacterNull, Only Boomers can attack on CharacterNull");
+				return Response.INVALID;
+			}
+
 			/* We check again if the attacker character is in the player's team */
 			if (!player.team ().isAssignableFrom (attacker.getClass ()))
 			{
@@ -256,8 +268,59 @@ public class GameController extends Game
 				return Response.INVALID;
 			}
 
+			/* Check boomer area's attack. */
+			if ((attacker instanceof CubeBoomer || attacker instanceof TriangleBoomer) && objective instanceof CharacterNull)
+			{
+				/* We create the four near coordinates */
+				Coordinates Up = new Coordinates (destination.x, destination.y + 1);
+				Coordinates Down = new Coordinates (destination.x, destination.y - 1);
+				Coordinates Right = new Coordinates (destination.x + 1, destination.y);
+				Coordinates Left = new Coordinates (destination.x - 1, destination.y);
+
+				/* First we must check if the coordinates are correct */
+				if (Up.x >= 0 && Up.x <= 10 && Up.y >= 0 && Up.y <= 10)
+				{
+					objective = (Character) map.get (Up);
+					if (BoomerAttack (objective, attacker, source, Up))
+					{
+						turns.attack (player);
+						return Response.OK;
+					}
+				}
+
+				if (Down.x >= 0 && Down.x <= 10 && Down.y >= 0 && Down.y <= 10)
+				{
+					objective = (Character) map.get (Down);
+					if (BoomerAttack (objective, attacker, source, Down))
+					{
+						turns.attack (player);
+						return Response.OK;
+					}
+				}
+
+				if (Right.x >= 0 && Right.x <= 10 && Right.y >= 0 && Right.y <= 10)
+				{
+					objective = (Character) map.get (Right);
+					if (BoomerAttack (objective, attacker, source, Right))
+					{
+						turns.attack (player);
+						return Response.OK;
+					}
+				}
+
+				if (Left.x >= 0 && Left.x <= 10 && Left.y >= 0 && Left.y <= 10)
+				{
+					objective = (Character) map.get (Left);
+					if (BoomerAttack (objective, attacker, source, Left))
+					{
+						turns.attack (player);
+						return Response.OK;
+					}
+				}
+			}
+
 			/* Attack it. */
-			if (objective instanceof Character)
+			else if (objective instanceof Character)
 			{
 				System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + objective.toString () + " "
 						+ destination.toString () + " with " + attacker.getDamage () + " damage.");
@@ -274,12 +337,42 @@ public class GameController extends Game
 
 				return Response.OK;
 			}
+
 		}
 
 		/* TODO Implement environment's attacks. */
 
 		System.out.println ("[CNTROL] " + source.toString () + " cannot attack " + destination.toString ());
 		return Response.INVALID;
+	}
+
+	/**
+	 * This method is an internal function that help to check the boomer area attack.
+	 * 
+	 * @param objective
+	 * @param attacker
+	 * @param source
+	 * @param destination
+	 * @return true or false depends if the attack is succesful or not
+	 */
+	private boolean BoomerAttack (Character objective, Character attacker, Coordinates source, Coordinates destination)
+	{
+		if (!(objective instanceof CharacterNull))
+		{
+			System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + objective.toString () + " "
+					+ destination.toString () + " with " + attacker.getDamage () / 4 + " damage.");
+			if (!(objective instanceof CharacterNull))
+				objective.addDamage (attacker.getDamage () / 4);
+
+			/* Death check. */
+			System.out.println ("[CNTROL] Health left: " + objective.getHealth ());
+			if (objective.getHealth () <= 0)
+			{
+				killEntity (destination);
+			}
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -506,8 +599,7 @@ public class GameController extends Game
 
 	public void skipTurn (Player p)
 	{
-		turns.newTurn (p);
-
+		turns.skip (p);
 	}
 
 	@Override

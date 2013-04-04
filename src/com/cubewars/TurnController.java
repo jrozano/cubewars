@@ -1,7 +1,9 @@
 package com.cubewars;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import com.cubewars.players.Player;
 
@@ -18,8 +20,15 @@ public class TurnController
 	private Map<Player, boolean[]> statuses = new HashMap<Player, boolean[]> ();
 	private Player currentPlayer;
 
-	public TurnController ()
+	public TurnController (List<Player> players)
 	{
+		for (Player p : players)
+			statuses.put (p, new boolean[2]);
+
+		/* Randomly choose a player to start the game. */
+		Random randomGenerator = new Random ();
+		int playerID = randomGenerator.nextInt (statuses.size ());
+		newTurn (players.get (playerID));
 	}
 
 	/**
@@ -32,6 +41,7 @@ public class TurnController
 		System.out.println ("[TURN  ] New turn for " + p.toString ());
 		statuses.put (p, new boolean[2]);
 		currentPlayer = p;
+		p.turn ();
 	}
 
 	/**
@@ -43,8 +53,10 @@ public class TurnController
 	public void move (Player p)
 	{
 		if (canMove (p))
+		{
 			statuses.get (p)[0] = true;
-		else
+			System.out.println ("[TURN  ] " + p.toString () + " turn status: " + statuses.get (p)[0] + ", " + statuses.get (p)[1]);
+		} else
 			System.out.println ("[TURN  ] " + p.toString () + " cannot move: " + statuses.get (p)[0] + ", " + statuses.get (p)[1]);
 	}
 
@@ -57,8 +69,10 @@ public class TurnController
 	public void attack (Player p)
 	{
 		if (canAttack (p))
+		{
 			statuses.get (p)[1] = true;
-		else
+			System.out.println ("[TURN  ] " + p.toString () + " turn status: " + statuses.get (p)[0] + ", " + statuses.get (p)[1]);
+		} else
 			System.out.println ("[TURN  ] " + p.toString () + " cannot attack: " + statuses.get (p)[0] + ", " + statuses.get (p)[1]);
 	}
 
@@ -72,7 +86,6 @@ public class TurnController
 	public boolean canMove (Player p)
 	{
 		return !statuses.get (p)[0];
-
 	}
 
 	/**
@@ -88,8 +101,8 @@ public class TurnController
 
 	public void skip (Player p)
 	{
-		statuses.get (currentPlayer)[0] = true;
-		statuses.get (currentPlayer)[1] = true;
+		statuses.get (p)[0] = true;
+		statuses.get (p)[1] = true;
 	}
 
 	public boolean finishedTurn ()

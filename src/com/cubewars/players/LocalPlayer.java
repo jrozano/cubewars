@@ -13,17 +13,18 @@ import com.cubewars.characters.CharacterNull;
 
 public class LocalPlayer extends Player implements InputProcessor
 {
-	private Coordinates origin = null; 
-	
+	private Coordinates origin;
+
 	public LocalPlayer (GameController controlador, Class<? extends Character> equipo)
 	{
 		super (controlador, equipo);
-		
+
 	}
-	
+
 	public void turn ()
 	{
 		Gdx.input.setInputProcessor (this);
+		origin = null;
 	}
 
 	@Override
@@ -48,70 +49,98 @@ public class LocalPlayer extends Player implements InputProcessor
 
 	@Override
 	public boolean touchDown (int screenX, int screenY, int pointer, int button)
-	{		
+	{
 		if (button == Buttons.RIGHT)
 		{
-			System.out.println ("[LOCAL ] Skipping Phase.");
+			System.out.println ("[LOCAL ] Skipping Turn.");
 			controller.skipTurn (this);
+			origin = null;
 			return true;
 		}
 
 		Coordinates destination = new Pixel (screenX, 800 - screenY).toCoordinates ();
-		System.out.println ("[LOCAL ] Touchdown on: " + screenX + ", " + (800 - screenY) + ": " + destination.toString ());
+		System.out.println ("[LOCAL ] Touchdown on: (" + screenX + ", " + (Gdx.graphics.getHeight () - screenY) + ") px: " + destination.toString ()
+				+ ": " + controller.select (destination).getSimpleName ());
 
 		if (origin == null)
-			origin = destination;
-		else
+		{
+			if (team ().isAssignableFrom (controller.select (destination)))
+				origin = destination;
+		} else
 		{
 			Class<? extends GameObject> objective = controller.select (destination);
+			Class<? extends GameObject> selected = controller.select (origin);
 
-			/* Check movement. */
-			if (objective == CharacterNull.class && !controller.moved (this))
+			/* Only obey if the game has not ended. */
+			if (controller.status () == Response.ACTIVE && team ().isAssignableFrom (selected))
 			{
-				System.out.println ("[PLAYER] Movement Phase.");
-				System.out.println ("[PLAYER] Objective: " + objective.getSimpleName ());
-
-				Response response = controller.move (origin, destination, this);
-
-				/*
-				 * Check that the controller has indeed made the movement. If not, ask for another
-				 * cell.
-				 */
-				if (response != Response.OK)
+				/* Check movement. */
+				if (objective == CharacterNull.class && !controller.moved (this))
 				{
-					System.out.println ("[PLAYER] Choose another cell.");
-					return false;
+					System.out.println ("[LOCAL ] Movement Phase.");
+					System.out.println ("[LOCAL ] Objective: " + objective.getSimpleName ());
+
+					Response response = controller.move (origin, destination, this);
+
+					/*
+					 * Check that the controller has indeed made the movement. If not, ask for
+					 * another cell.
+					 */
+					if (response != Response.OK)
+					{
+						System.out.println ("[LOCAL ] Choose another cell.");
+						return false;
+					}
+
+					origin = destination;
+					return true;
 				}
 
-				origin = destination;
-
-				return true;
-			}
-
-			/* Check attack. */
-			if (enemy ().isAssignableFrom (objective) && !controller.attacked (this))
-			{
-				System.out.println ("[PLAYER] Attack Phase.");
-				System.out.println ("[PLAYER] Objective: " + objective.getSimpleName ());
-				Response response = controller.attack (origin, destination, this);
-
-				/*
-				 * Check that the controller has indeed made the attack. If not, ask for another
-				 * cell.
-				 */
-				if (response != Response.OK)
+				/* Check Boomer area's attack */
+				if (objective == CharacterNull.class && !controller.attacked (this))
 				{
-					System.out.println ("[PLAYER] Choose another cell.");
-					return false;
+					if (origin.x < destination.x + 1 || origin.x > destination.y - 1 || origin.y < destination.y + 1 || origin.y > destination.y - 1)
+					{
+						Response response = controller.attack (origin, destination, this);
+
+						/*
+						 * Check that the controller has indeed made the attack. If not, ask for
+						 * another cell.
+						 */
+						if (response != Response.OK)
+						{
+							System.out.println ("[LOCAL ] Choose another cell.");
+							return false;
+						}
+						return true;
+					}
 				}
 
-				return true;
-			}
+				/* Check attack. */
+				if (enemy ().isAssignableFrom (objective) && !controller.attacked (this))
+				{
+					System.out.println ("[LOCAL ] Attack Phase.");
+					System.out.println ("[LOCAL ] Objective: " + objective.getSimpleName ());
+					Response response = controller.attack (origin, destination, this);
 
-			/* Check object. */
-			/* TODO Implement objects. */
+					/*
+					 * Check that the controller has indeed made the attack. If not, ask for another
+					 * cell.
+					 */
+					if (response != Response.OK)
+					{
+						System.out.println ("[LOCAL ] Choose another cell.");
+						return false;
+					}
+
+					return true;
+				}
+
+				/* Check object. */
+				/* TODO Implement objects. */
+			}
 		}
-		
+
 		return false;
 	}
 
