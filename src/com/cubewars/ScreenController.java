@@ -2,8 +2,15 @@ package com.cubewars;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+
+import com.cubewars.characters.Character;
 
 /**
  * A controller used to draw objects into the screen.
@@ -49,8 +56,9 @@ public class ScreenController implements Screen
 		/* Dibujamos en pantalla todos los elementos que haya en el contenedor del controller. */
 		batch.begin ();
 
-		for (GameObject g : controller.getDrawingContainer ())
-			batch.draw (g.getTexture (), g.area.x, g.area.y);
+		for (GameObject g : controller.getDrawingContainer ()){
+			batch.draw (g.getTexture (), g.area.x, g.area.y, g.area.width, g.area.height);
+		}
 
 		batch.end ();
 	}

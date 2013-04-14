@@ -28,7 +28,7 @@ public abstract class GameObject implements Comparable<GameObject>
 	 * @param posX Horizontal position.
 	 * @param posY Vertical position.
 	 */
-	public GameObject (int priority, Texture texture, float posX, float posY)
+	public GameObject (int priority, Texture texture, int posX, int posY)
 	{
 		/*
 		 * FIXME Given a large number of objects created and destroyed, the IDs are not reused.
@@ -129,4 +129,5 @@ public abstract class GameObject implements Comparable<GameObject>
 	{
 		return this.getClass ().getSimpleName ();
 	}
+	
 }

@@ -3,9 +3,13 @@ package com.cubewars;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.graphics.Texture;
 import com.cubewars.characters.Character;
 import com.cubewars.characters.CharacterNull;
 import com.cubewars.characters.Cube;
@@ -104,6 +108,9 @@ public class GameController extends Game
 
 		c = new Coordinates (4, 4);
 		addEntity (new TriangleSniper (c), c);
+		
+		c = new Coordinates (4, 2);
+		addEntity (new TriangleSniper (c), c);
 
 		c = new Coordinates (2, 4);
 		addEntity (new CubeBoomer (c), c);
@@ -114,6 +121,8 @@ public class GameController extends Game
 
 		screenItems.add (new Background ("grid.png"));
 		Collections.sort (screenItems);
+		
+		manageLifebars();
 		/* End test entities. */
 	}
 
@@ -141,12 +150,18 @@ public class GameController extends Game
 		 * Here we check if the player currently playing has finished his two moves. If he has,
 		 * change turns.
 		 */
+		
+		manageLifebars();
+		
 		if (turns.finishedTurn ())
 		{
-			if (turns.currentPlayer () == cubes && status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY)
+			
+			if (turns.currentPlayer () == cubes && status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY){
 				turns.newTurn (triangles);
-			else if (status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY)
+			}
+			else if (status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY){
 				turns.newTurn (cubes);
+			}
 		}
 	}
 
@@ -215,6 +230,38 @@ public class GameController extends Game
 	public List<GameObject> getDrawingContainer ()
 	{
 		return screenItems;
+	}
+	
+	public void manageLifebars(){
+		//first we delete the bars of the enemies
+		for(int i=0; i<screenItems.size();i++){
+			GameObject g = screenItems.get(i);
+			if(Lifebar.class.isAssignableFrom(g.getClass())){
+				screenItems.remove(i);
+			}
+		}
+		
+		//then we checkout which player is the current player
+		if(turns.currentPlayer() == cubes){
+			for(int i=0; i<screenItems.size();i++){
+				GameObject g = screenItems.get(i);
+				if(Cube.class.isAssignableFrom(g.getClass())){
+					Lifebar lb = new Lifebar(3, (int)g.area.x,(int)g.area.y);
+					lb.setWidth(((Character)g).getHealth());
+					this.add(lb);
+				}
+			}
+		}
+		else if(turns.currentPlayer() == triangles){
+			for(int i=0; i<screenItems.size();i++){
+				GameObject g = screenItems.get(i);
+				if(Triangle.class.isAssignableFrom(g.getClass())){
+					Lifebar lb = new Lifebar(3, (int)g.area.x,(int)g.area.y);
+					lb.setWidth(((Character)g).getHealth());
+					this.add(lb);
+				}
+			}
+		}
 	}
 
 	/********************************************************************************
@@ -362,55 +409,38 @@ public class GameController extends Game
 			}
 
 			/* Check boomer's area attack. */
-			if ((attacker instanceof CubeBoomer || attacker instanceof TriangleBoomer) && objective instanceof CharacterNull)
+			if (attacker instanceof CubeBoomer || attacker instanceof TriangleBoomer)
 			{
-				/* We create the four near coordinates */
-				System.out.println ("Entra");
-				Coordinates Up = new Coordinates (destination.x (), destination.y () + 1);
-				Coordinates Down = new Coordinates (destination.x (), destination.y () - 1);
-				Coordinates Right = new Coordinates (destination.x () + 1, destination.y ());
-				Coordinates Left = new Coordinates (destination.x () - 1, destination.y ());
-
-				/* First we must check if the coordinates are correct */
-				if (Up.x >= 0 && Up.x <= 10 && Up.y >= 0 && Up.y <= 10)
-				{
-					objective = (Character) map.get (Up);
-					if (BoomerAttack (objective, attacker, source, Up))
-					{
-						turns.attack (player);
-						return Response.OK;
+				
+				HashSet<Coordinates>s = AreaAttack(destination,1);
+				Iterator i= s.iterator();
+				
+				while(i.hasNext()){
+					Coordinates c = (Coordinates) i.next();
+					objective = (Character) map.get (c);
+					
+					if(!(objective instanceof CharacterNull)){
+						if(c!=destination){
+							System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + "Area attacking " + objective.toString () + " "
+									+ destination.toString () + " with " + attacker.getDamage () / 4 + " damage.");
+							objective.addDamage (attacker.getDamage () / 4);
+						}
+						else{
+							System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + objective.toString () + " "
+									+ destination.toString () + " with " + attacker.getDamage () + " damage.");
+							objective.addDamage (attacker.getDamage ());
+						}
+						
+						/* Death check. */
+						System.out.println ("[CNTROL] Health left: " + objective.getHealth ());
+						if (objective.getHealth () <= 0)
+						{
+							killEntity (destination);
+						}
 					}
 				}
-
-				if (Down.x >= 0 && Down.x <= 10 && Down.y >= 0 && Down.y <= 10)
-				{
-					objective = (Character) map.get (Down);
-					if (BoomerAttack (objective, attacker, source, Down))
-					{
-						turns.attack (player);
-						return Response.OK;
-					}
-				}
-
-				if (Right.x >= 0 && Right.x <= 10 && Right.y >= 0 && Right.y <= 10)
-				{
-					objective = (Character) map.get (Right);
-					if (BoomerAttack (objective, attacker, source, Right))
-					{
-						turns.attack (player);
-						return Response.OK;
-					}
-				}
-
-				if (Left.x >= 0 && Left.x <= 10 && Left.y >= 0 && Left.y <= 10)
-				{
-					objective = (Character) map.get (Left);
-					if (BoomerAttack (objective, attacker, source, Left))
-					{
-						turns.attack (player);
-						return Response.OK;
-					}
-				}
+				turns.attack(player);
+				return Response.OK;
 			}
 
 			/* Attack it. */
@@ -433,8 +463,6 @@ public class GameController extends Game
 			}
 		}
 
-		/* TODO Implement environment's attacks. */
-
 		System.out.println ("[CNTROL] " + source.toString () + " cannot attack " + destination.toString ());
 		return Response.INVALID;
 	}
@@ -446,29 +474,27 @@ public class GameController extends Game
 	 * @param attacker
 	 * @param source
 	 * @param destination
-	 * @return true or false depends if the attack is succesful or not
+	 * @return true or false depends if the attack is successful or not
 	 */
-	private boolean BoomerAttack (Character objective, Character attacker, Coordinates source, Coordinates destination)
-	{
-		if (!(objective instanceof CharacterNull))
-		{
-			System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + objective.toString () + " "
-					+ destination.toString () + " with " + attacker.getDamage () / 4 + " damage.");
-			if (!(objective instanceof CharacterNull))
-				objective.addDamage (attacker.getDamage () / 4);
 
-			/* Death check. */
-			System.out.println ("[CNTROL] Health left: " + objective.getHealth ());
-			if (objective.getHealth () <= 0)
-			{
-				killEntity (destination);
-			}
-			return true;
+	private HashSet<Coordinates> AreaAttack (Coordinates c, int area){
+		HashSet<Coordinates> s = new HashSet<Coordinates>();
+		s.add(c);
+		if(area==0){
+			return s;
 		}
-		return false;
+		else{
+			if(c.x<map.height())
+				s.addAll(AreaAttack(new Coordinates(c.x+1,c.y),area-1));
+			if(c.x>0)
+				s.addAll(AreaAttack(new Coordinates(c.x-1,c.y),area-1));
+			if(c.y>0)
+				s.addAll(AreaAttack(new Coordinates(c.x,c.y-1),area-1)); 
+			if(c.y<map.width())
+				s.addAll(AreaAttack(new Coordinates(c.x,c.y+1),area-1));
+			return s;
+		}
 	}
-
-	
 
 	/********************************************************************************
 	 * 1.4 CHARACTER SHOPPING.                                                      *

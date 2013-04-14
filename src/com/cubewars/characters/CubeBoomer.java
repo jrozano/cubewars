@@ -7,7 +7,7 @@ import com.cubewars.Coordinates;
 public class CubeBoomer extends Cube
 {
 	private static final Texture texture = new Texture (Gdx.files.internal ("media/characters/cube-boomer.png"));
-	private static final float maxHealth = 60;
+	private static final float maxHealth = 100;
 	private static final float damage = 90;
 	private static final int damageDistance = 2;
 	private static final int travel = 2;

@@ -108,4 +108,12 @@ public class Map
 	{
 		return grid[c.x][c.y];
 	}
+	
+	public int height(){
+		return height;
+	}
+	
+	public int width(){
+		return width;
+	}
 }

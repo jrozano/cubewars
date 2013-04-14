@@ -15,7 +15,7 @@ public abstract class Environment extends GameObject
 	/* Basse priority. */
 	private static final int priority = 1;
 
-	public Environment (Texture texture, float posX, float posY)
+	public Environment (Texture texture, int posX, int posY)
 	{
 		super (priority, texture, posX, posY);
 	}

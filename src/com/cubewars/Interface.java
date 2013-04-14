@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.Texture;
 public class Interface extends GameObject
 {
 
-	public Interface (Texture textura, float posX, float posY)
+	public Interface (Texture textura, int posX, int posY)
 	{
 		super (10, textura, posX, posY);
 	}
