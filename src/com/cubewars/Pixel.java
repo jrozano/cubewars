@@ -44,4 +44,9 @@ public class Pixel
 	{
 		return new Coordinates ((int) x / (Gdx.graphics.getWidth()/10), (int) y / (Gdx.graphics.getHeight()/10));
 	}
+	
+	public String toString ()
+	{
+		return "(" + x + ", " + y + ")";
+	}
 }
