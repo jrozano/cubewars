@@ -59,15 +59,11 @@ public class ConsolePlayer extends Player
 
 				} while (!team ().isAssignableFrom (selected));
 
-				controller.map.print ();
-
 				/* First Stage. */
 				do
 				{
 					System.out.println ("[PLAYER] Selected " + selected.getSimpleName ());
 					System.out.println ("[PLAYER] Stage One: choose an objective.");
-
-					controller.map.print ();
 
 					System.out.print ("x > ");
 					destinationX = Integer.parseInt (input.readLine ());
@@ -92,8 +88,6 @@ public class ConsolePlayer extends Player
 					{
 						System.out.println ("[PLAYER] Selected " + selected.getSimpleName ());
 						System.out.println ("[PLAYER] Stage Two: choose an objective.");
-
-						controller.map.print ();
 
 						System.out.print ("x > ");
 						destinationX = Integer.parseInt (input.readLine ());

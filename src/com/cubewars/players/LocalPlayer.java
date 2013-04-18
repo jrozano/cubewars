@@ -66,11 +66,16 @@ public class LocalPlayer extends Player implements InputProcessor
 		{
 			if (team ().isAssignableFrom (controller.select (destination)))
 				origin = destination;
+			
+			/* Highligh cells. */
+			controller.choose (origin, this);
 		} else
-
 		{
 			Class<? extends GameObject> objective = controller.select (destination);
 			Class<? extends GameObject> selected = controller.select (origin);
+			
+			/* Highligh cells. */
+			controller.choose (origin, this);
 
 			/* Only obey if the game has not ended. */
 			if (controller.status () == Response.ACTIVE && team ().isAssignableFrom (selected))
