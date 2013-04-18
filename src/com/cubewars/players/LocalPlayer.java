@@ -62,13 +62,15 @@ public class LocalPlayer extends Player implements InputProcessor
 		System.out.println ("[LOCAL ] Touchdown on: (" + screenX + ", " + (Gdx.graphics.getHeight () - screenY) + ") px: " + destination.toString ()
 				+ ": " + controller.select (destination).getSimpleName ());
 
+		/* Check if we already have a origin coordinates for our movement. */
 		if (origin == null)
 		{
 			if (team ().isAssignableFrom (controller.select (destination)))
 				origin = destination;
 			
-			/* Highligh cells. */
-			controller.choose (origin, this);
+			/* Highligh cells only if a character has been selected. */
+			if (origin != null)
+				controller.choose (origin, this);
 		} else
 		{
 			Class<? extends GameObject> objective = controller.select (destination);
