@@ -96,7 +96,7 @@ public class ScreenController implements Screen
 			highlightedCells.setColor (Color.RED);
 			
 			for (Coordinates c : coordinatesSet)
-				highlightedCells.filledRect (c.toPixel ().x, c.toPixel ().y, 128, 80);
+				highlightedCells.filledRect (c.toPixel ().x, c.toPixel ().y, 127, 79);
 			
 			highlightedCells.end ();
 		}
@@ -109,7 +109,7 @@ public class ScreenController implements Screen
 			highlightedCells.setColor (Color.GREEN);
 			
 			for (Coordinates c : coordinatesSet)
-				highlightedCells.filledRect (c.toPixel ().x, c.toPixel ().y, 128, 80);
+				highlightedCells.filledRect (c.toPixel ().x, c.toPixel ().y, 127, 79);
 			
 			highlightedCells.end ();
 		}
