@@ -1,12 +1,13 @@
 package com.cubewars;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Set;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -26,6 +27,7 @@ public class ScreenController implements Screen
 	private GameController controller;
 	private SpriteBatch batch;
 	private ShapeRenderer gridLines;
+	private ShapeRenderer highlightedCells;
 	private BufferedWriter output;
 	private double elapsedTime;
 	private double interval = 0;
@@ -43,6 +45,7 @@ public class ScreenController implements Screen
 			this.controller = controller;
 			this.batch = new SpriteBatch ();
 			this.gridLines = new ShapeRenderer ();
+			this.highlightedCells = new ShapeRenderer ();
 			this.elapsedTime = 0;
 
 			/* FIXME Only valid for desktop. */
@@ -85,6 +88,32 @@ public class ScreenController implements Screen
 
 		gridLines.end ();
 
+		/* Draw highlighted cells. */
+		Set<Coordinates> coordinatesSet = controller.getHighlightedAttack ();		
+		if (coordinatesSet != null && coordinatesSet.size () != 0)
+		{
+			highlightedCells.begin (ShapeType.FilledRectangle);
+			highlightedCells.setColor (Color.RED);
+			
+			for (Coordinates c : coordinatesSet)
+				highlightedCells.filledRect (c.toPixel ().x, c.toPixel ().y, 128, 80);
+			
+			highlightedCells.end ();
+		}
+		
+		coordinatesSet = controller.getHighlightedMovement ();
+
+		if (coordinatesSet != null && coordinatesSet.size () != 0)
+		{
+			highlightedCells.begin (ShapeType.FilledRectangle);
+			highlightedCells.setColor (Color.GREEN);
+			
+			for (Coordinates c : coordinatesSet)
+				highlightedCells.filledRect (c.toPixel ().x, c.toPixel ().y, 128, 80);
+			
+			highlightedCells.end ();
+		}
+
 		/* Dibujamos en pantalla todos los elementos que haya en el contenedor del controller. */
 		batch.begin ();
 
@@ -94,7 +123,7 @@ public class ScreenController implements Screen
 		}
 
 		batch.end ();
-		
+
 		elapsedTime += delta;
 		interval += delta;
 
@@ -147,7 +176,6 @@ public class ScreenController implements Screen
 		{
 			batch.dispose ();
 			output.close ();
-			System.out.println ("CERRANDO");
 		} catch (IOException e)
 		{
 			e.printStackTrace ();

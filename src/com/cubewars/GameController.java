@@ -38,7 +38,9 @@ public class GameController extends Game
 	private List<Player> playerList;
 	private HashMap<Player, Double> money; /* The money balance of each player: */
 	private HashMap<Class<? extends Character>, Double> prices; /* How much each character costs: */
-	public Map map;
+	private Set<Coordinates> highlightedMovement;
+	private Set<Coordinates> highlightedAttack;
+	private Map map;
 	private TurnController turns;
 	public Player cubes;
 	public Player triangles;
@@ -81,6 +83,8 @@ public class GameController extends Game
 		money = new HashMap<Player, Double> ();
 		prices = new HashMap<Class<? extends Character>, Double> ();
 		playerList = new ArrayList<Player> ();
+		highlightedMovement = null;
+		highlightedAttack = null;
 
 		/* Populate the character cost map: */
 		prices.put (CubeGunner.class, 100.0);
@@ -109,7 +113,7 @@ public class GameController extends Game
 
 		c = new Coordinates (4, 4);
 		addEntity (new TriangleSniper (c), c);
-		
+
 		c = new Coordinates (4, 2);
 		addEntity (new TriangleSniper (c), c);
 
@@ -120,10 +124,10 @@ public class GameController extends Game
 		 * c = new Coordinates (4, 3); addEntity (new TriangleBoomer (c), c);
 		 */
 
-		//screenItems.add (new Background ("grid.png"));
+		// screenItems.add (new Background ("grid.png"));
 		Collections.sort (screenItems);
-		
-		manageLifebars();
+
+		manageLifebars ();
 		/* End test entities. */
 	}
 
@@ -151,16 +155,17 @@ public class GameController extends Game
 		 * Here we check if the player currently playing has finished his two moves. If he has,
 		 * change turns.
 		 */
-		
-		manageLifebars();
-		
+
+		manageLifebars ();
+
 		if (turns.finishedTurn ())
 		{
-			
-			if (turns.currentPlayer () == cubes && status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY){
+
+			if (turns.currentPlayer () == cubes && status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY)
+			{
 				turns.newTurn (triangles);
-			}
-			else if (status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY){
+			} else if (status () != Response.CUBEVICTORY && status () != Response.TRIANGLEVICTORY)
+			{
 				turns.newTurn (cubes);
 			}
 		}
@@ -207,9 +212,9 @@ public class GameController extends Game
 
 		return Response.ACTIVE;
 	}
-	
+
 	/********************************************************************************
-	 * 1.2 SCREEN CONTROL.                                                          *
+	 * 1.2 SCREEN CONTROL. *
 	 ********************************************************************************/
 
 	/**
@@ -232,38 +237,57 @@ public class GameController extends Game
 	{
 		return screenItems;
 	}
-	
-	public void manageLifebars(){
-		//first we delete the bars of the enemies
-		for(int i=0; i<screenItems.size();i++){
-			GameObject g = screenItems.get(i);
-			if(Lifebar.class.isAssignableFrom(g.getClass())){
-				screenItems.remove(i);
+
+	public void manageLifebars ()
+	{
+		// first we delete the bars of the enemies
+		for (int i = 0; i < screenItems.size (); i++)
+		{
+			GameObject g = screenItems.get (i);
+			if (Lifebar.class.isAssignableFrom (g.getClass ()))
+			{
+				screenItems.remove (i);
 			}
 		}
-		
-		//then we checkout which player is the current player
-		if(turns.currentPlayer() == cubes){
-			for(int i=0; i<screenItems.size();i++){
-				GameObject g = screenItems.get(i);
-				if(Cube.class.isAssignableFrom(g.getClass())){
-					Lifebar lb = new Lifebar(3, (int)g.area.x,(int)g.area.y);
-					lb.setWidth(((Character)g).getHealth());
-					this.add(lb);
+
+		// then we checkout which player is the current player
+		if (turns.currentPlayer () == cubes)
+		{
+			for (int i = 0; i < screenItems.size (); i++)
+			{
+				GameObject g = screenItems.get (i);
+				if (Cube.class.isAssignableFrom (g.getClass ()))
+				{
+					Lifebar lb = new Lifebar (3, (int) g.area.x, (int) g.area.y);
+					lb.setWidth (((Character) g).getHealth ());
+					this.add (lb);
 				}
 			}
-		}
-		else if(turns.currentPlayer() == triangles){
-			for(int i=0; i<screenItems.size();i++){
-				GameObject g = screenItems.get(i);
-				if(Triangle.class.isAssignableFrom(g.getClass())){
-					Lifebar lb = new Lifebar(3, (int)g.area.x,(int)g.area.y);
-					lb.setWidth(((Character)g).getHealth());
-					this.add(lb);
+		} else if (turns.currentPlayer () == triangles)
+		{
+			for (int i = 0; i < screenItems.size (); i++)
+			{
+				GameObject g = screenItems.get (i);
+				if (Triangle.class.isAssignableFrom (g.getClass ()))
+				{
+					Lifebar lb = new Lifebar (3, (int) g.area.x, (int) g.area.y);
+					lb.setWidth (((Character) g).getHealth ());
+					this.add (lb);
 				}
 			}
 		}
 	}
+	
+	public Set<Coordinates> getHighlightedMovement ()
+	{
+		return highlightedMovement;
+	}
+	
+	public Set<Coordinates> getHighlightedAttack ()
+	{
+		return highlightedAttack;
+	}
+	
 
 	/********************************************************************************
 	 * 1.3 PLAYER ACTIONS. *
@@ -281,6 +305,24 @@ public class GameController extends Game
 	public Class<? extends GameObject> select (Coordinates c)
 	{
 		return map.get (c).getClass ();
+	}
+	
+	public void choose (Coordinates source, Player player)
+	{
+		Character character = (Character) map.get (source);
+		int totalArea = 0;
+		
+		if (turns.canMove (player))
+		{
+			totalArea += character.getTravel ();
+			highlightedMovement = getArea (source, character.getTravel ());
+		}
+		
+		if (turns.canAttack (player))
+		{
+			totalArea += character.getAttackDistance ();
+			highlightedAttack = getArea (source, totalArea);
+		}	
 	}
 
 	/**
@@ -328,6 +370,10 @@ public class GameController extends Game
 						character.area.x = destination.toPixel ().x;
 						character.area.y = destination.toPixel ().y;
 
+						/* Clear highlightedMovement cells. */
+						highlightedAttack = null;
+						highlightedMovement = null;
+						
 						return Response.OK;
 					} else
 						System.out.println ("[CNTROL] Cannot move: too far away.");
@@ -412,26 +458,33 @@ public class GameController extends Game
 			/* Check boomer's area attack. */
 			if (attacker instanceof CubeBoomer || attacker instanceof TriangleBoomer)
 			{
-				
-				HashSet<Coordinates>s = AreaAttack(destination,1);
-				Iterator i= s.iterator();
-				
-				while(i.hasNext()){
-					Coordinates c = (Coordinates) i.next();
+
+				Set<Coordinates> s = getArea (destination, 1);
+				Iterator<Coordinates> i = s.iterator ();
+
+				while (i.hasNext ())
+				{
+					Coordinates c = (Coordinates) i.next ();
 					objective = (Character) map.get (c);
-					
-					if(!(objective instanceof CharacterNull)){
-						if(c!=destination){
-							System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + "Area attacking " + objective.toString () + " "
-									+ destination.toString () + " with " + attacker.getDamage () / 4 + " damage.");
+
+					if (!(objective instanceof CharacterNull))
+					{
+						if (c != destination)
+						{
+							System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + "Area attacking "
+									+ objective.toString () + " " + destination.toString () + " with " + attacker.getDamage () / 4 + " damage.");
 							objective.addDamage (attacker.getDamage () / 4);
-						}
-						else{
-							System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + objective.toString () + " "
-									+ destination.toString () + " with " + attacker.getDamage () + " damage.");
+						} else
+						{
+							System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + objective.toString ()
+									+ " " + destination.toString () + " with " + attacker.getDamage () + " damage.");
 							objective.addDamage (attacker.getDamage ());
 						}
 						
+						/* Clear highlightedMovement cells. */
+						highlightedAttack = null;
+						highlightedMovement = null;
+
 						/* Death check. */
 						System.out.println ("[CNTROL] Health left: " + objective.getHealth ());
 						if (objective.getHealth () <= 0)
@@ -440,7 +493,8 @@ public class GameController extends Game
 						}
 					}
 				}
-				turns.attack(player);
+				
+				turns.attack (player);
 				return Response.OK;
 			}
 
@@ -452,6 +506,10 @@ public class GameController extends Game
 
 				objective.addDamage (attacker.getDamage ());
 				turns.attack (player);
+				
+				/* Clear highlightedMovement cells. */
+				highlightedAttack = null;
+				highlightedMovement = null;
 
 				/* Death check. */
 				System.out.println ("[CNTROL] Health left: " + objective.getHealth ());
@@ -478,27 +536,30 @@ public class GameController extends Game
 	 * @return true or false depends if the attack is successful or not
 	 */
 
-	private HashSet<Coordinates> AreaAttack (Coordinates c, int area){
-		HashSet<Coordinates> s = new HashSet<Coordinates>();
-		s.add(c);
-		if(area==0){
+	private Set<Coordinates> getArea (Coordinates c, int area)
+	{
+		HashSet<Coordinates> s = new HashSet<Coordinates> ();
+		s.add (c);
+		
+		if (area == 0)
+		{
 			return s;
-		}
-		else{
-			if(c.x<map.height())
-				s.addAll(AreaAttack(new Coordinates(c.x+1,c.y),area-1));
-			if(c.x>0)
-				s.addAll(AreaAttack(new Coordinates(c.x-1,c.y),area-1));
-			if(c.y>0)
-				s.addAll(AreaAttack(new Coordinates(c.x,c.y-1),area-1)); 
-			if(c.y<map.width())
-				s.addAll(AreaAttack(new Coordinates(c.x,c.y+1),area-1));
+		} else
+		{
+			if (c.x < map.height ())
+				s.addAll (getArea (new Coordinates (c.x + 1, c.y), area - 1));
+			if (c.x > 0)
+				s.addAll (getArea (new Coordinates (c.x - 1, c.y), area - 1));
+			if (c.y > 0)
+				s.addAll (getArea (new Coordinates (c.x, c.y - 1), area - 1));
+			if (c.y < map.width ())
+				s.addAll (getArea (new Coordinates (c.x, c.y + 1), area - 1));
 			return s;
 		}
 	}
 
 	/********************************************************************************
-	 * 1.4 CHARACTER SHOPPING.                                                      *
+	 * 1.4 CHARACTER SHOPPING. *
 	 ********************************************************************************/
 
 	/**
@@ -638,13 +699,13 @@ public class GameController extends Game
 	{
 		return prices.get (item);
 	}
-	
+
 	/********************************************************************************
-	 * 2.0   PRIVATE METHODS.                                                       *
+	 * 2.0 PRIVATE METHODS. *
 	 ********************************************************************************/
-	
+
 	/********************************************************************************
-	 * 2.1   ENTITY ACTIONS.                                                        *
+	 * 2.1 ENTITY ACTIONS. *
 	 ********************************************************************************/
 
 	private void addEntity (GameObject g, Coordinates c)
@@ -667,11 +728,12 @@ public class GameController extends Game
 	public void skipTurn (Player p)
 	{
 		turns.skip (p);
+		highlightedMovement = null;
+		highlightedAttack = null;
 	}
-	
-	
+
 	/********************************************************************************
-	 * 3.0   LIBGDX METHODS.                                                        *
+	 * 3.0 LIBGDX METHODS. *
 	 ********************************************************************************/
 
 	@Override
