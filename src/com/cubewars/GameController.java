@@ -103,8 +103,9 @@ public class GameController extends Game
 
 		/* Add some test entities. */
 		Coordinates c;
-		c = new Coordinates (1, 1);
+		c = new Coordinates (0, 0);
 		addEntity (new CubeSniper (c), c);
+		System.out.println ("Colocado CubeSniper en " + c.toString () + ": " + c.toPixel ().toString ());
 
 		c = new Coordinates (4, 4);
 		addEntity (new TriangleSniper (c), c);
@@ -119,7 +120,7 @@ public class GameController extends Game
 		 * c = new Coordinates (4, 3); addEntity (new TriangleBoomer (c), c);
 		 */
 
-		screenItems.add (new Background ("grid.png"));
+		//screenItems.add (new Background ("grid.png"));
 		Collections.sort (screenItems);
 		
 		manageLifebars();
