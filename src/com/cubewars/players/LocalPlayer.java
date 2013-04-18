@@ -129,6 +129,7 @@ public class LocalPlayer extends Player implements InputProcessor
 			{
 				System.out.println ("[PLAYER] Attack Phase.");
 				System.out.println ("[PLAYER] Objective: " + objective.getSimpleName ());
+				
 				Response response = controller.attack (origin, destination, this);
 
 				/*

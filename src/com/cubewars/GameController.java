@@ -109,7 +109,6 @@ public class GameController extends Game
 		Coordinates c;
 		c = new Coordinates (0, 0);
 		addEntity (new CubeSniper (c), c);
-		System.out.println ("Colocado CubeSniper en " + c.toString () + ": " + c.toPixel ().toString ());
 
 		c = new Coordinates (4, 4);
 		addEntity (new TriangleSniper (c), c);
@@ -277,17 +276,16 @@ public class GameController extends Game
 			}
 		}
 	}
-	
+
 	public Set<Coordinates> getHighlightedMovement ()
 	{
 		return highlightedMovement;
 	}
-	
+
 	public Set<Coordinates> getHighlightedAttack ()
 	{
 		return highlightedAttack;
 	}
-	
 
 	/********************************************************************************
 	 * 1.3 PLAYER ACTIONS. *
@@ -306,23 +304,23 @@ public class GameController extends Game
 	{
 		return map.get (c).getClass ();
 	}
-	
+
 	public void choose (Coordinates source, Player player)
 	{
 		Character character = (Character) map.get (source);
 		int totalArea = 0;
-		
+
 		if (turns.canMove (player))
 		{
 			totalArea += character.getTravel ();
 			highlightedMovement = getArea (source, character.getTravel ());
 		}
-		
+
 		if (turns.canAttack (player))
 		{
 			totalArea += character.getAttackDistance ();
 			highlightedAttack = getArea (source, totalArea);
-		}	
+		}
 	}
 
 	/**
@@ -373,7 +371,7 @@ public class GameController extends Game
 						/* Clear highlightedMovement cells. */
 						highlightedAttack = null;
 						highlightedMovement = null;
-						
+
 						return Response.OK;
 					} else
 						System.out.println ("[CNTROL] Cannot move: too far away.");
@@ -480,7 +478,7 @@ public class GameController extends Game
 									+ " " + destination.toString () + " with " + attacker.getDamage () + " damage.");
 							objective.addDamage (attacker.getDamage ());
 						}
-						
+
 						/* Clear highlightedMovement cells. */
 						highlightedAttack = null;
 						highlightedMovement = null;
@@ -493,7 +491,7 @@ public class GameController extends Game
 						}
 					}
 				}
-				
+
 				turns.attack (player);
 				return Response.OK;
 			}
@@ -506,7 +504,7 @@ public class GameController extends Game
 
 				objective.addDamage (attacker.getDamage ());
 				turns.attack (player);
-				
+
 				/* Clear highlightedMovement cells. */
 				highlightedAttack = null;
 				highlightedMovement = null;
@@ -540,7 +538,7 @@ public class GameController extends Game
 	{
 		HashSet<Coordinates> s = new HashSet<Coordinates> ();
 		s.add (c);
-		
+
 		if (area == 0)
 		{
 			return s;

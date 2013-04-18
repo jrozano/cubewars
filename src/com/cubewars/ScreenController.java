@@ -71,6 +71,8 @@ public class ScreenController implements Screen
 	{
 		Gdx.gl.glClearColor (0, 0, 0, 1);
 		Gdx.gl.glClear (GL10.GL_COLOR_BUFFER_BIT);
+		Gdx.gl.glEnable(GL10.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 
 		controller.tick ();
 
@@ -89,11 +91,12 @@ public class ScreenController implements Screen
 		gridLines.end ();
 
 		/* Draw highlighted cells. */
-		Set<Coordinates> coordinatesSet = controller.getHighlightedAttack ();		
+		Set<Coordinates> coordinatesSet = controller.getHighlightedAttack ();
+		
 		if (coordinatesSet != null && coordinatesSet.size () != 0)
 		{
 			highlightedCells.begin (ShapeType.FilledRectangle);
-			highlightedCells.setColor (Color.RED);
+			highlightedCells.setColor (1, 0, 0, 0.3f);
 			
 			for (Coordinates c : coordinatesSet)
 				highlightedCells.filledRect (c.toPixel ().x, c.toPixel ().y, 127, 79);
@@ -106,7 +109,7 @@ public class ScreenController implements Screen
 		if (coordinatesSet != null && coordinatesSet.size () != 0)
 		{
 			highlightedCells.begin (ShapeType.FilledRectangle);
-			highlightedCells.setColor (Color.GREEN);
+			highlightedCells.setColor (0, 1, 0, 0.3f);
 			
 			for (Coordinates c : coordinatesSet)
 				highlightedCells.filledRect (c.toPixel ().x, c.toPixel ().y, 127, 79);
@@ -123,6 +126,7 @@ public class ScreenController implements Screen
 		}
 
 		batch.end ();
+		Gdx.gl.glDisable(GL10.GL_BLEND);
 
 		elapsedTime += delta;
 		interval += delta;

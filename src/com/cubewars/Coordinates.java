@@ -25,19 +25,25 @@ public class Coordinates
 		this.x = (int) Math.ceil (p.x / Gdx.graphics.getWidth ());
 		this.y = (int) Math.ceil (p.y / Gdx.graphics.getHeight ());
 	}
+
 	/**
 	 * Return the x coordinate
+	 * 
 	 * @return x
 	 */
-	
-	public int x(){
+
+	public int x ()
+	{
 		return x;
 	}
+
 	/**
 	 * Return the y coordinate
+	 * 
 	 * @return y
 	 */
-	public int y(){
+	public int y ()
+	{
 		return y;
 	}
 
@@ -75,11 +81,45 @@ public class Coordinates
 	 */
 	public Pixel toPixel ()
 	{
-		return new Pixel ((Gdx.graphics.getWidth()/10) * x, (Gdx.graphics.getHeight()/10) * y);
+		return new Pixel ((Gdx.graphics.getWidth () / 10) * x, (Gdx.graphics.getHeight () / 10) * y);
 	}
 
 	public String toString ()
 	{
 		return new String ("(" + x + ", " + y + ")");
+	}
+
+	/**
+	 * Compares two objects, and returns if they are equivalent or not.
+	 * 
+	 * Needed to compare objects and delete duplicates in a HashSet.
+	 * 
+	 * @param o The object to be compared to.
+	 * @returns "true" if both coordinates are the same, "false" in any other case.
+	 */
+	@Override
+	public boolean equals (Object o)
+	{
+		if (o instanceof Coordinates)
+		{
+			Coordinates c = (Coordinates) o;
+			return (x == c.x && y == c.y);
+		} else
+			return false;
+	}
+
+	/**
+	 * Needed to comply with the HashSet contract.
+	 * 
+	 * HashSet will use hashCode() to "presort" the objects before comparing them. The contract of
+	 * hashCode() says that whenever a.equals(b) is true, a.hashCode() == b.hashCode() will be true.
+	 * 
+	 * @return An int with the answer to the Ultimate Question of Life, the Universe, and
+	 *         Everything, which will serve as the Coordinates class' hash code.
+	 */
+	@Override
+	public int hashCode ()
+	{
+		return 42;
 	}
 }
