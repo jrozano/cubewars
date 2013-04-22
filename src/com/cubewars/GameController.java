@@ -433,7 +433,7 @@ public class GameController extends Game
 			Character objective = (Character) map.get (destination);
 
 			/* Check attack distance. */
-			if (source.distance (destination) > attacker.getAttackDistance ())
+			if (source.distance (destination) >= attacker.getAttackDistance ())
 			{
 				System.out.println ("[CNTROL] " + attacker.toString () + " is too far from " + destination.toString ());
 				return Response.INVALID;
