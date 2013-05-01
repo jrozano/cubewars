@@ -8,7 +8,9 @@
 
 # Eclipse project files
 /cubewars/bin
+/cubewars/.settings
 /cubewars-android/bin
 /cubewars-android/gen
+/cubewars-android/.settings
 /cubewars-desktop/bin
-
+/cubewars-desktop/.settings
