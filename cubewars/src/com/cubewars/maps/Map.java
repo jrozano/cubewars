@@ -1,8 +1,14 @@
 package com.cubewars.maps;
 
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.XmlReader;
+import com.badlogic.gdx.utils.XmlReader.Element;
 import com.cubewars.Coordinates;
 import com.cubewars.GameObject;
 import com.cubewars.backgrounds.Dirt;
@@ -21,28 +27,59 @@ public class Map
 	private GameObject[][] characters;
 	private Environment[][] terrain;
 	private GameObject[][] objects;
-	private final int height = 10;
-	private final int width = 10;
+	private int height;
+	private int width;
+	private String style;
 
+	/* What could possibly go wrong? */
+	@SuppressWarnings("unchecked")
 	public Map ()
 	{
-		characters = new GameObject[width][height];
-		terrain = new Environment[width][height];
-		objects = new GameObject[width][height];
+		try
+		{
+			/* Read XML map. */
+			XmlReader reader = new XmlReader ();
+			Element e = reader.parse (Gdx.files.internal ("media/maps/map1.xml"));
 
-		/* Create empty character grid. */
-		for (int i = 0; i < width; ++i)
-			for (int j = 0; j < height; ++j)
-				characters[i][j] = null;
+			/* Read map dimensions and initialize entity arrays. */
+			height = e.getIntAttribute ("height");
+			width = e.getIntAttribute ("width");
+			style = e.getAttribute ("style");
 
-		/* Create map. */
-		/* Testing: grass map. */
-		for (int i = 0; i < width; ++i)
-			for (int j = 0; j < height; ++j)
-				terrain[i][j] = new Grass (new Coordinates (i, j));
-		
-		for (int i = 0; i < height; ++i)
-			terrain[6][i] = new Dirt (new Coordinates (6, i));
+			characters = new GameObject[width][height];
+			terrain = new Environment[width][height];
+			objects = new GameObject[width][height];
+			
+			/* Create empty character grid. */
+			for (int i = 0; i < width; ++i)
+				for (int j = 0; j < height; ++j)
+					characters[i][j] = null;
+
+			/* Populate terrain cells. */
+			for (int i = 0; i != e.getChildCount (); ++i)
+			{
+				Element child = e.getChild (i);
+				Class c = Class.forName ("com.cubewars.backgrounds." + child.getAttribute ("type"));
+				Constructor constructor = c.getConstructor (new Class[] { Coordinates.class });
+				terrain[child.getIntAttribute ("x")][child.getIntAttribute ("y")] = (Environment) constructor.newInstance (new Coordinates (child
+						.getIntAttribute ("x"), child.getIntAttribute ("y")));
+			}
+			
+			/* TODO: read predefined objects placed on the map. */
+
+		} catch (IOException e)
+		{
+			System.out.println ("[REFLEC] ERROR: could not read map XML file.");
+			throw new RuntimeException ("Could not read map XML file.");
+		} catch (ClassNotFoundException e1)
+		{
+			System.out.println ("[REFLEC] ERROR: the XML file specified a terrain class that does not exist.");
+			throw new RuntimeException ("XML file specified a terrain class that does not exist.");
+		} catch (Exception e1)
+		{
+			System.out.println ("[MAP   ] ERROR: something really awful happened while generating the map.");
+			e1.printStackTrace ();
+		}
 	}
 
 	public void add (GameObject character, Coordinates c)
