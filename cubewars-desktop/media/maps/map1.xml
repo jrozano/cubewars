@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<map>
+<map style="tron">
 	<options>
 		<attackHighlight>
 			<red>0</red>
@@ -118,4 +118,11 @@
 		<cell x="9" y="8" type="grass" />
 		<cell x="9" y="9" type="grass" />
 	</grid>
+	
+	<characters>
+		<character class="CubeSniper" x="0" y="0" />
+		<character class="TriangleSniper" x="6" y="4" />
+		<character class="TriangleSniper" x="4" y="6" />
+		<character class="CubeBoomer" x="2" y="4" />
+	</characters>
 </map>

@@ -25,7 +25,6 @@ public class LocalPlayer extends Player implements InputProcessor
 	{
 		origin = null;
 		Gdx.input.setInputProcessor (this);
-		origin = null;
 	}
 
 	@Override
@@ -57,17 +56,18 @@ public class LocalPlayer extends Player implements InputProcessor
 			controller.skipTurn (this);
 			return true;
 		}
-		
-		Coordinates destination = controller.obtenerCoordenadas(screenX, screenY);
-//		System.out.println ("[LOCAL ] Touchdown on: (" + destination.toPixel().x + ", " + (destination.toPixel().y) + ") px: " + destination.toString ()
-//				+ ": " );
+
+		Coordinates destination = controller.obtenerCoordenadas (screenX, screenY);
+		// System.out.println ("[LOCAL ] Touchdown on: (" + destination.toPixel().x + ", " +
+		// (destination.toPixel().y) + ") px: " + destination.toString ()
+		// + ": " );
 
 		/* Check if we already have a origin coordinates for our movement. */
 		if (origin == null)
 		{
 			if (team ().isAssignableFrom (controller.select (destination)))
 				origin = destination;
-			
+
 			/* Highligh cells only if a character has been selected. */
 			if (origin != null)
 				controller.choose (origin, this);
@@ -75,7 +75,7 @@ public class LocalPlayer extends Player implements InputProcessor
 		{
 			Class<? extends GameObject> objective = controller.select (destination);
 			Class<? extends GameObject> selected = controller.select (origin);
-			
+
 			/* Highligh cells. */
 			controller.choose (origin, this);
 
@@ -105,14 +105,13 @@ public class LocalPlayer extends Player implements InputProcessor
 				}
 			}
 
-			Class<? extends GameObject> character = controller.select (origin);
-
 			/* Check Boomer area's attack */
 			if (objective == CharacterNull.class && !controller.attacked (this))
 			{
 				if (origin.x < destination.x + 1 || origin.x > destination.y - 1 || origin.y < destination.y + 1 || origin.y > destination.y - 1)
 				{
 					Response response = controller.attack (origin, destination, this);
+
 					/*
 					 * Check that the controller has indeed made the attack. If not, ask for another
 					 * cell.
@@ -131,7 +130,7 @@ public class LocalPlayer extends Player implements InputProcessor
 			{
 				System.out.println ("[PLAYER] Attack Phase.");
 				System.out.println ("[PLAYER] Objective: " + objective.getSimpleName ());
-				
+
 				Response response = controller.attack (origin, destination, this);
 
 				/*

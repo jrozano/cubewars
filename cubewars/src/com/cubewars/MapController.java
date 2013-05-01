@@ -1,6 +1,7 @@
-package com.cubewars.maps;
+package com.cubewars;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -10,9 +11,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.XmlReader;
 import com.badlogic.gdx.utils.XmlReader.Element;
-import com.cubewars.Coordinates;
-import com.cubewars.GameController;
-import com.cubewars.GameObject;
 import com.cubewars.backgrounds.Environment;
 import com.cubewars.characters.CharacterNull;
 
@@ -22,7 +20,7 @@ import com.cubewars.characters.CharacterNull;
  * @author pyrosphere3
  * 
  */
-public class Map
+public class MapController
 {
 	private GameObject[][] characters;
 	private Environment[][] terrain;
@@ -34,7 +32,7 @@ public class Map
 
 	/* What could possibly go wrong? */
 	@SuppressWarnings("unchecked")
-	public Map (GameController controller)
+	public MapController (GameController controller)
 	{
 		try
 		{
@@ -72,7 +70,7 @@ public class Map
 
 			/* Read map dimensions and initialize entity arrays. */
 			Element grid = xmlNode.getChildByName ("grid");
-			
+
 			if (grid != null)
 			{
 				height = grid.getIntAttribute ("height");
@@ -104,18 +102,44 @@ public class Map
 							Gdx.files.internal ("media/styles/" + style + "/" + child.getAttribute ("type") + ".png")), new Coordinates (
 							child.getIntAttribute ("x"), child.getIntAttribute ("y")));
 				}
-
-				/* TODO: read predefined objects placed on the map. */
 			} else
 			{
-				System.out.println ("[MAP   ] ERROR: this map XML file does not have grid data. Map not valid.");
-				throw new RuntimeException ("This map XML file does not have grid data. Map not valid.");
+				System.out.println ("[MAP   ] ERROR: this map XML file does not have grid data. MapController not valid.");
+				throw new RuntimeException ("This map XML file does not have grid data. MapController not valid.");
 			}
+
+			/* Place start characters. */
+			Element characters = xmlNode.getChildByName ("characters");
+			if (characters != null)
+			{
+				for (int i = 0; i != characters.getChildCount (); ++i)
+				{
+					Element child = characters.getChild (i);
+					Coordinates c = new Coordinates (child.getIntAttribute ("x"), child.getIntAttribute ("y"));
+					
+					Class characterClass = Class.forName ("com.cubewars.characters." + child.getAttribute ("class"));
+					Constructor constructor = characterClass.getConstructor (new Class[] { Coordinates.class });
+
+					GameObject g = (GameObject) constructor.newInstance (c);
+					this.characters[child.getIntAttribute ("x")][child.getIntAttribute ("y")] = g;
+					controller.lifeBars.add (g);
+					
+					System.out.println ("[REFLEC] Placed " + characterClass.getSimpleName () + " in " + c.toString ());
+					
+				}
+			}
+
+			/* TODO: read predefined objects placed on the map. */
+
 		} catch (IOException e)
 		{
 			System.out.println ("[MAP   ] ERROR: could not read map XML file.");
 			throw new RuntimeException ("Could not read map XML file.");
-		} catch (Exception e1)
+		} catch (ClassNotFoundException e)
+		{
+			System.out.println ("[REFLEC] ERROR: could not instance class " + e.getMessage () + ". Not found.");
+			throw new RuntimeException ("Could not read map XML file.");
+		}catch (Exception e1)
 		{
 			System.out.println ("[MAP   ] ERROR: something really awful happened while generating the map.");
 			e1.printStackTrace ();
@@ -199,6 +223,15 @@ public class Map
 			env.addAll (Arrays.asList (terrain[i]));
 
 		return env;
+	}
+	
+	public ArrayList<GameObject> getCharacters ()
+	{
+		ArrayList<GameObject> chars = new ArrayList<GameObject> ();
+		for (int i = 0; i != height; ++i)
+			chars.addAll (Arrays.asList (characters[i]));
+
+		return chars;
 	}
 
 	public int height ()

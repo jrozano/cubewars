@@ -22,7 +22,6 @@ import com.cubewars.characters.Triangle;
 import com.cubewars.characters.TriangleBoomer;
 import com.cubewars.characters.TriangleGunner;
 import com.cubewars.characters.TriangleSniper;
-import com.cubewars.maps.Map;
 import com.cubewars.players.LocalPlayer;
 import com.cubewars.players.Player;
 
@@ -36,13 +35,13 @@ import com.cubewars.players.Player;
  */
 public class GameController extends Game
 {
-	private List<GameObject> screenItems;
+	public List<GameObject> lifeBars;
 	private List<Player> playerList;
 	private HashMap<Player, Double> money; /* The money balance of each player: */
 	private HashMap<Class<? extends Character>, Double> prices; /* How much each character costs: */
 	private Set<Coordinates> highlightedMovement;
 	private Set<Coordinates> highlightedAttack;
-	private Map map;
+	private MapController map;
 	private TurnController turns;
 	public Player cubes;
 	public Player triangles;
@@ -56,12 +55,7 @@ public class GameController extends Game
 		/* Show screen. */
 		gamescreen = new ScreenController (this);
 		setScreen (gamescreen);
-		
 		restart ();
-
-		/*
-		 * TODO Create additional Controllers (Sound, Network, etc.)
-		 */
 	}
 
 	/********************************************************************************
@@ -80,8 +74,8 @@ public class GameController extends Game
 	public void restart ()
 	{
 		/* Create Controller internal attributes. */
-		screenItems = new ArrayList<GameObject> ();
-		map = new Map (this);
+		lifeBars = new ArrayList<GameObject> ();
+		map = new MapController (this);
 		money = new HashMap<Player, Double> ();
 		prices = new HashMap<Class<? extends Character>, Double> ();
 		playerList = new ArrayList<Player> ();
@@ -106,30 +100,6 @@ public class GameController extends Game
 		/* Give players an initial amount of credits. */
 		money.put (cubes, 1000.0);
 		money.put (triangles, 1000.0);
-
-		/* Add some test entities. */
-		Coordinates c;
-		c = new Coordinates (0, 0);
-		addEntity (new CubeSniper (c), c);
-
-		c = new Coordinates (4, 4);
-		addEntity (new TriangleSniper (c), c);
-
-		c = new Coordinates (4, 2);
-		addEntity (new TriangleSniper (c), c);
-
-		c = new Coordinates (2, 4);
-		addEntity (new CubeBoomer (c), c);
-
-		/*
-		 * c = new Coordinates (4, 3); addEntity (new TriangleBoomer (c), c);
-		 */
-
-		// screenItems.add (new Background ("characters.png"));
-		Collections.sort (screenItems);
-
-		manageLifebars ();
-		/* End test entities. */
 	}
 
 	/**
@@ -225,8 +195,8 @@ public class GameController extends Game
 	 */
 	public void add (GameObject g)
 	{
-		this.screenItems.add (g);
-		Collections.sort (this.screenItems);
+		this.lifeBars.add (g);
+		Collections.sort (this.lifeBars);
 	}
 
 	/**
@@ -236,9 +206,9 @@ public class GameController extends Game
 	 */
 	public List<GameObject> getCharacterContainer ()
 	{
-		return screenItems;
+		return map.getCharacters ();
 	}
-	
+
 	public List<Environment> getTerrainContainer ()
 	{
 		return map.getTerrain ();
@@ -247,21 +217,21 @@ public class GameController extends Game
 	public void manageLifebars ()
 	{
 		// first we delete the bars of the enemies
-		for (int i = 0; i < screenItems.size (); i++)
+		for (int i = 0; i < lifeBars.size (); i++)
 		{
-			GameObject g = screenItems.get (i);
+			GameObject g = lifeBars.get (i);
 			if (Lifebar.class.isAssignableFrom (g.getClass ()))
 			{
-				screenItems.remove (i);
+				lifeBars.remove (i);
 			}
 		}
 
 		// then we checkout which player is the current player
 		if (turns.currentPlayer () == cubes)
 		{
-			for (int i = 0; i < screenItems.size (); i++)
+			for (int i = 0; i < lifeBars.size (); i++)
 			{
-				GameObject g = screenItems.get (i);
+				GameObject g = lifeBars.get (i);
 				if (Cube.class.isAssignableFrom (g.getClass ()))
 				{
 					Lifebar lb = new Lifebar (3, (int) g.area.x, (int) g.area.y);
@@ -271,9 +241,9 @@ public class GameController extends Game
 			}
 		} else if (turns.currentPlayer () == triangles)
 		{
-			for (int i = 0; i < screenItems.size (); i++)
+			for (int i = 0; i < lifeBars.size (); i++)
 			{
-				GameObject g = screenItems.get (i);
+				GameObject g = lifeBars.get (i);
 				if (Triangle.class.isAssignableFrom (g.getClass ()))
 				{
 					Lifebar lb = new Lifebar (3, (int) g.area.x, (int) g.area.y);
@@ -293,12 +263,17 @@ public class GameController extends Game
 	{
 		return highlightedAttack;
 	}
-	
+
+	public List<GameObject> getLifebarContainer ()
+	{
+		return lifeBars;
+	}
+
 	public void setAttackHighlightColor (Color c)
 	{
 		this.gamescreen.setAttackHighlightColor (c);
 	}
-	
+
 	public void setMoveHighlightColor (Color c)
 	{
 		this.gamescreen.setMoveHighlightColor (c);
@@ -729,15 +704,15 @@ public class GameController extends Game
 		// throw new RuntimeException ("Coordinates out of bounds.");
 
 		map.add (g, c);
-		screenItems.add (g);
-		Collections.sort (screenItems);
+		lifeBars.add (g);
+		Collections.sort (lifeBars);
 	}
 
 	private void killEntity (Coordinates c)
 	{
 		GameObject g = map.get (c);
 		map.destroy (c);
-		screenItems.remove (g);
+		lifeBars.remove (g);
 	}
 
 	public void skipTurn (Player p)
@@ -780,11 +755,13 @@ public class GameController extends Game
 	{
 		super.resume ();
 	}
-	
-	public Coordinates obtenerCoordenadas(int screenx, int screeny){
-		Vector3 vector=gamescreen.unproject(screenx,screeny);
-		Coordinates c= new Coordinates ((int)vector.x/128, (int)vector.y/80);
-		System.out.println ("Convirtiendo " + screenx + ", " + screeny + " (real); " + vector.x + ", " + vector.y + " (camara); " + c.toString() + " (coordenada)");
+
+	public Coordinates obtenerCoordenadas (int screenx, int screeny)
+	{
+		Vector3 vector = gamescreen.unproject (screenx, screeny);
+		Coordinates c = new Coordinates ((int) vector.x / 128, (int) vector.y / 80);
+		// System.out.println ("Convirtiendo " + screenx + ", " + screeny + " (real); " + vector.x +
+		// ", " + vector.y + " (camara); " + c.toString() + " (coordenada)");
 		return c;
 	}
 }

@@ -89,12 +89,17 @@ public class ScreenController implements Screen
 		controller.tick ();
 
 		/* Draw terrain. */
-		batch.begin ();
-		for (Environment g : controller.getTerrainContainer ())
+		if (controller.getTerrainContainer () != null)
 		{
-			batch.draw (g.getTexture (), g.area.x, g.area.y, g.area.width, g.area.height);
+			batch.begin ();
+			
+			for (Environment g : controller.getTerrainContainer ())
+			{
+				batch.draw (g.getTexture (), g.area.x, g.area.y, g.area.width, g.area.height);
+			}
+			
+			batch.end ();
 		}
-		batch.end ();
 
 		/* Enable alpha. */
 		Gdx.gl.glEnable (GL10.GL_BLEND);
@@ -130,12 +135,37 @@ public class ScreenController implements Screen
 		Gdx.gl.glDisable (GL10.GL_BLEND);
 
 		/* Draw characters and objects. */
-		batch.begin ();
-		for (GameObject g : controller.getCharacterContainer ())
+
+		/*
+		 * Check for null: because the ScreenControllers is initialized earlier than the
+		 * MapController, calling for the object containers may return null because they have not
+		 * been constructed yet.
+		 */
+		if (controller.getCharacterContainer () != null)
 		{
-			batch.draw (g.getTexture (), g.area.x, g.area.y, g.area.width, g.area.height);
+			batch.begin ();
+
+			for (GameObject g : controller.getCharacterContainer ())
+			{
+				if (g != null)
+					batch.draw (g.getTexture (), g.area.x, g.area.y, g.area.width, g.area.height);
+			}
+
+			batch.end ();
 		}
-		batch.end ();
+		
+		/* Draw life bars. */
+		if (controller.getLifebarContainer () != null)
+		{
+			batch.begin ();
+			
+			for (GameObject g : controller.getLifebarContainer ())
+			{
+				batch.draw (g.getTexture (), g.area.x, g.area.y, g.area.width, g.area.height);
+			}
+			
+			batch.end ();
+		}
 
 		/* Draw grid lines. */
 		gridLines.begin (ShapeType.Line);
@@ -168,12 +198,12 @@ public class ScreenController implements Screen
 		// }
 		// }
 	}
-	
+
 	public void setAttackHighlightColor (Color c)
 	{
 		this.attackHighlightColor = c;
 	}
-	
+
 	public void setMoveHighlightColor (Color c)
 	{
 		this.moveHighlightColor = c;
