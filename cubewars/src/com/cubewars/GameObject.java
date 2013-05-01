@@ -52,7 +52,7 @@ public abstract class GameObject implements Comparable<GameObject>
 	 * 
 	 * @param priority Real priority of this object.
 	 * @param texture Texture representing the object.
-	 * @param c Position in the grid.
+	 * @param c Position in the characters.
 	 */
 	public GameObject (int priority, Texture texture, Coordinates c)
 	{

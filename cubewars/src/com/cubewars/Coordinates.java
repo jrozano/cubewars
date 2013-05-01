@@ -3,7 +3,7 @@ package com.cubewars;
 import com.badlogic.gdx.Gdx;
 
 /**
- * Represents a tuple of coordinates in the grid and converts tuples into pixels and vice versa.
+ * Represents a tuple of coordinates in the characters and converts tuples into pixels and vice versa.
  * 
  * @author pyrosphere3
  * 

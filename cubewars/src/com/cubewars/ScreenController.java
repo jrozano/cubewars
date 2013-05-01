@@ -1,19 +1,18 @@
 package com.cubewars;
 
 import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Set;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
+import com.cubewars.backgrounds.Environment;
 
 /**
  * A controller used to draw objects into the screen.
@@ -45,7 +44,7 @@ public class ScreenController implements Screen
 		try
 		{
 			this.camera = new OrthographicCamera(1280,800); //metros, cuadrados, cogemos toda la pantalla
-			this.camera.position.set(1280/2f, 800/2f, 0); //la camara mirar‡ a la mitad de la pantalla, z=0
+			this.camera.position.set(1280/2f, 800/2f, 0); //la camara mirarï¿½ a la mitad de la pantalla, z=0
 			this.controller = controller;
 			this.batch = new SpriteBatch ();
 			this.gridLines = new ShapeRenderer ();
@@ -75,27 +74,24 @@ public class ScreenController implements Screen
 	{
 		Gdx.gl.glClearColor (0, 0, 0, 1);
 		Gdx.gl.glClear (GL10.GL_COLOR_BUFFER_BIT);
+		
+		
+		
+		camera.update();
+		controller.tick ();
+		
+		/* Draw terrain. */
+		batch.begin ();
+		for (Environment g : controller.getTerrainContainer ())
+		{
+			batch.draw (g.getTexture (), g.area.x, g.area.y, g.area.width, g.area.height);
+		}
+		batch.end ();
+		
+		/* Enable alpha. */
 		Gdx.gl.glEnable(GL10.GL_BLEND);
 		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 		
-		camera.update();
-
-		controller.tick ();
-
-		/* Draw grid lines. */
-		gridLines.begin (ShapeType.Line);
-
-		/* Horizontal lines: one line for each 80 pixels. */
-		gridLines.setColor (1, 1, 0, 1);
-		for (int i = 0; i < camera.viewportHeight / 80; ++i)
-			gridLines.line (0, i * 80, 1280, i * 80);
-
-		/* Vertical lines: one line for each 128 pixels. */
-		for (int i = 0; i < camera.viewportWidth / 128; ++i)
-			gridLines.line (i * 128, 0, i * 128, 800);
-
-		gridLines.end ();
-
 		/* Draw highlighted cells. */
 		Set<Coordinates> coordinatesSet = controller.getHighlightedAttack ();
 		
@@ -122,17 +118,32 @@ public class ScreenController implements Screen
 			
 			highlightedCells.end ();
 		}
+		
+		Gdx.gl.glDisable(GL10.GL_BLEND);
 
-		/* Dibujamos en pantalla todos los elementos que haya en el contenedor del controller. */
+		/* Draw characters and objects. */
 		batch.begin ();
-
-		for (GameObject g : controller.getDrawingContainer ())
+		for (GameObject g : controller.getCharacterContainer ())
 		{
 			batch.draw (g.getTexture (), g.area.x, g.area.y, g.area.width, g.area.height);
 		}
-
 		batch.end ();
-		Gdx.gl.glDisable(GL10.GL_BLEND);
+		
+		
+		/* Draw grid lines. */
+		gridLines.begin (ShapeType.Line);
+
+		/* Horizontal lines: one line for each 80 pixels. */
+		gridLines.setColor (0, 0, 0, 1);
+		for (int i = 0; i < camera.viewportHeight / 80; ++i)
+			gridLines.line (0, i * 80, 1280, i * 80);
+
+		/* Vertical lines: one line for each 128 pixels. */
+		for (int i = 0; i < camera.viewportWidth / 128; ++i)
+			gridLines.line (i * 128, 0, i * 128, 800);
+
+		gridLines.end ();
+		
 
 		elapsedTime += delta;
 		interval += delta;

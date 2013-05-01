@@ -9,9 +9,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector3;
+import com.cubewars.backgrounds.Environment;
 import com.cubewars.characters.Character;
 import com.cubewars.characters.CharacterNull;
 import com.cubewars.characters.Cube;
@@ -125,7 +124,7 @@ public class GameController extends Game
 		 * c = new Coordinates (4, 3); addEntity (new TriangleBoomer (c), c);
 		 */
 
-		// screenItems.add (new Background ("grid.png"));
+		// screenItems.add (new Background ("characters.png"));
 		Collections.sort (screenItems);
 
 		manageLifebars ();
@@ -186,10 +185,10 @@ public class GameController extends Game
 		 * We check if there is any triangle or any cube in the game, if it is not then the game is
 		 * finished
 		 */
-		for (int i = 0; i != map.width; i++)
+		for (int i = 0; i != map.width (); i++)
 		{
 
-			for (int j = 0; j != map.height; j++)
+			for (int j = 0; j != map.height (); j++)
 			{
 
 				if (Cube.class.isAssignableFrom (map.get (new Coordinates (i, j)).getClass ()))
@@ -234,9 +233,14 @@ public class GameController extends Game
 	 * 
 	 * @return The drawing container.
 	 */
-	public List<GameObject> getDrawingContainer ()
+	public List<GameObject> getCharacterContainer ()
 	{
 		return screenItems;
+	}
+	
+	public List<Environment> getTerrainContainer ()
+	{
+		return map.getTerrain ();
 	}
 
 	public void manageLifebars ()
@@ -299,7 +303,7 @@ public class GameController extends Game
 	 * {@link #select(Coordinates)} can be used to obtain the class of the current game entity
 	 * placed in a given cell without exposing the actual GameObject.
 	 * 
-	 * @param c The grid {@link Coordinates} to the cell.
+	 * @param c The characters {@link Coordinates} to the cell.
 	 * @return The entity's Class.
 	 */
 	public Class<? extends GameObject> select (Coordinates c)
@@ -326,7 +330,7 @@ public class GameController extends Game
 	}
 
 	/**
-	 * Issues a character movement order in the game grid.
+	 * Issues a character movement order in the game characters.
 	 * 
 	 * Places the entity placed in origin in the destination and updates its current screen
 	 * position, provided that the path is not longer than the character's travel distance.
@@ -713,7 +717,7 @@ public class GameController extends Game
 		// if (c.x < 0 || c.x > map.width || c.y < 0 || c.y > map.height)
 		// throw new RuntimeException ("Coordinates out of bounds.");
 
-		map.grid[c.x][c.y] = g;
+		map.add (g, c);
 		screenItems.add (g);
 		Collections.sort (screenItems);
 	}

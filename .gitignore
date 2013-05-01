@@ -4,8 +4,11 @@
 #*.jar
 *.war
 *.ear
+*.dex
 
 # Eclipse project files
-#.classpath
-#.project
-/bin
+/cubewars/bin
+/cubewars-android/bin
+/cubewars-android/gen
+/cubewars-desktop/bin
+

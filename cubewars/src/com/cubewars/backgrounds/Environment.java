@@ -1,6 +1,8 @@
-package com.cubewars;
+package com.cubewars.backgrounds;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.cubewars.Coordinates;
+import com.cubewars.GameObject;
 
 /**
  * An entity serving as decoration on the screen.
@@ -12,12 +14,12 @@ import com.badlogic.gdx.graphics.Texture;
  */
 public abstract class Environment extends GameObject
 {
-	/* Basse priority. */
+	/* Base priority. */
 	private static final int priority = 1;
 
-	public Environment (Texture texture, int posX, int posY)
+	public Environment (Texture texture, Coordinates c)
 	{
-		super (priority, texture, posX, posY);
+		super (priority, texture, c);
 	}
 
 }

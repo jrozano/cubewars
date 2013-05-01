@@ -6,7 +6,7 @@ import com.cubewars.GameObject;
 
 /**
  * A generic character in the game. This class has the common attributes to all players characters
- * in the game grid: health, attack distance, movement distance, etc.
+ * in the game characters: health, attack distance, movement distance, etc.
  * 
  * @author pyrosphere3
  */
