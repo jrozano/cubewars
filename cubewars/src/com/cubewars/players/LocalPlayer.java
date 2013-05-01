@@ -51,19 +51,16 @@ public class LocalPlayer extends Player implements InputProcessor
 	@Override
 	public boolean touchDown (int screenX, int screenY, int pointer, int button)
 	{
-		
 		if (button == Buttons.RIGHT)
 		{
 			System.out.println ("[LOCAL ] Skipping Turn.");
 			controller.skipTurn (this);
 			return true;
 		}
-		//le he quitado el 800
-		System.out.println("Obteniendo casilla para " + screenX + ", " + screenY);
-		Coordinates destination = controller.obtenerCoordenadas(screenX, screenY);
 		
-		System.out.println ("[LOCAL ] Touchdown on: (" + destination.toPixel().x + ", " + (destination.toPixel().y) + ") px: " + destination.toString ()
-				+ ": " );
+		Coordinates destination = controller.obtenerCoordenadas(screenX, screenY);
+//		System.out.println ("[LOCAL ] Touchdown on: (" + destination.toPixel().x + ", " + (destination.toPixel().y) + ") px: " + destination.toString ()
+//				+ ": " );
 
 		/* Check if we already have a origin coordinates for our movement. */
 		if (origin == null)

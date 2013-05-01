@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import com.cubewars.backgrounds.Environment;
 import com.cubewars.characters.Character;
@@ -52,11 +53,11 @@ public class GameController extends Game
 	{
 		System.out.println ("[CNTROL] Game Start.");
 
-		restart ();
-
 		/* Show screen. */
 		gamescreen = new ScreenController (this);
 		setScreen (gamescreen);
+		
+		restart ();
 
 		/*
 		 * TODO Create additional Controllers (Sound, Network, etc.)
@@ -80,7 +81,7 @@ public class GameController extends Game
 	{
 		/* Create Controller internal attributes. */
 		screenItems = new ArrayList<GameObject> ();
-		map = new Map ();
+		map = new Map (this);
 		money = new HashMap<Player, Double> ();
 		prices = new HashMap<Class<? extends Character>, Double> ();
 		playerList = new ArrayList<Player> ();
@@ -283,14 +284,24 @@ public class GameController extends Game
 		}
 	}
 
-	public Set<Coordinates> getHighlightedMovement ()
+	public Set<Coordinates> getMoveHighlightArea ()
 	{
 		return highlightedMovement;
 	}
 
-	public Set<Coordinates> getHighlightedAttack ()
+	public Set<Coordinates> getAttackHighlightArea ()
 	{
 		return highlightedAttack;
+	}
+	
+	public void setAttackHighlightColor (Color c)
+	{
+		this.gamescreen.setAttackHighlightColor (c);
+	}
+	
+	public void setMoveHighlightColor (Color c)
+	{
+		this.gamescreen.setMoveHighlightColor (c);
 	}
 
 	/********************************************************************************

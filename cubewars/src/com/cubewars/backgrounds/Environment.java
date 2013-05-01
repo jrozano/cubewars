@@ -12,7 +12,7 @@ import com.cubewars.GameObject;
  * @author pyrosphere3
  * 
  */
-public abstract class Environment extends GameObject
+public class Environment extends GameObject
 {
 	/* Base priority. */
 	private static final int priority = 1;
