@@ -43,6 +43,7 @@ public class GameController extends Game
 	private Set<Coordinates> highlightedAttack;
 	private MapController map;
 	private TurnController turns;
+	private Box box;
 	public Player cubes;
 	public Player triangles;
 	public ScreenController gamescreen;
@@ -96,6 +97,9 @@ public class GameController extends Game
 		playerList.add (cubes);
 		playerList.add (triangles);
 		turns = new TurnController (playerList);
+		
+		/*Create Objects*/
+		
 
 		/* Give players an initial amount of credits. */
 		money.put (cubes, 1000.0);
@@ -425,7 +429,7 @@ public class GameController extends Game
 			Character objective = (Character) map.get (destination);
 
 			/* Check attack distance. */
-			if (source.distance (destination) >= attacker.getAttackDistance ())
+			if (source.distance (destination) > attacker.getAttackDistance ())
 			{
 				System.out.println ("[CNTROL] " + attacker.toString () + " is too far from " + destination.toString ());
 				return Response.INVALID;
