@@ -11,6 +11,7 @@ import java.util.Set;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
+import com.cubewars.backgrounds.Destructible;
 import com.cubewars.backgrounds.Environment;
 import com.cubewars.characters.Character;
 import com.cubewars.characters.CharacterNull;
@@ -214,6 +215,11 @@ public class GameController extends Game
 		return map.getTerrain ();
 	}
 
+	public List<GameObject> getObjectsContainer ()
+	{
+		return map.getObjects ();
+	}
+
 	public void manageLifebars ()
 	{
 		// first we delete the bars of the enemies
@@ -305,13 +311,13 @@ public class GameController extends Game
 		if (turns.canMove (player))
 		{
 			totalArea += character.getTravel ();
-			highlightedMovement = getArea (source, character.getTravel ());
+			highlightedMovement = map.getMoveArea (source, character.getTravel ());
 		}
 
 		if (turns.canAttack (player))
 		{
 			totalArea += character.getAttackDistance ();
-			highlightedAttack = getArea (source, totalArea);
+			highlightedAttack = map.getAttackArea (source, totalArea);
 		}
 	}
 
@@ -323,6 +329,7 @@ public class GameController extends Game
 	 * 
 	 * @param source Source {@link Coordinates}
 	 * @param destination Destination {@link Coordinates}
+	 * @param player The {@link Player}.
 	 * @return A {@link Response} telling whether the movement has completed successfully (OK) or
 	 *         not (INVALID).
 	 * @see Coodinates#distance
@@ -338,6 +345,7 @@ public class GameController extends Game
 				turns.move (player);
 				return Response.OK;
 			}
+
 			/*
 			 * If our character can travel to the destination position, do it. We'll assume that
 			 * only objects derived from the Character class can be moved across the board.
@@ -349,11 +357,13 @@ public class GameController extends Game
 				/* We check again if the selected character is in the player's team */
 				if (player.team ().isAssignableFrom (character.getClass ()))
 				{
-					if (source.distance (destination) <= character.getTravel ())
+					/* Check whether the destination is in our movement range or not. */
+					if (map.getMoveArea (source, character.getTravel ()).contains (destination))
 					{
 						System.out.println ("[CNTROL] Moving " + character.toString () + ". Distance: " + source.distance (destination) + ", máx: "
 								+ character.getTravel () + ".");
 
+						/* All's right. Move, and update the texture's screen position. */
 						map.move (source, destination);
 						turns.move (player);
 
@@ -422,21 +432,24 @@ public class GameController extends Game
 		if (turns.canAttack (player))
 		{
 			Character attacker = (Character) map.get (source);
-			Character objective = (Character) map.get (destination);
+			GameObject objective = map.get (destination);
 
 			/* Check attack distance. */
-			if (source.distance (destination) >= attacker.getAttackDistance ())
+			if (!map.getAttackArea (source, attacker.getAttackDistance ()).contains (destination))
 			{
-				System.out.println ("[CNTROL] " + attacker.toString () + " is too far from " + destination.toString ());
+				System.out.println ("[CNTROL] " + attacker.toString () + " cannot attack " + destination.toString () + ": out or range.");
 				return Response.INVALID;
 			}
 
-			/* Check if it's not a Character Null */
-			if (objective instanceof CharacterNull && (!(attacker instanceof CubeBoomer) && !(attacker instanceof TriangleBoomer)))
-			{
-				System.out.println ("[CNTROL] Selected terrain, only Boomers can attack at terrain.");
-				return Response.INVALID;
-			}
+			/* FIXME Is this really necessary? */
+			// /* Check if it's not a Character Null */
+			// if (objective instanceof CharacterNull && (!(attacker instanceof CubeBoomer) &&
+			// !(attacker instanceof TriangleBoomer)))
+			// {
+			// System.out.println
+			// ("[CNTROL] Selected terrain, only Boomers can attack at terrain.");
+			// return Response.INVALID;
+			// }
 
 			/* We check again if the attacker character is in the player's team */
 			if (!player.team ().isAssignableFrom (attacker.getClass ()))
@@ -448,27 +461,26 @@ public class GameController extends Game
 			/* Check boomer's area attack. */
 			if (attacker instanceof CubeBoomer || attacker instanceof TriangleBoomer)
 			{
-
-				Set<Coordinates> s = getArea (destination, 1);
+				Set<Coordinates> s = map.getAttackArea (destination, 1);
 				Iterator<Coordinates> i = s.iterator ();
 
 				while (i.hasNext ())
 				{
 					Coordinates c = (Coordinates) i.next ();
-					objective = (Character) map.get (c);
 
-					if (!(objective instanceof CharacterNull))
+					if (map.get (c) instanceof Character && ! (map.get (c) instanceof CharacterNull))
 					{
+						Character enemy = (Character) map.get (c);
 						if (c != destination)
 						{
-							System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + "Area attacking "
-									+ objective.toString () + " " + destination.toString () + " with " + attacker.getDamage () / 4 + " damage.");
-							objective.addDamage (attacker.getDamage () / 4);
+							System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " area attacking "
+									+ enemy.toString () + " " + destination.toString () + " with " + attacker.getDamage () / 4 + " damage.");
+							enemy.addDamage (attacker.getDamage () / 4);
 						} else
 						{
-							System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + objective.toString ()
+							System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + enemy.toString ()
 									+ " " + destination.toString () + " with " + attacker.getDamage () + " damage.");
-							objective.addDamage (attacker.getDamage ());
+							enemy.addDamage (attacker.getDamage ());
 						}
 
 						/* Clear highlightedMovement cells. */
@@ -476,10 +488,38 @@ public class GameController extends Game
 						highlightedMovement = null;
 
 						/* Death check. */
-						System.out.println ("[CNTROL] Health left: " + objective.getHealth ());
-						if (objective.getHealth () <= 0)
+						System.out.println ("[CNTROL] Health left: " + enemy.getHealth ());
+						if (enemy.getHealth () <= 0)
 						{
 							killEntity (destination);
+						}
+					}
+					else if (map.get (c) instanceof Destructible)
+					{
+						Destructible enemy = (Destructible) map.get (c);
+						
+						if (c != destination)
+						{
+							System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " area attacking "
+									+ enemy.toString () + " " + destination.toString () + " with " + attacker.getDamage () / 4 + " damage.");
+							enemy.attack (attacker.getDamage () / 4);
+						} else
+						{
+							System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + enemy.toString ()
+									+ " " + destination.toString () + " with " + attacker.getDamage () + " damage.");
+							enemy.attack (attacker.getDamage ());
+						}
+
+						/* Clear highlightedMovement cells. */
+						highlightedAttack = null;
+						highlightedMovement = null;
+
+						/* Death check. */
+						System.out.println ("[CNTROL] Health left: " + enemy.getHealth ());
+						
+						if (enemy.getHealth () <= 0)
+						{
+							map.removeObject (destination);
 						}
 					}
 				}
@@ -491,21 +531,48 @@ public class GameController extends Game
 			/* Attack it. */
 			else if (objective instanceof Character)
 			{
-				System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + objective.toString () + " "
+				Character enemy = (Character) objective;
+
+				System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + enemy.toString () + " "
 						+ destination.toString () + " with " + attacker.getDamage () + " damage.");
 
-				objective.addDamage (attacker.getDamage ());
+				enemy.addDamage (attacker.getDamage ());
 				turns.attack (player);
 
-				/* Clear highlightedMovement cells. */
+				/* Clear highlighted cells. */
 				highlightedAttack = null;
 				highlightedMovement = null;
 
 				/* Death check. */
-				System.out.println ("[CNTROL] Health left: " + objective.getHealth ());
-				if (objective.getHealth () <= 0)
+				System.out.println ("[CNTROL] Health left: " + enemy.getHealth ());
+				if (enemy.getHealth () <= 0)
 				{
 					killEntity (destination);
+				}
+
+				return Response.OK;
+			}
+
+			/* Object damage. */
+			else if (objective instanceof Destructible)
+			{
+				Destructible object = (Destructible) objective;
+
+				System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " destroying " + object.toString () + " "
+						+ destination.toString () + " with " + attacker.getDamage () + " damage.");
+
+				object.attack (attacker.getDamage ());
+				turns.attack (player);
+
+				/* Clear highlighted cells. */
+				highlightedAttack = null;
+				highlightedMovement = null;
+
+				/* Death check. */
+				System.out.println ("[CNTROL] Object resistence left: " + object.getHealth ());
+				if (object.getHealth () <= 0)
+				{
+					map.removeObject (destination);
 				}
 
 				return Response.OK;
@@ -516,37 +583,43 @@ public class GameController extends Game
 		return Response.INVALID;
 	}
 
-	/**
-	 * This method is an internal function that help to check the boomer area attack.
-	 * 
-	 * @param objective
-	 * @param attacker
-	 * @param source
-	 * @param destination
-	 * @return true or false depends if the attack is successful or not
-	 */
-
-	private Set<Coordinates> getArea (Coordinates c, int area)
+	public Response reclaim (Coordinates source, Coordinates destinarion, Player player)
 	{
-		HashSet<Coordinates> s = new HashSet<Coordinates> ();
-		s.add (c);
 
-		if (area == 0)
-		{
-			return s;
-		} else
-		{
-			if (c.x < map.height ())
-				s.addAll (getArea (new Coordinates (c.x + 1, c.y), area - 1));
-			if (c.x > 0)
-				s.addAll (getArea (new Coordinates (c.x - 1, c.y), area - 1));
-			if (c.y > 0)
-				s.addAll (getArea (new Coordinates (c.x, c.y - 1), area - 1));
-			if (c.y < map.width ())
-				s.addAll (getArea (new Coordinates (c.x, c.y + 1), area - 1));
-			return s;
-		}
+		return Response.INVALID;
 	}
+
+	// /**
+	// * This method is an internal function that help to check the boomer area attack.
+	// *
+	// * @param objective
+	// * @param attacker
+	// * @param source
+	// * @param destination
+	// * @return true or false depends if the attack is successful or not
+	// */
+	//
+	// private Set<Coordinates> getArea (Coordinates c, int area)
+	// {
+	// HashSet<Coordinates> s = new HashSet<Coordinates> ();
+	// s.add (c);
+	//
+	// if (area == 0)
+	// {
+	// return s;
+	// } else
+	// {
+	// if (c.x < map.height ())
+	// s.addAll (getArea (new Coordinates (c.x + 1, c.y), area - 1));
+	// if (c.x > 0)
+	// s.addAll (getArea (new Coordinates (c.x - 1, c.y), area - 1));
+	// if (c.y > 0)
+	// s.addAll (getArea (new Coordinates (c.x, c.y - 1), area - 1));
+	// if (c.y < map.width ())
+	// s.addAll (getArea (new Coordinates (c.x, c.y + 1), area - 1));
+	// return s;
+	// }
+	// }
 
 	/********************************************************************************
 	 * 1.4 CHARACTER SHOPPING. *
@@ -711,7 +784,7 @@ public class GameController extends Game
 	private void killEntity (Coordinates c)
 	{
 		GameObject g = map.get (c);
-		map.destroy (c);
+		map.removeCharacter (c);
 		lifeBars.remove (g);
 	}
 

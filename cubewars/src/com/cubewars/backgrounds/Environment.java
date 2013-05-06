@@ -21,5 +21,4 @@ public class Environment extends GameObject
 	{
 		super (priority, texture, c);
 	}
-
 }

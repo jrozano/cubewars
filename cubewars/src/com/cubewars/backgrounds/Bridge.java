@@ -4,11 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.cubewars.Coordinates;
 
-public class Dirt extends Environment
+public class Bridge extends Destructible
 {
-	private static final Texture texture = new Texture (Gdx.files.internal ("media/backgrounds/dirt.png"));
-
-	public Dirt (Coordinates c)
+	public Bridge (Texture texture, Coordinates c)
 	{
 		super (texture, c);
 	}

@@ -14,3 +14,7 @@
 /cubewars-android/.settings
 /cubewars-desktop/bin
 /cubewars-desktop/.settings
+
+# Project metrics and graphs
+/cubewars-desktop/metrics/*.dat
+/cubewars-desktop/metrics/*.png

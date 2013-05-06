@@ -1,6 +1,7 @@
 package com.cubewars;
 
 import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Set;
 
@@ -62,8 +63,8 @@ public class ScreenController implements Screen
 			this.moveHighlightColor = new Color (0, 1, 0, 0.3f);
 
 			/* FIXME Only valid for desktop. */
-			// FileWriter fw = new FileWriter ("metrics/frames.dat", false);
-			// output = new BufferedWriter (fw);
+			FileWriter fw = new FileWriter ("metrics/frames.dat", false);
+			output = new BufferedWriter (fw);
 
 		} catch (Exception e)
 		{
@@ -92,12 +93,12 @@ public class ScreenController implements Screen
 		if (controller.getTerrainContainer () != null)
 		{
 			batch.begin ();
-			
+
 			for (Environment g : controller.getTerrainContainer ())
 			{
 				batch.draw (g.getTexture (), g.area.x, g.area.y, g.area.width, g.area.height);
 			}
-			
+
 			batch.end ();
 		}
 
@@ -136,34 +137,41 @@ public class ScreenController implements Screen
 
 		/* Draw characters and objects. */
 
-		/*
-		 * Check for null: because the ScreenControllers is initialized earlier than the
-		 * MapController, calling for the object containers may return null because they have not
-		 * been constructed yet.
-		 */
 		if (controller.getCharacterContainer () != null)
 		{
 			batch.begin ();
 
 			for (GameObject g : controller.getCharacterContainer ())
 			{
-				if (g != null)
-					batch.draw (g.getTexture (), g.area.x, g.area.y, g.area.width, g.area.height);
+				batch.draw (g.getTexture (), g.area.x, g.area.y, g.area.width, g.area.height);
 			}
 
 			batch.end ();
 		}
-		
+
+		/* Draw objects. */
+		if (controller.getObjectsContainer () != null)
+		{
+			batch.begin ();
+
+			for (GameObject g : controller.getObjectsContainer ())
+			{
+				batch.draw (g.getTexture (), g.area.x, g.area.y, g.area.width, g.area.height);
+			}
+
+			batch.end ();
+		}
+
 		/* Draw life bars. */
 		if (controller.getLifebarContainer () != null)
 		{
 			batch.begin ();
-			
+
 			for (GameObject g : controller.getLifebarContainer ())
 			{
-				batch.draw (g.getTexture (), g.area.x, g.area.y, g.area.width, g.area.height);
+				batch.draw (g.getTexture (), g.area.x + 1, g.area.y + 1, g.area.width, g.area.height);
 			}
-			
+
 			batch.end ();
 		}
 
@@ -184,19 +192,19 @@ public class ScreenController implements Screen
 		elapsedTime += delta;
 		interval += delta;
 
-		// if (interval > 1)
-		// {
-		// interval = 0;
-		// try
-		// {
-		// output.write (elapsedTime + "\t" + Gdx.graphics.getFramesPerSecond ());
-		// output.newLine ();
-		// output.flush ();
-		// } catch (IOException e)
-		// {
-		// e.printStackTrace ();
-		// }
-		// }
+		if (interval > 1)
+		{
+			interval = 0;
+			try
+			{
+				output.write (elapsedTime + "\t" + Gdx.graphics.getFramesPerSecond ());
+				output.newLine ();
+				output.flush ();
+			} catch (IOException e)
+			{
+				e.printStackTrace ();
+			}
+		}
 	}
 
 	public void setAttackHighlightColor (Color c)

@@ -3,12 +3,12 @@ package com.cubewars.players;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.cubewars.Coordinates;
 import com.cubewars.GameController;
 import com.cubewars.GameObject;
-import com.cubewars.Pixel;
+import com.cubewars.Obtainable;
 import com.cubewars.Response;
+import com.cubewars.backgrounds.Destructible;
 import com.cubewars.characters.Character;
 import com.cubewars.characters.CharacterNull;
 
@@ -125,12 +125,18 @@ public class LocalPlayer extends Player implements InputProcessor
 				}
 			}
 
-			/* Check attack. */
-			if (enemy ().isAssignableFrom (objective) && !controller.attacked (this))
+			/* Obtain loot. */
+			if (Obtainable.class.isAssignableFrom (objective) && origin.distance (destination) == 1)
 			{
-				System.out.println ("[PLAYER] Attack Phase.");
-				System.out.println ("[PLAYER] Objective: " + objective.getSimpleName ());
+				System.out.println ("[PLAYER] Object gathering.");
+				Response response = controller.reclaim (origin, destination, this);
+			}
 
+			/* Check attack. */
+			if ((enemy ().isAssignableFrom (objective) || Destructible.class.isAssignableFrom (objective))&& !controller.attacked (this))
+			{
+				System.out.println ("[LOCAL ] Attack Phase.");
+				System.out.println ("[LOCAL ] Objective: " + objective.getSimpleName ());
 				Response response = controller.attack (origin, destination, this);
 
 				/*
@@ -139,45 +145,11 @@ public class LocalPlayer extends Player implements InputProcessor
 				 */
 				if (response != Response.OK)
 				{
-					if (origin.x < destination.x + 1 || origin.x > destination.y - 1 || origin.y < destination.y + 1 || origin.y > destination.y - 1)
-					{
-						response = controller.attack (origin, destination, this);
-
-						/*
-						 * Check that the controller has indeed made the attack. If not, ask for
-						 * another cell.
-						 */
-						if (response != Response.OK)
-						{
-							System.out.println ("[LOCAL ] Choose another cell.");
-							return false;
-						}
-						return true;
-					}
+					System.out.println ("[LOCAL ] Choose another cell.");
+					return false;
 				}
 
-				/* Check attack. */
-				if (enemy ().isAssignableFrom (objective) && !controller.attacked (this))
-				{
-					System.out.println ("[LOCAL ] Attack Phase.");
-					System.out.println ("[LOCAL ] Objective: " + objective.getSimpleName ());
-					response = controller.attack (origin, destination, this);
-
-					/*
-					 * Check that the controller has indeed made the attack. If not, ask for another
-					 * cell.
-					 */
-					if (response != Response.OK)
-					{
-						System.out.println ("[LOCAL ] Choose another cell.");
-						return false;
-					}
-
-					return true;
-				}
-
-				/* Check object. */
-				/* TODO Implement objects. */
+				return true;
 			}
 		}
 

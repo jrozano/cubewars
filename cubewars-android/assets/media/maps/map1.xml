@@ -1,128 +1,35 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<map style="tron">
+<map>
 	<options>
-		<attackHighlight>
-			<red>0</red>
-			<green>0</green>
-			<blue>1</blue>
-			<alpha>0.5</alpha>
-		</attackHighlight>
-		
-		<moveHighlight>
-			<red>1</red>
-			<green>1</green>
-			<blue>0</blue>
-			<alpha>0.5</alpha>
-		</attackHighlight>
+		<attackHighlight red="1" green="0" blue="0" alpha="0.3" />
+		<moveHighlight red="0" green="1" blue="0" alpha="0.3" />
 	</options>
-	
-	<grid height="10" width="10">
-		<cell x="0" y="0" type="dirt" />
-		<cell x="0" y="1" type="grass" />
-		<cell x="0" y="2" type="grass" />
-		<cell x="0" y="3" type="grass" />
-		<cell x="0" y="4" type="grass" />
-		<cell x="0" y="5" type="grass" />
-		<cell x="0" y="6" type="grass" />
-		<cell x="0" y="7" type="grass" />
-		<cell x="0" y="8" type="grass" />
-		<cell x="0" y="9" type="dirt" />
-		<cell x="1" y="0" type="grass" />
-		<cell x="1" y="1" type="grass" />
-		<cell x="1" y="2" type="grass" />
-		<cell x="1" y="3" type="grass" />
-		<cell x="1" y="4" type="grass" />
-		<cell x="1" y="5" type="grass" />
-		<cell x="1" y="6" type="grass" />
-		<cell x="1" y="7" type="grass" />
-		<cell x="1" y="8" type="grass" />
-		<cell x="1" y="9" type="grass" />
-		<cell x="2" y="0" type="grass" />
-		<cell x="2" y="1" type="grass" />
-		<cell x="2" y="2" type="grass" />
-		<cell x="2" y="3" type="grass" />
-		<cell x="2" y="4" type="grass" />
-		<cell x="2" y="5" type="grass" />
-		<cell x="2" y="6" type="grass" />
-		<cell x="2" y="7" type="grass" />
-		<cell x="2" y="8" type="grass" />
-		<cell x="2" y="9" type="grass" />
-		<cell x="3" y="0" type="grass" />
-		<cell x="3" y="1" type="grass" />
-		<cell x="3" y="2" type="grass" />
-		<cell x="3" y="3" type="grass" />
-		<cell x="3" y="4" type="grass" />
-		<cell x="3" y="5" type="grass" />
-		<cell x="3" y="6" type="grass" />
-		<cell x="3" y="7" type="grass" />
-		<cell x="3" y="8" type="grass" />
-		<cell x="3" y="9" type="grass" />
-		<cell x="4" y="0" type="grass" />
-		<cell x="4" y="1" type="grass" />
-		<cell x="4" y="2" type="grass" />
-		<cell x="4" y="3" type="grass" />
-		<cell x="4" y="4" type="grass" />
-		<cell x="4" y="5" type="grass" />
-		<cell x="4" y="6" type="grass" />
-		<cell x="4" y="7" type="grass" />
-		<cell x="4" y="8" type="grass" />
-		<cell x="4" y="9" type="grass" />
-		<cell x="5" y="0" type="grass" />
-		<cell x="5" y="1" type="grass" />
-		<cell x="5" y="2" type="grass" />
-		<cell x="5" y="3" type="grass" />
-		<cell x="5" y="4" type="grass" />
-		<cell x="5" y="5" type="grass" />
-		<cell x="5" y="6" type="grass" />
-		<cell x="5" y="7" type="grass" />
-		<cell x="5" y="8" type="grass" />
-		<cell x="5" y="9" type="grass" />
-		<cell x="6" y="0" type="dirt" />
-		<cell x="6" y="1" type="dirt" />
-		<cell x="6" y="2" type="dirt" />
-		<cell x="6" y="3" type="dirt" />
-		<cell x="6" y="4" type="dirt" />
-		<cell x="6" y="5" type="dirt" />
-		<cell x="6" y="6" type="dirt" />
-		<cell x="6" y="7" type="dirt" />
-		<cell x="6" y="8" type="dirt" />
-		<cell x="6" y="9" type="dirt" />
-		<cell x="7" y="0" type="grass" />
-		<cell x="7" y="1" type="grass" />
-		<cell x="7" y="2" type="grass" />
-		<cell x="7" y="3" type="grass" />
-		<cell x="7" y="4" type="grass" />
-		<cell x="7" y="5" type="grass" />
-		<cell x="7" y="6" type="grass" />
-		<cell x="7" y="7" type="grass" />
-		<cell x="7" y="8" type="grass" />
-		<cell x="7" y="9" type="grass" />
-		<cell x="8" y="0" type="grass" />
-		<cell x="8" y="1" type="grass" />
-		<cell x="8" y="2" type="grass" />
-		<cell x="8" y="3" type="grass" />
-		<cell x="8" y="4" type="grass" />
-		<cell x="8" y="5" type="grass" />
-		<cell x="8" y="6" type="grass" />
-		<cell x="8" y="7" type="grass" />
-		<cell x="8" y="8" type="grass" />
-		<cell x="8" y="9" type="grass" />
-		<cell x="9" y="0" type="grass" />
-		<cell x="9" y="1" type="grass" />
-		<cell x="9" y="2" type="grass" />
-		<cell x="9" y="3" type="grass" />
-		<cell x="9" y="4" type="grass" />
-		<cell x="9" y="5" type="grass" />
-		<cell x="9" y="6" type="grass" />
-		<cell x="9" y="7" type="grass" />
-		<cell x="9" y="8" type="grass" />
-		<cell x="9" y="9" type="grass" />
-	</grid>
 	
 	<characters>
 		<character class="CubeSniper" x="0" y="0" />
-		<character class="TriangleSniper" x="6" y="4" />
+		<character class="TriangleGunner" x="7" y="4" />
 		<character class="TriangleSniper" x="4" y="6" />
 		<character class="CubeBoomer" x="2" y="4" />
 	</characters>
+	
+	<grid height="10" width="10" default="grass">
+		<cell x="6" y="0" class="dirt" blockage="1" />
+		<cell x="6" y="1" class="dirt" blockage="1" />
+		<cell x="6" y="2" class="dirt" blockage="1" />
+		<cell x="6" y="3" class="dirt" blockage="1" />
+		<cell x="6" y="4" class="dirt" blockage="1" />
+		<cell x="6" y="5" class="dirt" />
+		<cell x="6" y="6" class="dirt" blockage="1" />
+		<cell x="6" y="7" class="dirt" blockage="1" />
+		<cell x="6" y="8" class="dirt" blockage="1" />
+		<cell x="6" y="9" class="dirt" blockage="1" />
+	</grid>
+	
+	<objects>
+		<object class="Bridge" x="6" y="5" />
+		<object class="Rocks" x="3" y="5" blockage="1" />
+		<object class="Rocks" x="4" y="4" blockage="1" />
+		<object class="Rocks" x="3" y="3" blockage="1" />
+		<object class="Rocks" x="2" y="5" blockage="1" />
+	</objects>
 </map>

@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -11,6 +15,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.XmlReader;
 import com.badlogic.gdx.utils.XmlReader.Element;
+import com.cubewars.backgrounds.Destructible;
 import com.cubewars.backgrounds.Environment;
 import com.cubewars.characters.CharacterNull;
 
@@ -22,15 +27,22 @@ import com.cubewars.characters.CharacterNull;
  */
 public class MapController
 {
-	private GameObject[][] characters;
-	private Environment[][] terrain;
-	private GameObject[][] objects;
+	private GameController controller;
+
+	/* Map properties. */
 	private int height;
 	private int width;
 	private String style;
-	private GameController controller;
 
-	/* What could possibly go wrong? */
+	/* Map structure. */
+	private GameObject[][] characters;
+	private GameObject[][] objects;
+	private Environment[][] terrain;
+	private double[][] blockages;
+
+	/* Constants. */
+	private static final double infinity = Double.POSITIVE_INFINITY;
+
 	@SuppressWarnings("unchecked")
 	public MapController (GameController controller)
 	{
@@ -88,19 +100,65 @@ public class MapController
 				characters = new GameObject[width][height];
 				terrain = new Environment[width][height];
 				objects = new GameObject[width][height];
+				blockages = new double[width][height];
 
-				/* Create empty character grid. */
+				/* Create empty character grid without any obstacles by default. */
 				for (int i = 0; i < width; ++i)
+				{
 					for (int j = 0; j < height; ++j)
+					{
 						characters[i][j] = null;
+						blockages[i][j] = 0;
+					}
+				}
+
+				/* Look for a default cell class for the grid. */
+				try
+				{
+					String defaultTerrain = grid.getAttribute ("default");
+
+					/*
+					 * Apply default class for all cells. We'll overwrite the specific cells in the
+					 * next step.
+					 */
+
+					for (int i = 0; i < width; ++i)
+					{
+						for (int j = 0; j < height; ++j)
+						{
+							terrain[i][j] = new Environment (new Texture (
+									Gdx.files.internal ("media/styles/" + style + "/" + defaultTerrain + ".png")), new Coordinates (i, j));
+						}
+					}
+
+				} catch (GdxRuntimeException e)
+				{
+					/*
+					 * This map XML file does not set any default class for the grid. That's OK, but
+					 * if there's not a cell element for each cell in the grid, everything could end
+					 * up blowing up.
+					 */
+				}
 
 				/* Populate terrain cells. */
 				for (int i = 0; i != grid.getChildCount (); ++i)
 				{
 					Element child = grid.getChild (i);
-					terrain[child.getIntAttribute ("x")][child.getIntAttribute ("y")] = new Environment (new Texture (
-							Gdx.files.internal ("media/styles/" + style + "/" + child.getAttribute ("type") + ".png")), new Coordinates (
-							child.getIntAttribute ("x"), child.getIntAttribute ("y")));
+					int x = child.getIntAttribute ("x");
+					int y = child.getIntAttribute ("y");
+					terrain[x][y] = new Environment (new Texture (Gdx.files.internal ("media/styles/" + style + "/" + child.getAttribute ("class")
+							+ ".png")), new Coordinates (x, y));
+
+					try
+					{
+						blockages[x][y] = child.getFloat ("blockage");
+					} catch (GdxRuntimeException e)
+					{
+						/*
+						 * This cell XML element does not have blockage information, and that's OK.
+						 * It's 0 by default.
+						 */
+					}
 				}
 			} else
 			{
@@ -115,34 +173,75 @@ public class MapController
 				for (int i = 0; i != characters.getChildCount (); ++i)
 				{
 					Element child = characters.getChild (i);
-					Coordinates c = new Coordinates (child.getIntAttribute ("x"), child.getIntAttribute ("y"));
-					
+					int x = child.getIntAttribute ("x");
+					int y = child.getIntAttribute ("y");
+					Coordinates c = new Coordinates (x, y);
+
 					Class characterClass = Class.forName ("com.cubewars.characters." + child.getAttribute ("class"));
 					Constructor constructor = characterClass.getConstructor (new Class[] { Coordinates.class });
 
 					GameObject g = (GameObject) constructor.newInstance (c);
-					this.characters[child.getIntAttribute ("x")][child.getIntAttribute ("y")] = g;
-					controller.lifeBars.add (g);
-					
-					System.out.println ("[REFLEC] Placed " + characterClass.getSimpleName () + " in " + c.toString ());
-					
+					this.characters[x][y] = g;
+					this.controller.lifeBars.add (g);
+
+					System.out.println ("[REFLEC] Placed character " + characterClass.getSimpleName () + " in " + c.toString ());
+
 				}
 			}
 
-			/* TODO: read predefined objects placed on the map. */
+			/* Read predefined objects placed on the map. */
+			Element objects = xmlNode.getChildByName ("objects");
+			if (objects != null)
+			{
+				for (int i = 0; i != objects.getChildCount (); ++i)
+				{
+					Element child = objects.getChild (i);
+					int x = child.getIntAttribute ("x");
+					int y = child.getIntAttribute ("y");
+					Coordinates c = new Coordinates (x, y);
+
+					/* Instantiate an object of a given class and place it on the objects grid. */
+					Class characterClass = Class.forName ("com.cubewars.backgrounds." + child.getAttribute ("class"));
+					Texture tex = new Texture (Gdx.files.internal ("media/styles/" + style + "/" + child.getAttribute ("class").toLowerCase ()
+							+ ".png"));
+					Constructor constructor = characterClass.getConstructor (new Class[] { Texture.class, Coordinates.class });
+
+					GameObject g = (GameObject) constructor.newInstance (tex, c);
+					this.objects[x][y] = g;
+
+					/* Should this object block character movement? */
+					try
+					{
+						this.blockages[x][y] = child.getFloat ("blockage");
+					} catch (GdxRuntimeException e)
+					{
+						/*
+						 * This object's XML element does not have blockage information, and that's
+						 * OK. It's 0 by default.
+						 */
+					}
+
+					System.out.println ("[REFLEC] Placed object " + characterClass.getSimpleName () + " in " + c.toString ());
+
+				}
+			}
 
 		} catch (IOException e)
 		{
 			System.out.println ("[MAP   ] ERROR: could not read map XML file.");
-			throw new RuntimeException ("Could not read map XML file.");
+			throw new RuntimeException ("Could not read map file.");
 		} catch (ClassNotFoundException e)
 		{
-			System.out.println ("[REFLEC] ERROR: could not instance class " + e.getMessage () + ". Not found.");
-			throw new RuntimeException ("Could not read map XML file.");
-		}catch (Exception e1)
+			System.out.println ("[MAP   ] ERROR: could not instance class " + e.getMessage () + ". Class not found.");
+			throw new RuntimeException ("Map file has errors.");
+		} catch (GdxRuntimeException e)
+		{
+			System.out.println ("[MAP   ] ERROR: XML file is not well-formed.");
+			throw new RuntimeException ("Map file has errors.");
+		} catch (Exception e1)
 		{
 			System.out.println ("[MAP   ] ERROR: something really awful happened while generating the map.");
-			e1.printStackTrace ();
+			throw new RuntimeException ("Unknown error.");
 		}
 	}
 
@@ -203,17 +302,38 @@ public class MapController
 		return null;
 	}
 
-	public void destroy (Coordinates c)
+	public void removeCharacter (Coordinates c)
 	{
 		characters[c.x][c.y] = null;
+	}
+	
+	public void removeObject (Coordinates c)
+	{
+		objects[c.x][c.y] = null;
+		
+		/* FIXME This is just a piece of shit. Needs more work. */
+		if (blockages[c.x][c.y] == 0)
+			blockages[c.x][c.y] = infinity;
+		else if (blockages[c.x][c.y] != 0)
+			blockages[c.x][c.y] = 0;
 	}
 
 	public GameObject get (Coordinates c)
 	{
-		if (characters[c.x][c.y] == null)
-			return new CharacterNull ();
-		else
+		if (characters[c.x][c.y] != null)
+		{
+			/* There's a character. */
 			return characters[c.x][c.y];
+		} else if (objects[c.x][c.y] != null)
+		{
+			/* There's an object. */
+			return objects[c.x][c.y];
+		} else
+		{
+			/* There's nothing :( */
+			return new CharacterNull ();
+		}
+
 	}
 
 	public ArrayList<Environment> getTerrain ()
@@ -222,16 +342,28 @@ public class MapController
 		for (int i = 0; i != height; ++i)
 			env.addAll (Arrays.asList (terrain[i]));
 
+		env.removeAll (Collections.singleton (null));
 		return env;
 	}
-	
+
 	public ArrayList<GameObject> getCharacters ()
 	{
 		ArrayList<GameObject> chars = new ArrayList<GameObject> ();
 		for (int i = 0; i != height; ++i)
 			chars.addAll (Arrays.asList (characters[i]));
 
+		chars.removeAll (Collections.singleton (null));
 		return chars;
+	}
+
+	public ArrayList<GameObject> getObjects ()
+	{
+		ArrayList<GameObject> objs = new ArrayList<GameObject> ();
+		for (int i = 0; i != height; ++i)
+			objs.addAll (Arrays.asList (objects[i]));
+
+		objs.removeAll (Collections.singleton (null));
+		return objs;
 	}
 
 	public int height ()
@@ -242,5 +374,75 @@ public class MapController
 	public int width ()
 	{
 		return width;
+	}
+
+	public Set<Coordinates> getMoveArea (Coordinates a, int length)
+	{
+		Set<Coordinates> s = getMoveAreaR (a, length);
+		//s.remove (a);
+
+		for (int i = 0; i != width; ++i)
+			for (int j = 0; j != height; ++j)
+			{
+				if (objects[i][j] != null)
+				{
+					s.remove (new Coordinates (i, j));
+				}
+			}
+		return s;
+	}
+
+	public Set<Coordinates> getAttackArea (Coordinates a, int length)
+	{
+		Set<Coordinates> s = getAttackAreaR (a, length);
+
+		return s;
+	}
+
+	private Set<Coordinates> getMoveAreaR (Coordinates a, int length)
+	{
+		HashSet<Coordinates> s = new HashSet<Coordinates> ();
+		s.add (a);
+
+		if (length > 0)
+		{
+			if (a.x < width - 1 && blockages[a.x + 1][a.y] == 0)
+				s.addAll (getMoveAreaR (new Coordinates (a.x + 1, a.y), length - 1));
+			if (a.x > 0 && blockages[a.x - 1][a.y] == 0)
+				s.addAll (getMoveAreaR (new Coordinates (a.x - 1, a.y), length - 1));
+			if (a.y > 0 && blockages[a.x][a.y - 1] == 0)
+				s.addAll (getMoveAreaR (new Coordinates (a.x, a.y - 1), length - 1));
+			if (a.y < height - 1 && blockages[a.x][a.y + 1] == 0)
+				s.addAll (getMoveAreaR (new Coordinates (a.x, a.y + 1), length - 1));
+		}
+
+		return s;
+	}
+
+	private Set<Coordinates> getAttackAreaR (Coordinates a, int length)
+	{
+		HashSet<Coordinates> s = new HashSet<Coordinates> ();
+
+		/*
+		 * Only add if we can attack it: if it's an undestructible obstacle (water, holes, etc.), do
+		 * not add it.
+		 */
+		/* TODO Cambiar la expresión. */
+		if (!(blockages[a.x][a.y] > 0 && objects[a.x][a.y] == null))
+			s.add (a);
+
+		if (length > 0 && blockages[a.x][a.y] == 0)
+		{
+			if (a.x < width - 1)
+				s.addAll (getAttackAreaR (new Coordinates (a.x + 1, a.y), length - 1));
+			if (a.x > 0)
+				s.addAll (getAttackAreaR (new Coordinates (a.x - 1, a.y), length - 1));
+			if (a.y > 0)
+				s.addAll (getAttackAreaR (new Coordinates (a.x, a.y - 1), length - 1));
+			if (a.y < height - 1)
+				s.addAll (getAttackAreaR (new Coordinates (a.x, a.y + 1), length - 1));
+		}
+
+		return s;
 	}
 }
