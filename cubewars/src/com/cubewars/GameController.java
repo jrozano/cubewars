@@ -97,6 +97,9 @@ public class GameController extends Game
 		playerList.add (cubes);
 		playerList.add (triangles);
 		turns = new TurnController (playerList);
+		
+		/*Create Objects*/
+		
 
 		/* Give players an initial amount of credits. */
 		money.put (cubes, 1000.0);
