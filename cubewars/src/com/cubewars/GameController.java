@@ -44,6 +44,7 @@ public class GameController extends Game
 	private Set<Coordinates> highlightedAttack;
 	private MapController map;
 	private TurnController turns;
+	private Box box;
 	public Player cubes;
 	public Player triangles;
 	public ScreenController gamescreen;
