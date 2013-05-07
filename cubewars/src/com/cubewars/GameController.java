@@ -499,6 +499,20 @@ public class GameController extends Game
 
 				turns.attack(player);
 				return Response.OK;
+			}/*Open a box. */
+			else if(objective instanceof Box && map.getAttackArea (source, 1).contains (destination)){
+				
+				System.out.println("[CNTROL] Open a Box");
+				Box box= (Box) objective;
+				
+				box.open();
+				
+				/* Clear highlighted cells. */
+				highlightedAttack = null;
+				highlightedMovement = null;
+				
+				turns.attack(player);
+				return Response.OK;
 			}
 
 			/* Object damage. */

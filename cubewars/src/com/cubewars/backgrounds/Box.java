@@ -8,13 +8,12 @@ import com.cubewars.Response;
 
 public class Box extends Destructible{
 
-	private static Texture texture = new Texture (Gdx.files.internal ("media/items/boxclosed.png"));
 	private boolean open=false;
 	private int object;
 	
 	
 	public Box(Coordinates c) {
-		super(texture, c);
+		super(new Texture(Gdx.files.internal("media/items/boxclosed.png")), c);
 		object=1;
 		// TODO Auto-generated constructor stub
 	}
@@ -25,7 +24,8 @@ public class Box extends Destructible{
 	
 	public void open(){
 		open=true;
-		texture = new Texture(Gdx.files.internal("media/items/boxopen.ong"));
+		System.out.println("[BOX] Box opened");
+		texture = new Texture(Gdx.files.internal("media/items/boxopen.png"));
 	}
 	
 	public Response destroy(GameController controller){

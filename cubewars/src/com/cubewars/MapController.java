@@ -231,6 +231,9 @@ public class MapController
 				Box box= new Box(new Coordinates(4,4));
 				this.objects[4][4]=box;
 				this.blockages[4][4]=1;
+				box= new Box(new Coordinates(3,3));
+				this.objects[3][3]=box;
+				this.blockages[3][3]=1;
 				Barrel barrel = new Barrel(new Coordinates(5,5));
 				this.objects[5][5]=barrel;
 				this.blockages[5][5]=1;

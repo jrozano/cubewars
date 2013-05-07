@@ -17,7 +17,7 @@ public abstract class GameObject implements Comparable<GameObject>
 	private static int nextID = 0;
 	private int id;
 	private int priority;
-	private Texture texture;
+	protected Texture texture;
 	public Rectangle area = new Rectangle ();
 
 	/**
