@@ -15,6 +15,7 @@ import com.cubewars.characters.CharacterNull;
 public class LocalPlayer extends Player implements InputProcessor
 {
 	private Coordinates origin;
+	private static int numberOfFingers = 0;
 
 	public LocalPlayer (GameController controlador, Class<? extends Character> equipo)
 	{
@@ -50,9 +51,12 @@ public class LocalPlayer extends Player implements InputProcessor
 	@Override
 	public boolean touchDown (int screenX, int screenY, int pointer, int button)
 	{
-		if (button == Buttons.RIGHT)
+		numberOfFingers++;
+		
+		if (button == Buttons.RIGHT || numberOfFingers == 2)
 		{
 			System.out.println ("[LOCAL ] Skipping Turn.");
+			System.out.println(numberOfFingers);
 			controller.skipTurn (this);
 			return true;
 		}
@@ -159,7 +163,12 @@ public class LocalPlayer extends Player implements InputProcessor
 	@Override
 	public boolean touchUp (int screenX, int screenY, int pointer, int button)
 	{
-		// TODO Auto-generated method stub
+		numberOfFingers--;
+		 
+		if(numberOfFingers<0){
+	        numberOfFingers = 0;
+		}
+		 
 		return false;
 	}
 

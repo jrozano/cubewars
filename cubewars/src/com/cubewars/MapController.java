@@ -15,6 +15,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.XmlReader;
 import com.badlogic.gdx.utils.XmlReader.Element;
+import com.cubewars.backgrounds.Barrel;
+import com.cubewars.backgrounds.Box;
 import com.cubewars.backgrounds.Destructible;
 import com.cubewars.backgrounds.Environment;
 import com.cubewars.characters.CharacterNull;
@@ -188,6 +190,7 @@ public class MapController
 
 				}
 			}
+			
 
 			/* Read predefined objects placed on the map. */
 			Element objects = xmlNode.getChildByName ("objects");
@@ -224,6 +227,13 @@ public class MapController
 					System.out.println ("[REFLEC] Placed object " + characterClass.getSimpleName () + " in " + c.toString ());
 
 				}
+				
+				Box box= new Box(new Coordinates(4,4));
+				this.objects[4][4]=box;
+				this.blockages[4][4]=1;
+				Barrel barrel = new Barrel(new Coordinates(5,5));
+				this.objects[5][5]=barrel;
+				this.blockages[5][5]=1;
 			}
 
 		} catch (IOException e)
@@ -304,11 +314,11 @@ public class MapController
 
 	public void removeCharacter (Coordinates c)
 	{
+		GameObject g = this.get(c);
 		characters[c.x][c.y] = null;
 	}
 	
-	public void removeObject (Coordinates c)
-	{
+	public void removeObject (Coordinates c){
 		objects[c.x][c.y] = null;
 		
 		/* FIXME This is just a piece of shit. Needs more work. */
@@ -317,7 +327,7 @@ public class MapController
 		else if (blockages[c.x][c.y] != 0)
 			blockages[c.x][c.y] = 0;
 	}
-
+	
 	public GameObject get (Coordinates c)
 	{
 		if (characters[c.x][c.y] != null)
