@@ -192,7 +192,7 @@ public class ScreenController implements Screen
 		elapsedTime += delta;
 		interval += delta;
 
-		if (interval > 1)
+		/*if (interval > 1)
 		{
 			interval = 0;
 			try
@@ -204,7 +204,7 @@ public class ScreenController implements Screen
 			{
 				e.printStackTrace ();
 			}
-		}
+		}*/
 	}
 
 	public void setAttackHighlightColor (Color c)
