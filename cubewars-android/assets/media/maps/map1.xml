@@ -27,9 +27,6 @@
 	
 	<objects>
 		<object class="Bridge" x="6" y="5" />
-		<object class="Rocks" x="3" y="5" blockage="1" />
-		<object class="Rocks" x="4" y="4" blockage="1" />
-		<object class="Rocks" x="3" y="3" blockage="1" />
 		<object class="Rocks" x="2" y="5" blockage="1" />
 	</objects>
 </map>
