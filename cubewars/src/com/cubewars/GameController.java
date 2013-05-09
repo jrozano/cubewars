@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.cubewars.backgrounds.Box;
 import com.cubewars.backgrounds.Destructible;
 import com.cubewars.backgrounds.Environment;
+import com.cubewars.characters.Bonus;
 import com.cubewars.characters.Character;
 import com.cubewars.characters.CharacterNull;
 import com.cubewars.characters.Cube;
@@ -499,13 +500,19 @@ public class GameController extends Game
 
 				turns.attack(player);
 				return Response.OK;
-			}/*Open a box. */
+			}/* Open a box. */
 			else if(objective instanceof Box && map.getAttackArea (source, 1).contains (destination)){
 				
 				System.out.println("[CNTROL] Open a Box");
 				Box box= (Box) objective;
+				Bonus bonus;
+				bonus=box.open();
 				
-				box.open();
+				if(bonus==null){ //the box contained a bomb
+					System.out.println("[CNTROL] Ooops the box contained a bomb");
+					killEntity(destination);
+					areaAttack(destination,source,attacker,1); //FIXME the damage caused by the explosion depends on the damage of the character
+				}
 				
 				/* Clear highlighted cells. */
 				highlightedAttack = null;
@@ -535,7 +542,7 @@ public class GameController extends Game
 				{
 					killEntity(destination);
 					if(object.destroy()==Response.AREAATACK){
-						areaAttack(destination, source, attacker, 2);
+						areaAttack(destination, source, attacker,2);
 					}
 				}
 
@@ -557,7 +564,7 @@ public class GameController extends Game
 		{
 			Coordinates c = (Coordinates) i.next();
 			objective = (GameObject) map.get (c);
-			if(Character.class.isAssignableFrom(objective.getClass())){
+			if(Character.class.isAssignableFrom(objective.getClass()) && !(CharacterNull.class.isAssignableFrom(objective.getClass()))){
 				
 				if (c != destination)
 				{
