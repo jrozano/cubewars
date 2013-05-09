@@ -19,16 +19,20 @@ public class Box extends Destructible{
 	
 	public Box(Coordinates c) {
 		super(new Texture(Gdx.files.internal("media/items/boxclosed.png")), c);
-		object=math.random(3,3);
+		object=math.random(1,4);
 		switch (object){
 			case 1:
-				bonus = new HealthBonus();
+				bonus = new HealthBonus(25,50);
 				break;
 			case 2:
-				bonus= new AttackBonus();
+				bonus= new AttackBonus(100,200);
 				break;
 			case 3:
 				bonus = null; //this is an explosion
+				break;
+			case 4:
+				bonus = new Bonus();
+				break;
 		}
 	}
 

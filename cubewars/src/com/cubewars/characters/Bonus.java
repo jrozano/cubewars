@@ -1,10 +1,14 @@
 package com.cubewars.characters;
 
-public abstract class Bonus {
+public class Bonus {
 
 	protected int value;
 	
-	private int value (){
+	public Bonus(){
+		value=0;
+	}
+	
+	public int value (){
 		return value;
 	}
 }

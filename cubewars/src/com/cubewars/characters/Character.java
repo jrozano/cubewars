@@ -19,6 +19,10 @@ public abstract class Character extends GameObject
 	private float damage;
 	private int damageDistance;
 	private int maxTravel;
+	private HealthBonus healthbonus;
+	private AttackBonus attackbonus;
+
+	
 
 	/**
 	 * Constructor.
@@ -38,6 +42,8 @@ public abstract class Character extends GameObject
 		this.damage = damage;
 		this.maxTravel = travel;
 		this.damageDistance = dmgDistance;
+		healthbonus= new HealthBonus (1,1);
+		attackbonus= new AttackBonus(0,0);
 	}
 
 	/**
@@ -47,7 +53,11 @@ public abstract class Character extends GameObject
 	 */
 	public void addDamage (float damage)
 	{
-		this.health -= damage;
+		if(healthbonus.value()!=1){
+			System.out.println("[CHARAC] The character has a HealthBonus: "+ healthbonus.value() + "% of defense");
+		}
+		
+		this.health -= (int) damage - ((damage * healthbonus.value())/100);
 
 		if (health <= 0)
 			System.out.println ("[CHARAC] " + this.toString () + " is dead.");
@@ -112,5 +122,45 @@ public abstract class Character extends GameObject
 	public int getTravel ()
 	{
 		return maxTravel;
+	}
+	
+	/**
+	 * Add a health bonus to this character.
+	 * 
+	 * @param healthbonus the bonus that will be add to the character.
+	 */
+	
+	public void addHealthBonus(HealthBonus healthbonus){
+		this.healthbonus=healthbonus;
+	}
+	
+	/**
+	 * Add a attack bonus to this character.
+	 * 
+	 * @param attackbonus the bonus that will be add to the character.
+	 */
+	
+	public void addAttackBonus(AttackBonus attackbonus){
+		this.attackbonus=attackbonus;
+	}
+	
+	/**
+	 * Returns the Attack Bonus of the main character
+	 * 
+	 * @return An int that represent the attack bonus of the character.
+	 */
+	
+	public int getAttackBonus(){
+		return attackbonus.value();
+	}
+	
+	/**
+	 * Returns the Health Bonus of the main character
+	 * 
+	 * @return An int that represent the health bonus of the character.
+	 */
+	
+	public int getHealthBonus(){
+		return healthbonus.value();
 	}
 }
