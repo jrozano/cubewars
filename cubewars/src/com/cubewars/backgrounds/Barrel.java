@@ -8,6 +8,7 @@ import com.cubewars.Response;
 
 public class Barrel extends Destructible{
 	private static Texture texture = new Texture(Gdx.files.internal ("media/items/barrel.png"));
+	private static int damage=200;
 	
 	public Barrel(Coordinates c) {
 		super(texture, c);
@@ -20,6 +21,10 @@ public class Barrel extends Destructible{
 		System.out.println("[BARREL] Barrel destroyed");
 		return Response.AREAATACK;
 		// TODO Add explosion sound
+	}
+	
+	public int damage(){
+		return damage;
 	}
 	
 }

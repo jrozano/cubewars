@@ -58,4 +58,8 @@ public class Box extends Destructible{
 		return null;
 	}
 	
+	public int damage(){
+		return 100;
+	}
+	
 }

@@ -459,7 +459,7 @@ public class GameController extends Game
 			/* Check boomer's area attack. */
 			if ((attacker instanceof CubeBoomer || attacker instanceof TriangleBoomer) && objective instanceof CharacterNull)
 			{
-				areaAttack(destination,source,attacker,1);
+				areaAttack(destination,source,attacker,attacker.getDamage(),attacker.getAttackBonus(),1);
 				
 				/* Clear highlightedMovement cells. */
 				highlightedAttack = null;
@@ -500,7 +500,7 @@ public class GameController extends Game
 				Box box= (Box) objective;
 				Bonus bonus=box.open();
 				
-				this.manageBonus(destination,source,attacker,bonus); //this method helps to add bonuses to characters
+				this.manageBonus(destination,source,attacker,box,bonus); //this method helps to add bonuses to characters
 				
 				/* Clear highlighted cells. */
 				highlightedAttack = null;
@@ -530,7 +530,7 @@ public class GameController extends Game
 				{
 					killEntity(destination);
 					if(object.destroy()==Response.AREAATACK){
-						areaAttack(destination, source, attacker,2);
+						areaAttack(destination,source,attacker, object.damage(),0,2);
 					}
 				}
 
@@ -543,7 +543,7 @@ public class GameController extends Game
 		return Response.INVALID;
 	}
 	
-	public void areaAttack(Coordinates destination, Coordinates source, Character attacker, int area){
+	public void areaAttack(Coordinates destination, Coordinates source, Character attacker, float damage, int bonus, int area){
 		Set<Coordinates> s = map.getAttackArea(destination, area);
 		Iterator<Coordinates> i = s.iterator ();
 		GameObject objective;
@@ -557,13 +557,13 @@ public class GameController extends Game
 				if (c != destination)
 				{
 					System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + "Area attacking "
-							+ objective.toString () + " " + destination.toString () + " with " + attacker.getDamage () / 4 + " damage +"+attacker.getAttackBonus()+" bonus.");
-					((Character) objective).addDamage (attacker.getDamage () / 4 + attacker.getAttackBonus() / 4);
+							+ objective.toString () + " " + destination.toString () + " with " + damage/ 4 + " damage +"+bonus+" bonus.");
+					((Character) objective).addDamage (damage / 4 + bonus / 4);
 				} else
 				{
 					System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + objective.toString ()
-							+ " " + destination.toString () + " with " + attacker.getDamage () + " damage +" +attacker.getAttackBonus()+" bonus.");
-					((Character) objective).addDamage (attacker.getDamage () + attacker.getAttackBonus());
+							+ " " + destination.toString () + " with " + damage + " damage +" +bonus+" bonus.");
+					((Character) objective).addDamage (damage + bonus);
 				}
 
 				/* Death check. */
@@ -580,13 +580,13 @@ public class GameController extends Game
 				if (c != destination)
 				{
 					System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + "Area attacking "
-							+ objective.toString () + " " + destination.toString () + " with " + attacker.getDamage () / 4 + " damage +" +attacker.getAttackBonus()+ "bonus.");
-					((Destructible) objective).attack (attacker.getDamage () / 4 + attacker.getAttackBonus() / 4);
+							+ objective.toString () + " " + destination.toString () + " with " + damage / 4 + " damage +" +bonus+ "bonus.");
+					((Destructible) objective).attack (damage / 4 + bonus / 4);
 				} else
 				{
 					System.out.println ("[CNTROL] " + attacker.toString () + " " + source.toString () + " attacking " + objective.toString ()
-							+ " " + destination.toString () + " with " + attacker.getDamage () + " damage +" +attacker.getAttackBonus()+" bonus.");
-					((Destructible) objective).attack (attacker.getDamage () + attacker.getAttackBonus());
+							+ " " + destination.toString () + " with " + damage + " damage +" +bonus+" bonus.");
+					((Destructible) objective).attack (damage + bonus);
 				}
 
 				/* Death check. */
@@ -595,20 +595,18 @@ public class GameController extends Game
 				{
 					killEntity(c);
 					if(((Destructible)objective).destroy() == Response.AREAATACK){
-						areaAttack(c,source,attacker,2);
+						areaAttack(c,source,attacker,((Destructible) objective).damage(),0,2);
 					}
 				}
 			}
 		}
 	}
 
-	public void manageBonus(Coordinates destination, Coordinates source, Character attacker, Bonus bonus){
+	public void manageBonus(Coordinates destination, Coordinates source, Character attacker, Box box, Bonus bonus){
 		if(bonus==null){ //the box contained a bomb
-			
 			System.out.println("[CNTROL] Ooops the box contained a bomb");
 			killEntity(destination);
-			areaAttack(destination,source,attacker,1); //FIXME the damage caused by the explosion depends on the damage of the character
-		
+			areaAttack(destination,source,attacker,box.damage(),0,1);
 		}
 		else if(bonus.value()==0){ //the box is empty
 			

@@ -34,4 +34,6 @@ public abstract class Destructible extends Environment
 	}
 	
 	public abstract Response destroy();
+	
+	public abstract int damage();
 }

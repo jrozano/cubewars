@@ -18,4 +18,10 @@ public class Bridge extends Destructible
 		return Response.OK;
 	}
 
+	@Override
+	public int damage() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

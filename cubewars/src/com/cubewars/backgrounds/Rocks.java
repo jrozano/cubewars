@@ -17,5 +17,9 @@ public class Rocks extends Destructible
 		// TODO Auto-generated method stub
 		return Response.OK;
 	}
+	
+	public int damage(){
+		return 0;
+	}
 
 }
