@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -41,6 +40,7 @@ public class MapController
 	private GameObject[][] objects;
 	private Environment[][] terrain;
 	private double[][] blockages;
+	private AudioController audio = new AudioController();
 
 	/* Constants. */
 	private static final double infinity = Double.POSITIVE_INFINITY;
@@ -228,6 +228,8 @@ public class MapController
 
 				}
 				
+				
+				
 				Box box= new Box(new Coordinates(4,4));
 				this.objects[4][4]=box;
 				this.blockages[4][4]=1;
@@ -237,6 +239,8 @@ public class MapController
 				Barrel barrel = new Barrel(new Coordinates(5,5));
 				this.objects[5][5]=barrel;
 				this.blockages[5][5]=1;
+				
+				audio.PlayMusic("Battle_1");
 			}
 
 		} catch (IOException e)
