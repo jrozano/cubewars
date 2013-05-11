@@ -1,5 +1,4 @@
 package com.cubewars.characters;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.cubewars.Coordinates;
@@ -11,7 +10,7 @@ public class TriangleSniper extends Triangle
 	private static final float damage = 60;
 	private static final int damageDistance = 3;
 	private static final int travel = 1;
-
+	
 	public TriangleSniper (Coordinates c)
 	{
 		super (texture, c, maxHealth, maxHealth, damage, travel, damageDistance);
