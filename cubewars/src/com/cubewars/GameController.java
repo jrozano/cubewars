@@ -12,6 +12,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import com.cubewars.backgrounds.Box;
+import com.cubewars.backgrounds.Cell;
 import com.cubewars.backgrounds.Destructible;
 import com.cubewars.backgrounds.Environment;
 import com.cubewars.characters.AttackBonus;
@@ -226,6 +227,11 @@ public class GameController extends Game
 	public List<GameObject> getObjectsContainer ()
 	{
 		return map.getObjects ();
+	}
+	
+	public List<Cell> getCellContainer()
+	{
+		return map.getCells ();
 	}
 
 	public void manageLifebars ()

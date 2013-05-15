@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.XmlReader;
 import com.badlogic.gdx.utils.XmlReader.Element;
 import com.cubewars.backgrounds.Barrel;
 import com.cubewars.backgrounds.Box;
+import com.cubewars.backgrounds.Cell;
 import com.cubewars.backgrounds.Destructible;
 import com.cubewars.backgrounds.Environment;
 import com.cubewars.characters.CharacterNull;
@@ -39,6 +40,7 @@ public class MapController
 	private GameObject[][] characters;
 	private GameObject[][] objects;
 	private Environment[][] terrain;
+	private Cell[][] cells;
 	private double[][] blockages;
 	private AudioController audio = new AudioController();
 
@@ -103,6 +105,7 @@ public class MapController
 				terrain = new Environment[width][height];
 				objects = new GameObject[width][height];
 				blockages = new double[width][height];
+				cells = new Cell[width][height];
 
 				/* Create empty character grid without any obstacles by default. */
 				for (int i = 0; i < width; ++i)
@@ -229,6 +232,13 @@ public class MapController
 				}
 				
 				
+				/*Add Cells*/
+				for(int i=0; i<width;i++){
+					for(int j=0; j<height;j++){
+						Cell c = new Cell(3, new Coordinates(i,j));
+						cells[i][j]=c;
+					}
+				}
 				
 				Box box= new Box(new Coordinates(4,4));
 				this.objects[4][4]=box;
@@ -381,6 +391,16 @@ public class MapController
 
 		objs.removeAll (Collections.singleton (null));
 		return objs;
+	}
+	
+	public ArrayList<Cell> getCells ()
+	{
+		ArrayList<Cell> array = new ArrayList<Cell> ();
+		for (int i = 0; i != height; ++i)
+			array.addAll (Arrays.asList (cells[i]));
+
+		array.removeAll (Collections.singleton (null));
+		return array;
 	}
 
 	public int height ()

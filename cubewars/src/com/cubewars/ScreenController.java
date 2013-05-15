@@ -14,7 +14,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
+import com.cubewars.backgrounds.AttackCell;
+import com.cubewars.backgrounds.Cell;
 import com.cubewars.backgrounds.Environment;
+import com.cubewars.backgrounds.MoveCell;
 
 /**
  * A controller used to draw objects into the screen.
@@ -87,6 +90,8 @@ public class ScreenController implements Screen
 		Gdx.gl.glClear (GL10.GL_COLOR_BUFFER_BIT);
 
 		camera.update ();
+		batch.setProjectionMatrix(camera.combined);
+
 		controller.tick ();
 
 		/* Draw terrain. */
@@ -103,34 +108,46 @@ public class ScreenController implements Screen
 		}
 
 		/* Enable alpha. */
-		Gdx.gl.glEnable (GL10.GL_BLEND);
-		Gdx.gl.glBlendFunc (GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		//Gdx.gl.glEnable (GL10.GL_BLEND);
+		//Gdx.gl.glBlendFunc (GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 
 		/* Draw highlighted cells. */
 		Set<Coordinates> coordinatesSet = controller.getAttackHighlightArea ();
 
 		if (coordinatesSet != null && coordinatesSet.size () != 0)
 		{
-			highlightedCells.begin (ShapeType.FilledRectangle);
-			highlightedCells.setColor (this.attackHighlightColor);
+			//highlightedCells.begin (ShapeType.FilledRectangle);
+			//highlightedCells.setColor (this.attackHighlightColor);
 
-			for (Coordinates c : coordinatesSet)
-				highlightedCells.filledRect (c.toPixel ().x, c.toPixel ().y, 128 - 1, 80 - 1);
+			batch.begin();
+			
+			for (Coordinates c : coordinatesSet){
+				AttackCell ac = new AttackCell(3,c);
+				batch.draw(ac.getTexture(), ac.area.x, ac.area.y, ac.area.width, ac.area.height);
+			}
+				
+				//highlightedCells.filledRect (c.toPixel ().x, c.toPixel ().y, 128 - 1, 80 - 1);
 
-			highlightedCells.end ();
+			batch.end();
+			//highlightedCells.end ();
 		}
 
 		coordinatesSet = controller.getMoveHighlightArea ();
 
 		if (coordinatesSet != null && coordinatesSet.size () != 0)
 		{
-			highlightedCells.begin (ShapeType.FilledRectangle);
-			highlightedCells.setColor (this.moveHighlightColor);
+			batch.begin();
+			//highlightedCells.begin (ShapeType.FilledRectangle);
+			//highlightedCells.setColor (this.moveHighlightColor);
 
-			for (Coordinates c : coordinatesSet)
-				highlightedCells.filledRect (c.toPixel ().x, c.toPixel ().y, 127, 79);
+			for (Coordinates c : coordinatesSet){
+				MoveCell mc = new MoveCell(3,c);
+				batch.draw(mc.getTexture(), mc.area.x, mc.area.y, mc.area.width, mc.area.height);
+			}
+				//highlightedCells.filledRect (c.toPixel ().x, c.toPixel ().y, 127, 79);
 
-			highlightedCells.end ();
+			batch.end();
+			//highlightedCells.end ();
 		}
 
 		Gdx.gl.glDisable (GL10.GL_BLEND);
@@ -174,20 +191,34 @@ public class ScreenController implements Screen
 
 			batch.end ();
 		}
+		
+		/* Draw Cell bars */
+		if (controller.getCellContainer () != null)
+		{
+			batch.begin ();
+
+			for (Cell g : controller.getCellContainer ())
+			{
+				batch.draw (g.getTexture (), g.area.x + 1, g.area.y + 1, g.area.width, g.area.height);
+			}
+
+			batch.end ();
+		}
+		
 
 		/* Draw grid lines. */
-		gridLines.begin (ShapeType.Line);
+		//gridLines.begin (ShapeType.Line);
 
 		/* Horizontal lines: one line for each 80 pixels. */
-		gridLines.setColor (0, 0, 0, 1);
-		for (int i = 0; i < camera.viewportHeight / 80; ++i)
-			gridLines.line (0, i * 80, 1280, i * 80);
+		//gridLines.setColor (0, 0, 0, 1);
+		//for (int i = 0; i < camera.viewportHeight / 80; ++i)
+			//gridLines.line (0, i * 80, 1280, i * 80);
 
 		/* Vertical lines: one line for each 128 pixels. */
-		for (int i = 0; i < camera.viewportWidth / 128; ++i)
-			gridLines.line (i * 128, 0, i * 128, 800);
+		//for (int i = 0; i < camera.viewportWidth / 128; ++i)
+			//gridLines.line (i * 128, 0, i * 128, 800);
 
-		gridLines.end ();
+		//gridLines.end ();
 
 		elapsedTime += delta;
 		interval += delta;
