@@ -219,6 +219,7 @@ public class ScreenController implements Screen
 			//gridLines.line (i * 128, 0, i * 128, 800);
 
 		//gridLines.end ();
+		
 
 		elapsedTime += delta;
 		interval += delta;
